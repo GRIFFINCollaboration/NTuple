@@ -1,0 +1,463 @@
+BufferSize:				1024000
+WriteTree:				FALSE
+Write2DHist:				FALSE
+
+WriteGriffinAddbackVector                 FALSE
+GriffinAddbackVectorLengthmm              105.0
+GriffinAddbackVectorDepthmm               45.0
+GriffinAddbackVectorCrystalFaceDistancemm 110.0
+
+Histogram.2D.Griffin.NofBins:		150
+Histogram.2D.Griffin.RangeLow.keV:	0.
+Histogram.2D.Griffin.RangeHigh.keV:	1500.
+
+Griffin.0.0.Resolution.Offset:		1.100
+Griffin.0.0.Resolution.Linear:		0.00183744
+Griffin.0.0.Resolution.Quadratic:	0.0000007
+Griffin.0.0.Resolution.Cubic:		0.
+Griffin.0.0.Threshold.keV:		0.00
+Griffin.0.0.ThresholdWidth.keV:		0.00
+
+Griffin.0.1.Resolution.Offset:		1.100
+Griffin.0.1.Resolution.Linear:		0.00183744
+Griffin.0.1.Resolution.Quadratic:	0.0000007
+Griffin.0.1.Resolution.Cubic:		0.
+Griffin.0.1.Threshold.keV:		0.00
+Griffin.0.1.ThresholdWidth.keV:		0.00
+
+Griffin.0.2.Resolution.Offset:		1.100
+Griffin.0.2.Resolution.Linear:		0.00183744
+Griffin.0.2.Resolution.Quadratic:	0.0000007
+Griffin.0.2.Resolution.Cubic:		0.
+Griffin.0.2.Threshold.keV:		0.00
+Griffin.0.2.ThresholdWidth.keV:		0.00
+
+Griffin.0.3.Resolution.Offset:		1.100
+Griffin.0.3.Resolution.Linear:		0.00183744
+Griffin.0.3.Resolution.Quadratic:	0.0000007
+Griffin.0.3.Resolution.Cubic:		0.
+Griffin.0.3.Threshold.keV:		0.00
+Griffin.0.3.ThresholdWidth.keV:		0.00
+
+Griffin.1.0.Resolution.Offset:		1.100
+Griffin.1.0.Resolution.Linear:		0.00183744
+Griffin.1.0.Resolution.Quadratic:	0.0000007
+Griffin.1.0.Resolution.Cubic:		0.
+Griffin.1.0.Threshold.keV:		0.00
+Griffin.1.0.ThresholdWidth.keV:		0.00
+
+Griffin.1.1.Resolution.Offset:		1.100
+Griffin.1.1.Resolution.Linear:		0.00183744
+Griffin.1.1.Resolution.Quadratic:	0.0000007
+Griffin.1.1.Resolution.Cubic:		0.
+Griffin.1.1.Threshold.keV:		0.00
+Griffin.1.1.ThresholdWidth.keV:		0.00
+
+Griffin.1.2.Resolution.Offset:		1.100
+Griffin.1.2.Resolution.Linear:		0.00183744
+Griffin.1.2.Resolution.Quadratic:	0.0000007
+Griffin.1.2.Resolution.Cubic:		0.
+Griffin.1.2.Threshold.keV:		0.00
+Griffin.1.2.ThresholdWidth.keV:		0.00
+
+Griffin.1.3.Resolution.Offset:		1.100
+Griffin.1.3.Resolution.Linear:		0.00183744
+Griffin.1.3.Resolution.Quadratic:	0.0000007
+Griffin.1.3.Resolution.Cubic:		0.
+Griffin.1.3.Threshold.keV:		0.00
+Griffin.1.3.ThresholdWidth.keV:		0.00
+
+Griffin.2.0.Resolution.Offset:		1.100
+Griffin.2.0.Resolution.Linear:		0.00183744
+Griffin.2.0.Resolution.Quadratic:	0.0000007
+Griffin.2.0.Resolution.Cubic:		0.
+Griffin.2.0.Threshold.keV:		0.00
+Griffin.2.0.ThresholdWidth.keV:		0.00
+
+Griffin.2.1.Resolution.Offset:		1.100
+Griffin.2.1.Resolution.Linear:		0.00183744
+Griffin.2.1.Resolution.Quadratic:	0.0000007
+Griffin.2.1.Resolution.Cubic:		0.
+Griffin.2.1.Threshold.keV:		0.00
+Griffin.2.1.ThresholdWidth.keV:		0.00
+
+Griffin.2.2.Resolution.Offset:		1.100
+Griffin.2.2.Resolution.Linear:		0.00183744
+Griffin.2.2.Resolution.Quadratic:	0.0000007
+Griffin.2.2.Resolution.Cubic:		0.
+Griffin.2.2.Threshold.keV:		0.00
+Griffin.2.2.ThresholdWidth.keV:		0.00
+
+Griffin.2.3.Resolution.Offset:		1.100
+Griffin.2.3.Resolution.Linear:		0.00183744
+Griffin.2.3.Resolution.Quadratic:	0.0000007
+Griffin.2.3.Resolution.Cubic:		0.
+Griffin.2.3.Threshold.keV:		0.00
+Griffin.2.3.ThresholdWidth.keV:		0.00
+
+Griffin.3.0.Resolution.Offset:		1.100
+Griffin.3.0.Resolution.Linear:		0.00183744
+Griffin.3.0.Resolution.Quadratic:	0.0000007
+Griffin.3.0.Resolution.Cubic:		0.
+Griffin.3.0.Threshold.keV:		0.00
+Griffin.3.0.ThresholdWidth.keV:		0.00
+
+Griffin.3.1.Resolution.Offset:		1.100
+Griffin.3.1.Resolution.Linear:		0.00183744
+Griffin.3.1.Resolution.Quadratic:	0.0000007
+Griffin.3.1.Resolution.Cubic:		0.
+Griffin.3.1.Threshold.keV:		0.00
+Griffin.3.1.ThresholdWidth.keV:		0.00
+
+Griffin.3.2.Resolution.Offset:		1.100
+Griffin.3.2.Resolution.Linear:		0.00183744
+Griffin.3.2.Resolution.Quadratic:	0.0000007
+Griffin.3.2.Resolution.Cubic:		0.
+Griffin.3.2.Threshold.keV:		0.00
+Griffin.3.2.ThresholdWidth.keV:		0.00
+
+Griffin.3.3.Resolution.Offset:		1.100
+Griffin.3.3.Resolution.Linear:		0.00183744
+Griffin.3.3.Resolution.Quadratic:	0.0000007
+Griffin.3.3.Resolution.Cubic:		0.
+Griffin.3.3.Threshold.keV:		0.00
+Griffin.3.3.ThresholdWidth.keV:		0.00
+
+Griffin.4.0.Resolution.Offset:		1.100
+Griffin.4.0.Resolution.Linear:		0.00183744
+Griffin.4.0.Resolution.Quadratic:	0.0000007
+Griffin.4.0.Resolution.Cubic:		0.
+Griffin.4.0.Threshold.keV:		0.00
+Griffin.4.0.ThresholdWidth.keV:		0.00
+
+Griffin.4.1.Resolution.Offset:		1.100
+Griffin.4.1.Resolution.Linear:		0.00183744
+Griffin.4.1.Resolution.Quadratic:	0.0000007
+Griffin.4.1.Resolution.Cubic:		0.
+Griffin.4.1.Threshold.keV:		0.00
+Griffin.4.1.ThresholdWidth.keV:		0.00
+
+Griffin.4.2.Resolution.Offset:		1.100
+Griffin.4.2.Resolution.Linear:		0.00183744
+Griffin.4.2.Resolution.Quadratic:	0.0000007
+Griffin.4.2.Resolution.Cubic:		0.
+Griffin.4.2.Threshold.keV:		0.00
+Griffin.4.2.ThresholdWidth.keV:		0.00
+
+Griffin.4.3.Resolution.Offset:		1.100
+Griffin.4.3.Resolution.Linear:		0.00183744
+Griffin.4.3.Resolution.Quadratic:	0.0000007
+Griffin.4.3.Resolution.Cubic:		0.
+Griffin.4.3.Threshold.keV:		0.00
+Griffin.4.3.ThresholdWidth.keV:		0.00
+
+Griffin.5.0.Resolution.Offset:		1.100
+Griffin.5.0.Resolution.Linear:		0.00183744
+Griffin.5.0.Resolution.Quadratic:	0.0000007
+Griffin.5.0.Resolution.Cubic:		0.
+Griffin.5.0.Threshold.keV:		0.00
+Griffin.5.0.ThresholdWidth.keV:		0.00
+
+Griffin.5.1.Resolution.Offset:		1.100
+Griffin.5.1.Resolution.Linear:		0.00183744
+Griffin.5.1.Resolution.Quadratic:	0.0000007
+Griffin.5.1.Resolution.Cubic:		0.
+Griffin.5.1.Threshold.keV:		0.00
+Griffin.5.1.ThresholdWidth.keV:		0.00
+
+Griffin.5.2.Resolution.Offset:		1.100
+Griffin.5.2.Resolution.Linear:		0.00183744
+Griffin.5.2.Resolution.Quadratic:	0.0000007
+Griffin.5.2.Resolution.Cubic:		0.
+Griffin.5.2.Threshold.keV:		0.00
+Griffin.5.2.ThresholdWidth.keV:		0.00
+
+Griffin.5.3.Resolution.Offset:		1.100
+Griffin.5.3.Resolution.Linear:		0.00183744
+Griffin.5.3.Resolution.Quadratic:	0.0000007
+Griffin.5.3.Resolution.Cubic:		0.
+Griffin.5.3.Threshold.keV:		0.00
+Griffin.5.3.ThresholdWidth.keV:		0.00
+
+Griffin.6.0.Resolution.Offset:		1.100
+Griffin.6.0.Resolution.Linear:		0.00183744
+Griffin.6.0.Resolution.Quadratic:	0.0000007
+Griffin.6.0.Resolution.Cubic:		0.
+Griffin.6.0.Threshold.keV:		0.00
+Griffin.6.0.ThresholdWidth.keV:		0.00
+
+Griffin.6.1.Resolution.Offset:		1.100
+Griffin.6.1.Resolution.Linear:		0.00183744
+Griffin.6.1.Resolution.Quadratic:	0.0000007
+Griffin.6.1.Resolution.Cubic:		0.
+Griffin.6.1.Threshold.keV:		0.00
+Griffin.6.1.ThresholdWidth.keV:		0.00
+
+Griffin.6.2.Resolution.Offset:		1.100
+Griffin.6.2.Resolution.Linear:		0.00183744
+Griffin.6.2.Resolution.Quadratic:	0.0000007
+Griffin.6.2.Resolution.Cubic:		0.
+Griffin.6.2.Threshold.keV:		0.00
+Griffin.6.2.ThresholdWidth.keV:		0.00
+
+Griffin.6.3.Resolution.Offset:		1.100
+Griffin.6.3.Resolution.Linear:		0.00183744
+Griffin.6.3.Resolution.Quadratic:	0.0000007
+Griffin.6.3.Resolution.Cubic:		0.
+Griffin.6.3.Threshold.keV:		0.00
+Griffin.6.3.ThresholdWidth.keV:		0.00
+
+Griffin.6.0.Resolution.Offset:		1.100
+Griffin.6.0.Resolution.Linear:		0.00183744
+Griffin.6.0.Resolution.Quadratic:	0.0000007
+Griffin.6.0.Resolution.Cubic:		0.
+Griffin.6.0.Threshold.keV:		0.00
+Griffin.6.0.ThresholdWidth.keV:		0.00
+
+Griffin.7.1.Resolution.Offset:		1.100
+Griffin.7.1.Resolution.Linear:		0.00183744
+Griffin.7.1.Resolution.Quadratic:	0.0000007
+Griffin.7.1.Resolution.Cubic:		0.
+Griffin.7.1.Threshold.keV:		0.00
+Griffin.7.1.ThresholdWidth.keV:		0.00
+
+Griffin.7.2.Resolution.Offset:		1.100
+Griffin.7.2.Resolution.Linear:		0.00183744
+Griffin.7.2.Resolution.Quadratic:	0.0000007
+Griffin.7.2.Resolution.Cubic:		0.
+Griffin.7.2.Threshold.keV:		0.00
+Griffin.7.2.ThresholdWidth.keV:		0.00
+
+Griffin.7.3.Resolution.Offset:		1.100
+Griffin.7.3.Resolution.Linear:		0.00183744
+Griffin.7.3.Resolution.Quadratic:	0.0000007
+Griffin.7.3.Resolution.Cubic:		0.
+Griffin.7.3.Threshold.keV:		0.00
+Griffin.7.3.ThresholdWidth.keV:		0.00
+
+Griffin.8.0.Resolution.Offset:		1.100
+Griffin.8.0.Resolution.Linear:		0.00183744
+Griffin.8.0.Resolution.Quadratic:	0.0000007
+Griffin.8.0.Resolution.Cubic:		0.
+Griffin.8.0.Threshold.keV:		0.00
+Griffin.8.0.ThresholdWidth.keV:		0.00
+
+Griffin.8.1.Resolution.Offset:		1.100
+Griffin.8.1.Resolution.Linear:		0.00183744
+Griffin.8.1.Resolution.Quadratic:	0.0000007
+Griffin.8.1.Resolution.Cubic:		0.
+Griffin.8.1.Threshold.keV:		0.00
+Griffin.8.1.ThresholdWidth.keV:		0.00
+
+Griffin.8.2.Resolution.Offset:		1.100
+Griffin.8.2.Resolution.Linear:		0.00183744
+Griffin.8.2.Resolution.Quadratic:	0.0000007
+Griffin.8.2.Resolution.Cubic:		0.
+Griffin.8.2.Threshold.keV:		0.00
+Griffin.8.2.ThresholdWidth.keV:		0.00
+
+Griffin.8.3.Resolution.Offset:		1.100
+Griffin.8.3.Resolution.Linear:		0.00183744
+Griffin.8.3.Resolution.Quadratic:	0.0000007
+Griffin.8.3.Resolution.Cubic:		0.
+Griffin.8.3.Threshold.keV:		0.00
+Griffin.8.3.ThresholdWidth.keV:		0.00
+
+Griffin.9.0.Resolution.Offset:		1.100
+Griffin.9.0.Resolution.Linear:		0.00183744
+Griffin.9.0.Resolution.Quadratic:	0.0000007
+Griffin.9.0.Resolution.Cubic:		0.
+Griffin.9.0.Threshold.keV:		0.00
+Griffin.9.0.ThresholdWidth.keV:		0.00
+
+Griffin.9.1.Resolution.Offset:		1.100
+Griffin.9.1.Resolution.Linear:		0.00183744
+Griffin.9.1.Resolution.Quadratic:	0.0000007
+Griffin.9.1.Resolution.Cubic:		0.
+Griffin.9.1.Threshold.keV:		0.00
+Griffin.9.1.ThresholdWidth.keV:		0.00
+
+Griffin.9.2.Resolution.Offset:		1.100
+Griffin.9.2.Resolution.Linear:		0.00183744
+Griffin.9.2.Resolution.Quadratic:	0.0000007
+Griffin.9.2.Resolution.Cubic:		0.
+Griffin.9.2.Threshold.keV:		0.00
+Griffin.9.2.ThresholdWidth.keV:		0.00
+
+Griffin.9.3.Resolution.Offset:		1.100
+Griffin.9.3.Resolution.Linear:		0.00183744
+Griffin.9.3.Resolution.Quadratic:	0.0000007
+Griffin.9.3.Resolution.Cubic:		0.
+Griffin.9.3.Threshold.keV:		0.00
+Griffin.9.3.ThresholdWidth.keV:		0.00
+
+Griffin.10.0.Resolution.Offset:		1.100
+Griffin.10.0.Resolution.Linear:		0.00183744
+Griffin.10.0.Resolution.Quadratic:	0.0000007
+Griffin.10.0.Resolution.Cubic:		0.
+Griffin.10.0.Threshold.keV:		0.00
+Griffin.10.0.ThresholdWidth.keV:	0.00
+
+Griffin.10.1.Resolution.Offset:		1.100
+Griffin.10.1.Resolution.Linear:		0.00183744
+Griffin.10.1.Resolution.Quadratic:	0.0000007
+Griffin.10.1.Resolution.Cubic:		0.
+Griffin.10.1.Threshold.keV:		0.00
+Griffin.10.1.ThresholdWidth.keV:	0.00
+
+Griffin.10.2.Resolution.Offset:		1.100
+Griffin.10.2.Resolution.Linear:		0.00183744
+Griffin.10.2.Resolution.Quadratic:	0.0000007
+Griffin.10.2.Resolution.Cubic:		0.
+Griffin.10.2.Threshold.keV:		0.00
+Griffin.10.2.ThresholdWidth.keV:	0.00
+
+Griffin.10.3.Resolution.Offset:		1.100
+Griffin.10.3.Resolution.Linear:		0.00183744
+Griffin.10.3.Resolution.Quadratic:	0.0000007
+Griffin.10.3.Resolution.Cubic:		0.
+Griffin.10.3.Threshold.keV:		0.00
+Griffin.10.3.ThresholdWidth.keV:	0.00
+
+Griffin.11.0.Resolution.Offset:		1.100
+Griffin.11.0.Resolution.Linear:		0.00183744
+Griffin.11.0.Resolution.Quadratic:	0.0000007
+Griffin.11.0.Resolution.Cubic:		0.
+Griffin.11.0.Threshold.keV:		0.00
+Griffin.11.0.ThresholdWidth.keV:	0.00
+
+Griffin.11.1.Resolution.Offset:		1.100
+Griffin.11.1.Resolution.Linear:		0.00183744
+Griffin.11.1.Resolution.Quadratic:	0.0000007
+Griffin.11.1.Resolution.Cubic:		0.
+Griffin.11.1.Threshold.keV:		0.00
+Griffin.11.1.ThresholdWidth.keV:	0.00
+
+Griffin.11.2.Resolution.Offset:		1.100
+Griffin.11.2.Resolution.Linear:		0.00183744
+Griffin.11.2.Resolution.Quadratic:	0.0000007
+Griffin.11.2.Resolution.Cubic:		0.
+Griffin.11.2.Threshold.keV:		0.00
+Griffin.11.2.ThresholdWidth.keV:	0.00
+
+Griffin.11.3.Resolution.Offset:		1.100
+Griffin.11.3.Resolution.Linear:		0.00183744
+Griffin.11.3.Resolution.Quadratic:	0.0000007
+Griffin.11.3.Resolution.Cubic:		0.
+Griffin.11.3.Threshold.keV:		0.00
+Griffin.11.3.ThresholdWidth.keV:	0.00
+
+Griffin.12.0.Resolution.Offset:		1.100
+Griffin.12.0.Resolution.Linear:		0.00183744
+Griffin.12.0.Resolution.Quadratic:	0.0000007
+Griffin.12.0.Resolution.Cubic:		0.
+Griffin.12.0.Threshold.keV:		0.00
+Griffin.12.0.ThresholdWidth.keV:	0.00
+
+Griffin.12.1.Resolution.Offset:		1.100
+Griffin.12.1.Resolution.Linear:		0.00183744
+Griffin.12.1.Resolution.Quadratic:	0.0000007
+Griffin.12.1.Resolution.Cubic:		0.
+Griffin.12.1.Threshold.keV:		0.00
+Griffin.12.1.ThresholdWidth.keV:	0.00
+
+Griffin.12.2.Resolution.Offset:		1.100
+Griffin.12.2.Resolution.Linear:		0.00183744
+Griffin.12.2.Resolution.Quadratic:	0.0000007
+Griffin.12.2.Resolution.Cubic:		0.
+Griffin.12.2.Threshold.keV:		0.00
+Griffin.12.2.ThresholdWidth.keV:	0.00
+
+Griffin.12.3.Resolution.Offset:		1.100
+Griffin.12.3.Resolution.Linear:		0.00183744
+Griffin.12.3.Resolution.Quadratic:	0.0000007
+Griffin.12.3.Resolution.Cubic:		0.
+Griffin.12.3.Threshold.keV:		0.00
+Griffin.12.3.ThresholdWidth.keV:	0.00
+
+Griffin.13.0.Resolution.Offset:		1.100
+Griffin.13.0.Resolution.Linear:		0.00183744
+Griffin.13.0.Resolution.Quadratic:	0.0000007
+Griffin.13.0.Resolution.Cubic:		0.
+Griffin.13.0.Threshold.keV:		0.00
+Griffin.13.0.ThresholdWidth.keV:	0.00
+
+Griffin.13.1.Resolution.Offset:		1.100
+Griffin.13.1.Resolution.Linear:		0.00183744
+Griffin.13.1.Resolution.Quadratic:	0.0000007
+Griffin.13.1.Resolution.Cubic:		0.
+Griffin.13.1.Threshold.keV:		0.00
+Griffin.13.1.ThresholdWidth.keV:	0.00
+
+Griffin.13.2.Resolution.Offset:		1.100
+Griffin.13.2.Resolution.Linear:		0.00183744
+Griffin.13.2.Resolution.Quadratic:	0.0000007
+Griffin.13.2.Resolution.Cubic:		0.
+Griffin.13.2.Threshold.keV:		0.00
+Griffin.13.2.ThresholdWidth.keV:	0.00
+
+Griffin.13.3.Resolution.Offset:		1.100
+Griffin.13.3.Resolution.Linear:		0.00183744
+Griffin.13.3.Resolution.Quadratic:	0.0000007
+Griffin.13.3.Resolution.Cubic:		0.
+Griffin.13.3.Threshold.keV:		0.00
+Griffin.13.3.ThresholdWidth.keV:	0.00
+
+Griffin.14.0.Resolution.Offset:		1.100
+Griffin.14.0.Resolution.Linear:		0.00183744
+Griffin.14.0.Resolution.Quadratic:	0.0000007
+Griffin.14.0.Resolution.Cubic:		0.
+Griffin.14.0.Threshold.keV:		0.00
+Griffin.14.0.ThresholdWidth.keV:	0.00
+
+Griffin.14.1.Resolution.Offset:		1.100
+Griffin.14.1.Resolution.Linear:		0.00183744
+Griffin.14.1.Resolution.Quadratic:	0.0000007
+Griffin.14.1.Resolution.Cubic:		0.
+Griffin.14.1.Threshold.keV:		0.00
+Griffin.14.1.ThresholdWidth.keV:	0.00
+
+Griffin.14.2.Resolution.Offset:		1.100
+Griffin.14.2.Resolution.Linear:		0.00183744
+Griffin.14.2.Resolution.Quadratic:	0.0000007
+Griffin.14.2.Resolution.Cubic:		0.
+Griffin.14.2.Threshold.keV:		0.00
+Griffin.14.2.ThresholdWidth.keV:	0.00
+
+Griffin.14.3.Resolution.Offset:		1.100
+Griffin.14.3.Resolution.Linear:		0.00183744
+Griffin.14.3.Resolution.Quadratic:	0.0000007
+Griffin.14.3.Resolution.Cubic:		0.
+Griffin.14.3.Threshold.keV:		0.00
+Griffin.14.3.ThresholdWidth.keV:	0.00
+
+Griffin.15.0.Resolution.Offset:		1.100
+Griffin.15.0.Resolution.Linear:		0.00183744
+Griffin.15.0.Resolution.Quadratic:	0.0000007
+Griffin.15.0.Resolution.Cubic:		0.
+Griffin.15.0.Threshold.keV:		0.00
+Griffin.15.0.ThresholdWidth.keV:	0.00
+
+Griffin.15.1.Resolution.Offset:		1.100
+Griffin.15.1.Resolution.Linear:		0.00183744
+Griffin.15.1.Resolution.Quadratic:	0.0000007
+Griffin.15.1.Resolution.Cubic:		0.
+Griffin.15.1.Threshold.keV:		0.00
+Griffin.15.1.ThresholdWidth.keV:	0.00
+
+Griffin.15.2.Resolution.Offset:		1.100
+Griffin.15.2.Resolution.Linear:		0.00183744
+Griffin.15.2.Resolution.Quadratic:	0.0000007
+Griffin.15.2.Resolution.Cubic:		0.
+Griffin.15.2.Threshold.keV:		0.00
+Griffin.15.2.ThresholdWidth.keV:	0.00
+
+Griffin.15.3.Resolution.Offset:		1.100
+Griffin.15.3.Resolution.Linear:		0.00183744
+Griffin.15.3.Resolution.Quadratic:	0.0000007
+Griffin.15.3.Resolution.Cubic:		0.
+Griffin.15.3.Threshold.keV:		0.00
+Griffin.15.3.ThresholdWidth.keV:	0.00
+
+
+
