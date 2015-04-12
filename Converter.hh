@@ -43,6 +43,8 @@ private:
   void AddbackAncillaryBgo();
   // SCEPTAR
   void AddbackSceptar();
+  // DESCANT
+  void AddbackDescant();
 
   void PrintStatistics();
 
@@ -112,8 +114,6 @@ private:
   double fSmearedEnergy;
   bool   fSceptarHit;
 
-
-
   //branches of output tree
   // GRIFFIN
   std::vector<Detector>* fGriffinCrystal;
@@ -141,6 +141,14 @@ private:
   // Sceptar
   std::vector<Detector>* fSceptarArray;
   std::vector<Detector>* fSceptarDetector;
+
+  // Descant
+  std::vector<Detector>* fDescantArray;
+  std::vector<Detector>* fDescantBlueDetector;
+  std::vector<Detector>* fDescantGreenDetector;
+  std::vector<Detector>* fDescantRedDetector;
+  std::vector<Detector>* fDescantWhiteDetector;
+  std::vector<Detector>* fDescantYellowDetector;
 
   //histograms
   std::map<std::string,TList*> fHistograms;

@@ -617,6 +617,20 @@ Converter::Converter(std::vector<std::string>& inputFileNames, const std::string
   fSceptarDetector      = new std::vector<Detector>;
   fTree.Branch("SceptarArray",&fSceptarArray, fSettings->BufferSize());
   fTree.Branch("SceptarDetector",&fSceptarDetector, fSettings->BufferSize());
+
+  // DESCANT
+  fDescantArray            = new std::vector<Detector>;
+  fTree.Branch("DescantArray",&fDescantArray, fSettings->BufferSize());
+  fDescantBlueDetector = new std::vector<Detector>;
+  fDescantGreenDetector = new std::vector<Detector>;
+  fDescantRedDetector = new std::vector<Detector>;
+  fDescantWhiteDetector = new std::vector<Detector>;
+  fDescantYellowDetector = new std::vector<Detector>;
+  fTree.Branch("DescantBlueDetector",&fDescantBlueDetector, fSettings->BufferSize());
+  fTree.Branch("DescantGreenDetector",&fDescantGreenDetector, fSettings->BufferSize());
+  fTree.Branch("DescantRedDetector",&fDescantRedDetector, fSettings->BufferSize());
+  fTree.Branch("DescantWhiteDetector",&fDescantWhiteDetector, fSettings->BufferSize());
+  fTree.Branch("DescantYellowDetector",&fDescantYellowDetector, fSettings->BufferSize());
 }
 
 Converter::~Converter() {
@@ -1168,6 +1182,27 @@ bool Converter::Run() {
       FillHistDetector1DGamma(hist1D, fSceptarArray, "sceptar_crystal_unsup_edep_sum", "Sceptar1D");
       FillHistDetector1DGammaNR(hist1D, fSceptarArray, "sceptar_crystal_unsup_edep_sum_nr", "0RES_Sceptar1D");
 
+
+      // DESCANT
+      FillHistDetector1DGamma(hist1D, fDescantBlueDetector, "descant_blue_scin_unsup_edep", "Descant1D");
+      FillHistDetector1DGammaNR(hist1D, fDescantBlueDetector, "descant_blue_scin_unsup_edep_nr", "0RES_Descant1D");
+      FillHistDetector1DGamma(hist1D, fDescantGreenDetector, "descant_green_scin_unsup_edep", "Descant1D");
+      FillHistDetector1DGammaNR(hist1D, fDescantGreenDetector, "descant_green_scin_unsup_edep_nr", "0RES_Descant1D");
+      FillHistDetector1DGamma(hist1D, fDescantRedDetector, "descant_red_scin_unsup_edep", "Descant1D");
+      FillHistDetector1DGammaNR(hist1D, fDescantRedDetector, "descant_red_scin_unsup_edep_nr", "0RES_Descant1D");
+      FillHistDetector1DGamma(hist1D, fDescantWhiteDetector, "descant_white_scin_unsup_edep", "Descant1D");
+      FillHistDetector1DGammaNR(hist1D, fDescantWhiteDetector, "descant_white_scin_unsup_edep_nr", "0RES_Descant1D");
+      FillHistDetector1DGamma(hist1D, fDescantYellowDetector, "descant_yellow_scin_unsup_edep", "Descant1D");
+      FillHistDetector1DGammaNR(hist1D, fDescantYellowDetector, "descant_yellow_scin_unsup_edep_nr", "0RES_Descant1D");
+
+      AddbackDescant();
+
+      FillHistDetector1DGamma(hist1D, fDescantArray, "descant_scin_unsup_edep_sum", "Descant1D");
+      FillHistDetector1DGammaNR(hist1D, fDescantArray, "descant_scin_unsup_edep_sum_nr", "0RES_Descant1D");
+
+
+
+
       fGriffinCrystal->clear();
       fGriffinDetector->clear();
       fGriffinNeighbour->clear();
@@ -1189,6 +1224,13 @@ bool Converter::Run() {
 
       fSceptarDetector->clear();
       fSceptarArray->clear();
+
+      fDescantArray->clear();
+      fDescantBlueDetector->clear();
+      fDescantGreenDetector->clear();
+      fDescantRedDetector->clear();
+      fDescantWhiteDetector->clear();
+      fDescantYellowDetector->clear();
 
       eventNumber = fEventNumber;
       belowThreshold.clear();
@@ -1239,6 +1281,21 @@ bool Converter::Run() {
           case 6020:
           case 6030:
             fEightPiBgoDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+            break;
+          case 8010:
+            fDescantBlueDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+            break;
+          case 8020:
+            fDescantGreenDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+            break;
+          case 8030:
+            fDescantRedDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+            break;
+          case 8040:
+            fDescantWhiteDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+            break;
+          case 8050:
+            fDescantYellowDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
             break;
           default:
             std::cerr<<"Unknown detector system ID "<<fSystemID<<std::endl;
@@ -1576,6 +1633,44 @@ void Converter::AddbackSceptar() {
       fSceptarArray->push_back(*detector);
     } else {
       fSceptarArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
+    }
+  }
+}
+
+void Converter::AddbackDescant() {
+  for(auto detector = fDescantBlueDetector->begin(); detector != fDescantBlueDetector->end(); ++detector) {
+    if(fDescantArray->size() == 0) {
+      fDescantArray->push_back(*detector);
+    } else {
+      fDescantArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
+    }
+  }
+  for(auto detector = fDescantGreenDetector->begin(); detector != fDescantGreenDetector->end(); ++detector) {
+    if(fDescantArray->size() == 0) {
+      fDescantArray->push_back(*detector);
+    } else {
+      fDescantArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
+    }
+  }
+  for(auto detector = fDescantRedDetector->begin(); detector != fDescantRedDetector->end(); ++detector) {
+    if(fDescantArray->size() == 0) {
+      fDescantArray->push_back(*detector);
+    } else {
+      fDescantArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
+    }
+  }
+  for(auto detector = fDescantWhiteDetector->begin(); detector != fDescantWhiteDetector->end(); ++detector) {
+    if(fDescantArray->size() == 0) {
+      fDescantArray->push_back(*detector);
+    } else {
+      fDescantArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
+    }
+  }
+  for(auto detector = fDescantYellowDetector->begin(); detector != fDescantYellowDetector->end(); ++detector) {
+    if(fDescantArray->size() == 0) {
+      fDescantArray->push_back(*detector);
+    } else {
+      fDescantArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
     }
   }
 }
