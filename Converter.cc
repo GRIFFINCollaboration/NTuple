@@ -8,1380 +8,1378 @@
 #include "Utilities.hh"
 
 Converter::Converter(std::vector<std::string>& inputFileNames, const std::string& outputFileName, Settings* settings)
-  : fSettings(settings) {
-  //create TChain to read in all input files
-  for(auto fileName = inputFileNames.begin(); fileName != inputFileNames.end(); ++fileName) {
-    if(!FileExists(*fileName)) {
-      std::cerr<<"Failed to find file '"<<*fileName<<"', skipping it!"<<std::endl;
-      continue;
+    : fSettings(settings) {
+    //create TChain to read in all input files
+    for(auto fileName = inputFileNames.begin(); fileName != inputFileNames.end(); ++fileName) {
+        if(!FileExists(*fileName)) {
+            std::cerr<<"Failed to find file '"<<*fileName<<"', skipping it!"<<std::endl;
+            continue;
+        }
+        //add sub-directory and tree name to file name
+        fileName->append("/ntuple/ntuple");
+        fChain.Add(fileName->c_str());
     }
-    //add sub-directory and tree name to file name
-    fileName->append("/ntuple/ntuple");
-    fChain.Add(fileName->c_str());
-  }
 
-  //----------------------------------------------------------------------------------------------------
-  // This stuff should make its way to the Settings file. No need to hardcode this, I'm just being lazy.
-  // The follwoing assumes detector 1 is placed is position 1, and detector 2 is placed in position 2, etc.
-  // But that need not be the case!
+    //----------------------------------------------------------------------------------------------------
+    // The follwoing assumes detector 1 is placed is position 1, and detector 2 is placed in position 2, etc.
+    // But that need not be the case!
 
-  // Set LaBr3 Griffin Neighbours
+    // Set LaBr3 Griffin Neighbours
 
-  // LaBr3 detector 1 (0 index) has three neighbouring Griffin detectors
-  // Griffin detectors 0.0000, 3, and 4. The "crystal" numbers for the side and extension suppressors for
-  // those three detectors are 2, 1, and 4, respectively.
-  LaBrGriffinNeighbours_det[0][0] = 0;
-  LaBrGriffinNeighbours_det[0][1] = 3;
-  LaBrGriffinNeighbours_det[0][2] = 4;
-  LaBrGriffinNeighbours_cry[0][0] = 2;
-  LaBrGriffinNeighbours_cry[0][1] = 0;
-  LaBrGriffinNeighbours_cry[0][2] = 3;
-  // next LaBr3 detector...
-  LaBrGriffinNeighbours_det[1][0] = 0;
-  LaBrGriffinNeighbours_det[1][1] = 1;
-  LaBrGriffinNeighbours_det[1][2] = 2;
-  LaBrGriffinNeighbours_cry[1][0] = 0;
-  LaBrGriffinNeighbours_cry[1][1] = 2;
-  LaBrGriffinNeighbours_cry[1][2] = 3;
-  LaBrGriffinNeighbours_det[2][0] = 1;
-  LaBrGriffinNeighbours_det[2][1] = 2;
-  LaBrGriffinNeighbours_det[2][2] = 8;
-  LaBrGriffinNeighbours_cry[2][0] = 0;
-  LaBrGriffinNeighbours_cry[2][1] = 2;
-  LaBrGriffinNeighbours_cry[2][2] = 3;
-  LaBrGriffinNeighbours_det[3][0] = 2;
-  LaBrGriffinNeighbours_det[3][1] = 3;
-  LaBrGriffinNeighbours_det[3][2] = 10;
-  LaBrGriffinNeighbours_cry[3][0] = 0;
-  LaBrGriffinNeighbours_cry[3][1] = 2;
-  LaBrGriffinNeighbours_cry[3][2] = 3;
-  LaBrGriffinNeighbours_det[4][0] = 4;
-  LaBrGriffinNeighbours_det[4][1] = 12;
-  LaBrGriffinNeighbours_det[4][2] = 15;
-  LaBrGriffinNeighbours_cry[4][0] = 1;
-  LaBrGriffinNeighbours_cry[4][1] = 2;
-  LaBrGriffinNeighbours_cry[4][2] = 0;
-  LaBrGriffinNeighbours_det[5][0] = 6;
-  LaBrGriffinNeighbours_det[5][1] = 12;
-  LaBrGriffinNeighbours_det[5][2] = 13;
-  LaBrGriffinNeighbours_cry[5][0] = 1;
-  LaBrGriffinNeighbours_cry[5][1] = 0;
-  LaBrGriffinNeighbours_cry[5][2] = 2;
-  LaBrGriffinNeighbours_det[6][0] = 8;
-  LaBrGriffinNeighbours_det[6][1] = 13;
-  LaBrGriffinNeighbours_det[6][2] = 14;
-  LaBrGriffinNeighbours_cry[6][0] = 1;
-  LaBrGriffinNeighbours_cry[6][1] = 0;
-  LaBrGriffinNeighbours_cry[6][2] = 2;
-  LaBrGriffinNeighbours_det[7][0] = 10;
-  LaBrGriffinNeighbours_det[7][1] = 14;
-  LaBrGriffinNeighbours_det[7][2] = 15;
-  LaBrGriffinNeighbours_cry[7][0] = 1;
-  LaBrGriffinNeighbours_cry[7][1] = 0;
-  LaBrGriffinNeighbours_cry[7][2] = 2;
+    // LaBr3 detector 0 has three neighbouring Griffin detectors
+    // Griffin detectors 0, 3, and 4. The "crystal" numbers for the side and extension suppressors for
+    // those three detectors are 2, 1, and 4, respectively.
+    LaBrGriffinNeighbours_det[0][0] = 0;
+    LaBrGriffinNeighbours_det[0][1] = 3;
+    LaBrGriffinNeighbours_det[0][2] = 4;
+    LaBrGriffinNeighbours_cry[0][0] = 2;
+    LaBrGriffinNeighbours_cry[0][1] = 0;
+    LaBrGriffinNeighbours_cry[0][2] = 3;
+    // next LaBr3 detector...
+    LaBrGriffinNeighbours_det[1][0] = 0;
+    LaBrGriffinNeighbours_det[1][1] = 1;
+    LaBrGriffinNeighbours_det[1][2] = 2;
+    LaBrGriffinNeighbours_cry[1][0] = 0;
+    LaBrGriffinNeighbours_cry[1][1] = 2;
+    LaBrGriffinNeighbours_cry[1][2] = 3;
+    LaBrGriffinNeighbours_det[2][0] = 1;
+    LaBrGriffinNeighbours_det[2][1] = 2;
+    LaBrGriffinNeighbours_det[2][2] = 8;
+    LaBrGriffinNeighbours_cry[2][0] = 0;
+    LaBrGriffinNeighbours_cry[2][1] = 2;
+    LaBrGriffinNeighbours_cry[2][2] = 3;
+    LaBrGriffinNeighbours_det[3][0] = 2;
+    LaBrGriffinNeighbours_det[3][1] = 3;
+    LaBrGriffinNeighbours_det[3][2] = 10;
+    LaBrGriffinNeighbours_cry[3][0] = 0;
+    LaBrGriffinNeighbours_cry[3][1] = 2;
+    LaBrGriffinNeighbours_cry[3][2] = 3;
+    LaBrGriffinNeighbours_det[4][0] = 4;
+    LaBrGriffinNeighbours_det[4][1] = 12;
+    LaBrGriffinNeighbours_det[4][2] = 15;
+    LaBrGriffinNeighbours_cry[4][0] = 1;
+    LaBrGriffinNeighbours_cry[4][1] = 2;
+    LaBrGriffinNeighbours_cry[4][2] = 0;
+    LaBrGriffinNeighbours_det[5][0] = 6;
+    LaBrGriffinNeighbours_det[5][1] = 12;
+    LaBrGriffinNeighbours_det[5][2] = 13;
+    LaBrGriffinNeighbours_cry[5][0] = 1;
+    LaBrGriffinNeighbours_cry[5][1] = 0;
+    LaBrGriffinNeighbours_cry[5][2] = 2;
+    LaBrGriffinNeighbours_det[6][0] = 8;
+    LaBrGriffinNeighbours_det[6][1] = 13;
+    LaBrGriffinNeighbours_det[6][2] = 14;
+    LaBrGriffinNeighbours_cry[6][0] = 1;
+    LaBrGriffinNeighbours_cry[6][1] = 0;
+    LaBrGriffinNeighbours_cry[6][2] = 2;
+    LaBrGriffinNeighbours_det[7][0] = 10;
+    LaBrGriffinNeighbours_det[7][1] = 14;
+    LaBrGriffinNeighbours_det[7][2] = 15;
+    LaBrGriffinNeighbours_cry[7][0] = 1;
+    LaBrGriffinNeighbours_cry[7][1] = 0;
+    LaBrGriffinNeighbours_cry[7][2] = 2;
 
-  // GRIFFIN detector 1 (0 index) has two neighbouring ancillary BGO detectors
-  // ancillary BGO detectors 0 and 1. The "crystal" or "segmentation" numbers for those BGOs are 1 and 2 respectively
-  GriffinAncillaryBgoNeighbours_det[0][0] = 0;
-  GriffinAncillaryBgoNeighbours_det[0][1] = 1;
-  GriffinAncillaryBgoNeighbours_cry[0][0] = 1;
-  GriffinAncillaryBgoNeighbours_cry[0][1] = 2;
-  // Next GRIFFIN detector
-  GriffinAncillaryBgoNeighbours_det[1][0] = 1;
-  GriffinAncillaryBgoNeighbours_det[1][1] = 2;
-  GriffinAncillaryBgoNeighbours_cry[1][0] = 1;
-  GriffinAncillaryBgoNeighbours_cry[1][1] = 2;
-  GriffinAncillaryBgoNeighbours_det[2][0] = 2;
-  GriffinAncillaryBgoNeighbours_det[2][1] = 3;
-  GriffinAncillaryBgoNeighbours_cry[2][0] = 1;
-  GriffinAncillaryBgoNeighbours_cry[2][1] = 2;
-  GriffinAncillaryBgoNeighbours_det[3][0] = 3;
-  GriffinAncillaryBgoNeighbours_det[3][1] = 0;
-  GriffinAncillaryBgoNeighbours_cry[3][0] = 1;
-  GriffinAncillaryBgoNeighbours_cry[3][1] = 2;
-  GriffinAncillaryBgoNeighbours_det[4][0] = 0;
-  GriffinAncillaryBgoNeighbours_det[4][1] = 4;
-  GriffinAncillaryBgoNeighbours_cry[4][0] = 1;
-  GriffinAncillaryBgoNeighbours_cry[4][1] = 2;
-  GriffinAncillaryBgoNeighbours_det[5][0] = 9999; // no ancillary bgo neighbours
-  GriffinAncillaryBgoNeighbours_det[5][1] = 9999;
-  GriffinAncillaryBgoNeighbours_cry[5][0] = 9999;
-  GriffinAncillaryBgoNeighbours_cry[5][1] = 9999;
-  GriffinAncillaryBgoNeighbours_det[6][0] = 1;
-  GriffinAncillaryBgoNeighbours_det[6][1] = 5;
-  GriffinAncillaryBgoNeighbours_cry[6][0] = 0;
-  GriffinAncillaryBgoNeighbours_cry[6][1] = 0;
-  GriffinAncillaryBgoNeighbours_det[7][0] = 9999;
-  GriffinAncillaryBgoNeighbours_det[7][1] = 9999;
-  GriffinAncillaryBgoNeighbours_cry[7][0] = 9999;
-  GriffinAncillaryBgoNeighbours_cry[7][1] = 9999;
-  GriffinAncillaryBgoNeighbours_det[8][0] = 2;
-  GriffinAncillaryBgoNeighbours_det[8][1] = 6;
-  GriffinAncillaryBgoNeighbours_cry[8][0] = 0;
-  GriffinAncillaryBgoNeighbours_cry[8][1] = 0;
-  GriffinAncillaryBgoNeighbours_det[9][0] = 9999;
-  GriffinAncillaryBgoNeighbours_det[9][1] = 9999;
-  GriffinAncillaryBgoNeighbours_cry[9][0] = 9999;
-  GriffinAncillaryBgoNeighbours_cry[9][1] = 9999;
-  GriffinAncillaryBgoNeighbours_det[10][0] = 3;
-  GriffinAncillaryBgoNeighbours_det[10][1] = 7;
-  GriffinAncillaryBgoNeighbours_cry[10][0] = 0;
-  GriffinAncillaryBgoNeighbours_cry[10][1] = 0;
-  GriffinAncillaryBgoNeighbours_det[11][0] = 9999;
-  GriffinAncillaryBgoNeighbours_det[11][1] = 9999;
-  GriffinAncillaryBgoNeighbours_cry[11][0] = 9999;
-  GriffinAncillaryBgoNeighbours_cry[11][1] = 9999;
-  GriffinAncillaryBgoNeighbours_det[12][0] = 4;
-  GriffinAncillaryBgoNeighbours_det[12][1] = 5;
-  GriffinAncillaryBgoNeighbours_cry[12][0] = 2;
-  GriffinAncillaryBgoNeighbours_cry[12][1] = 1;
-  GriffinAncillaryBgoNeighbours_det[13][0] = 5;
-  GriffinAncillaryBgoNeighbours_det[13][1] = 6;
-  GriffinAncillaryBgoNeighbours_cry[13][0] = 2;
-  GriffinAncillaryBgoNeighbours_cry[13][1] = 1;
-  GriffinAncillaryBgoNeighbours_det[14][0] = 6;
-  GriffinAncillaryBgoNeighbours_det[14][1] = 7;
-  GriffinAncillaryBgoNeighbours_cry[14][0] = 2;
-  GriffinAncillaryBgoNeighbours_cry[14][1] = 1;
-  GriffinAncillaryBgoNeighbours_det[15][0] = 7;
-  GriffinAncillaryBgoNeighbours_det[15][1] = 4;
-  GriffinAncillaryBgoNeighbours_cry[15][0] = 2;
-  GriffinAncillaryBgoNeighbours_cry[15][1] = 1;
+    // GRIFFIN detector 1 (0 index) has two neighbouring ancillary BGO detectors
+    // ancillary BGO detectors 0 and 1. The "crystal" or "segmentation" numbers for those BGOs are 1 and 2 respectively
+    GriffinAncillaryBgoNeighbours_det[0][0] = 0;
+    GriffinAncillaryBgoNeighbours_det[0][1] = 1;
+    GriffinAncillaryBgoNeighbours_cry[0][0] = 1;
+    GriffinAncillaryBgoNeighbours_cry[0][1] = 2;
+    // Next GRIFFIN detector
+    GriffinAncillaryBgoNeighbours_det[1][0] = 1;
+    GriffinAncillaryBgoNeighbours_det[1][1] = 2;
+    GriffinAncillaryBgoNeighbours_cry[1][0] = 1;
+    GriffinAncillaryBgoNeighbours_cry[1][1] = 2;
+    GriffinAncillaryBgoNeighbours_det[2][0] = 2;
+    GriffinAncillaryBgoNeighbours_det[2][1] = 3;
+    GriffinAncillaryBgoNeighbours_cry[2][0] = 1;
+    GriffinAncillaryBgoNeighbours_cry[2][1] = 2;
+    GriffinAncillaryBgoNeighbours_det[3][0] = 3;
+    GriffinAncillaryBgoNeighbours_det[3][1] = 0;
+    GriffinAncillaryBgoNeighbours_cry[3][0] = 1;
+    GriffinAncillaryBgoNeighbours_cry[3][1] = 2;
+    GriffinAncillaryBgoNeighbours_det[4][0] = 0;
+    GriffinAncillaryBgoNeighbours_det[4][1] = 4;
+    GriffinAncillaryBgoNeighbours_cry[4][0] = 1;
+    GriffinAncillaryBgoNeighbours_cry[4][1] = 2;
+    GriffinAncillaryBgoNeighbours_det[5][0] = 9999; // no ancillary bgo neighbours
+    GriffinAncillaryBgoNeighbours_det[5][1] = 9999;
+    GriffinAncillaryBgoNeighbours_cry[5][0] = 9999;
+    GriffinAncillaryBgoNeighbours_cry[5][1] = 9999;
+    GriffinAncillaryBgoNeighbours_det[6][0] = 1;
+    GriffinAncillaryBgoNeighbours_det[6][1] = 5;
+    GriffinAncillaryBgoNeighbours_cry[6][0] = 0;
+    GriffinAncillaryBgoNeighbours_cry[6][1] = 0;
+    GriffinAncillaryBgoNeighbours_det[7][0] = 9999;
+    GriffinAncillaryBgoNeighbours_det[7][1] = 9999;
+    GriffinAncillaryBgoNeighbours_cry[7][0] = 9999;
+    GriffinAncillaryBgoNeighbours_cry[7][1] = 9999;
+    GriffinAncillaryBgoNeighbours_det[8][0] = 2;
+    GriffinAncillaryBgoNeighbours_det[8][1] = 6;
+    GriffinAncillaryBgoNeighbours_cry[8][0] = 0;
+    GriffinAncillaryBgoNeighbours_cry[8][1] = 0;
+    GriffinAncillaryBgoNeighbours_det[9][0] = 9999;
+    GriffinAncillaryBgoNeighbours_det[9][1] = 9999;
+    GriffinAncillaryBgoNeighbours_cry[9][0] = 9999;
+    GriffinAncillaryBgoNeighbours_cry[9][1] = 9999;
+    GriffinAncillaryBgoNeighbours_det[10][0] = 3;
+    GriffinAncillaryBgoNeighbours_det[10][1] = 7;
+    GriffinAncillaryBgoNeighbours_cry[10][0] = 0;
+    GriffinAncillaryBgoNeighbours_cry[10][1] = 0;
+    GriffinAncillaryBgoNeighbours_det[11][0] = 9999;
+    GriffinAncillaryBgoNeighbours_det[11][1] = 9999;
+    GriffinAncillaryBgoNeighbours_cry[11][0] = 9999;
+    GriffinAncillaryBgoNeighbours_cry[11][1] = 9999;
+    GriffinAncillaryBgoNeighbours_det[12][0] = 4;
+    GriffinAncillaryBgoNeighbours_det[12][1] = 5;
+    GriffinAncillaryBgoNeighbours_cry[12][0] = 2;
+    GriffinAncillaryBgoNeighbours_cry[12][1] = 1;
+    GriffinAncillaryBgoNeighbours_det[13][0] = 5;
+    GriffinAncillaryBgoNeighbours_det[13][1] = 6;
+    GriffinAncillaryBgoNeighbours_cry[13][0] = 2;
+    GriffinAncillaryBgoNeighbours_cry[13][1] = 1;
+    GriffinAncillaryBgoNeighbours_det[14][0] = 6;
+    GriffinAncillaryBgoNeighbours_det[14][1] = 7;
+    GriffinAncillaryBgoNeighbours_cry[14][0] = 2;
+    GriffinAncillaryBgoNeighbours_cry[14][1] = 1;
+    GriffinAncillaryBgoNeighbours_det[15][0] = 7;
+    GriffinAncillaryBgoNeighbours_det[15][1] = 4;
+    GriffinAncillaryBgoNeighbours_cry[15][0] = 2;
+    GriffinAncillaryBgoNeighbours_cry[15][1] = 1;
 
-  // GRIFFIN detector 1 (0 index) has two sceptar suppressors
-  // SCEPTAR detectors 0 and 1. The detector numbers for those paddles are 1 and 2 respectively
-  GriffinSceptarSuppressors_det[0][0] = 0;
-  GriffinSceptarSuppressors_det[0][1] = 1;
-  GriffinSceptarSuppressors_det[0][2] = 9999;
-  GriffinSceptarSuppressors_det[0][3] = 9999;
-  // Next GRIFFIN detector
-  GriffinSceptarSuppressors_det[1][0] = 2;
-  GriffinSceptarSuppressors_det[1][1] = 9999;
-  GriffinSceptarSuppressors_det[1][2] = 9999;
-  GriffinSceptarSuppressors_det[1][3] = 9999;
-  GriffinSceptarSuppressors_det[2][0] = 3;
-  GriffinSceptarSuppressors_det[2][1] = 9999;
-  GriffinSceptarSuppressors_det[2][2] = 9999;
-  GriffinSceptarSuppressors_det[2][3] = 9999;
-  GriffinSceptarSuppressors_det[3][0] = 0;
-  GriffinSceptarSuppressors_det[3][1] = 4;
-  GriffinSceptarSuppressors_det[3][2] = 9999;
-  GriffinSceptarSuppressors_det[3][3] = 9999;
-  GriffinSceptarSuppressors_det[4][0] = 5;
-  GriffinSceptarSuppressors_det[4][1] = 10;
-  GriffinSceptarSuppressors_det[4][2] = 9999;
-  GriffinSceptarSuppressors_det[4][3] = 9999;
-  GriffinSceptarSuppressors_det[5][0] = 5;
-  GriffinSceptarSuppressors_det[5][1] = 10;
-  GriffinSceptarSuppressors_det[5][2] = 6;
-  GriffinSceptarSuppressors_det[5][3] = 11;
-  GriffinSceptarSuppressors_det[6][0] = 6;
-  GriffinSceptarSuppressors_det[6][1] = 11;
-  GriffinSceptarSuppressors_det[6][2] = 7;
-  GriffinSceptarSuppressors_det[6][3] = 12;
-  GriffinSceptarSuppressors_det[7][0] = 7;
-  GriffinSceptarSuppressors_det[7][1] = 12;
-  GriffinSceptarSuppressors_det[7][2] = 9999;
-  GriffinSceptarSuppressors_det[7][3] = 9999;
-  GriffinSceptarSuppressors_det[8][0] = 7;
-  GriffinSceptarSuppressors_det[8][1] = 12;
-  GriffinSceptarSuppressors_det[8][2] = 8;
-  GriffinSceptarSuppressors_det[8][3] = 13;
-  GriffinSceptarSuppressors_det[9][0] = 8;
-  GriffinSceptarSuppressors_det[9][1] = 13;
-  GriffinSceptarSuppressors_det[9][2] = 9999;
-  GriffinSceptarSuppressors_det[9][3] = 9999;
-  GriffinSceptarSuppressors_det[10][0] = 9;
-  GriffinSceptarSuppressors_det[10][1] = 14;
-  GriffinSceptarSuppressors_det[10][2] = 9999;
-  GriffinSceptarSuppressors_det[10][3] = 9999;
-  GriffinSceptarSuppressors_det[11][0] = 9;
-  GriffinSceptarSuppressors_det[11][1] = 14;
-  GriffinSceptarSuppressors_det[11][2] = 5;
-  GriffinSceptarSuppressors_det[11][3] = 10;
-  GriffinSceptarSuppressors_det[12][0] = 16;
-  GriffinSceptarSuppressors_det[12][1] = 15;
-  GriffinSceptarSuppressors_det[12][2] = 9999;
-  GriffinSceptarSuppressors_det[12][3] = 9999;
-  GriffinSceptarSuppressors_det[13][0] = 17;
-  GriffinSceptarSuppressors_det[13][1] = 9999;
-  GriffinSceptarSuppressors_det[13][2] = 9999;
-  GriffinSceptarSuppressors_det[13][3] = 9999;
-  GriffinSceptarSuppressors_det[14][0] = 18;
-  GriffinSceptarSuppressors_det[14][1] = 19;
-  GriffinSceptarSuppressors_det[14][2] = 9999;
-  GriffinSceptarSuppressors_det[14][3] = 9999;
-  GriffinSceptarSuppressors_det[15][0] = 18;
-  GriffinSceptarSuppressors_det[15][1] = 17;
-  GriffinSceptarSuppressors_det[15][2] = 9999;
-  GriffinSceptarSuppressors_det[15][3] = 9999;
+    // GRIFFIN detector 1 (0 index) has two sceptar suppressors
+    // SCEPTAR detectors 0 and 1. The detector numbers for those paddles are 1 and 2 respectively
+    GriffinSceptarSuppressors_det[0][0] = 0;
+    GriffinSceptarSuppressors_det[0][1] = 1;
+    GriffinSceptarSuppressors_det[0][2] = 9999;
+    GriffinSceptarSuppressors_det[0][3] = 9999;
+    // Next GRIFFIN detector
+    GriffinSceptarSuppressors_det[1][0] = 2;
+    GriffinSceptarSuppressors_det[1][1] = 9999;
+    GriffinSceptarSuppressors_det[1][2] = 9999;
+    GriffinSceptarSuppressors_det[1][3] = 9999;
+    GriffinSceptarSuppressors_det[2][0] = 3;
+    GriffinSceptarSuppressors_det[2][1] = 9999;
+    GriffinSceptarSuppressors_det[2][2] = 9999;
+    GriffinSceptarSuppressors_det[2][3] = 9999;
+    GriffinSceptarSuppressors_det[3][0] = 0;
+    GriffinSceptarSuppressors_det[3][1] = 4;
+    GriffinSceptarSuppressors_det[3][2] = 9999;
+    GriffinSceptarSuppressors_det[3][3] = 9999;
+    GriffinSceptarSuppressors_det[4][0] = 5;
+    GriffinSceptarSuppressors_det[4][1] = 10;
+    GriffinSceptarSuppressors_det[4][2] = 9999;
+    GriffinSceptarSuppressors_det[4][3] = 9999;
+    GriffinSceptarSuppressors_det[5][0] = 5;
+    GriffinSceptarSuppressors_det[5][1] = 10;
+    GriffinSceptarSuppressors_det[5][2] = 6;
+    GriffinSceptarSuppressors_det[5][3] = 11;
+    GriffinSceptarSuppressors_det[6][0] = 6;
+    GriffinSceptarSuppressors_det[6][1] = 11;
+    GriffinSceptarSuppressors_det[6][2] = 7;
+    GriffinSceptarSuppressors_det[6][3] = 12;
+    GriffinSceptarSuppressors_det[7][0] = 7;
+    GriffinSceptarSuppressors_det[7][1] = 12;
+    GriffinSceptarSuppressors_det[7][2] = 9999;
+    GriffinSceptarSuppressors_det[7][3] = 9999;
+    GriffinSceptarSuppressors_det[8][0] = 7;
+    GriffinSceptarSuppressors_det[8][1] = 12;
+    GriffinSceptarSuppressors_det[8][2] = 8;
+    GriffinSceptarSuppressors_det[8][3] = 13;
+    GriffinSceptarSuppressors_det[9][0] = 8;
+    GriffinSceptarSuppressors_det[9][1] = 13;
+    GriffinSceptarSuppressors_det[9][2] = 9999;
+    GriffinSceptarSuppressors_det[9][3] = 9999;
+    GriffinSceptarSuppressors_det[10][0] = 9;
+    GriffinSceptarSuppressors_det[10][1] = 14;
+    GriffinSceptarSuppressors_det[10][2] = 9999;
+    GriffinSceptarSuppressors_det[10][3] = 9999;
+    GriffinSceptarSuppressors_det[11][0] = 9;
+    GriffinSceptarSuppressors_det[11][1] = 14;
+    GriffinSceptarSuppressors_det[11][2] = 5;
+    GriffinSceptarSuppressors_det[11][3] = 10;
+    GriffinSceptarSuppressors_det[12][0] = 16;
+    GriffinSceptarSuppressors_det[12][1] = 15;
+    GriffinSceptarSuppressors_det[12][2] = 9999;
+    GriffinSceptarSuppressors_det[12][3] = 9999;
+    GriffinSceptarSuppressors_det[13][0] = 17;
+    GriffinSceptarSuppressors_det[13][1] = 9999;
+    GriffinSceptarSuppressors_det[13][2] = 9999;
+    GriffinSceptarSuppressors_det[13][3] = 9999;
+    GriffinSceptarSuppressors_det[14][0] = 18;
+    GriffinSceptarSuppressors_det[14][1] = 19;
+    GriffinSceptarSuppressors_det[14][2] = 9999;
+    GriffinSceptarSuppressors_det[14][3] = 9999;
+    GriffinSceptarSuppressors_det[15][0] = 18;
+    GriffinSceptarSuppressors_det[15][1] = 17;
+    GriffinSceptarSuppressors_det[15][2] = 9999;
+    GriffinSceptarSuppressors_det[15][3] = 9999;
 
-  GriffinNeighbours_det[0][0] = 5;
-  GriffinNeighbours_det[0][1] = 9999;
-  GriffinNeighbours_det[0][2] = 9999;
-  GriffinNeighbours_det[0][3] = 9999;
-  // Next detector
-  GriffinNeighbours_det[1][0] = 7;
-  GriffinNeighbours_det[1][1] = 9999;
-  GriffinNeighbours_det[1][2] = 9999;
-  GriffinNeighbours_det[1][3] = 9999;
-  GriffinNeighbours_det[2][0] = 9;
-  GriffinNeighbours_det[2][1] = 9999;
-  GriffinNeighbours_det[2][2] = 9999;
-  GriffinNeighbours_det[2][3] = 9999;
-  GriffinNeighbours_det[3][0] = 11;
-  GriffinNeighbours_det[3][1] = 9999;
-  GriffinNeighbours_det[3][2] = 9999;
-  GriffinNeighbours_det[3][3] = 9999;
-  GriffinNeighbours_det[4][0] = 5;
-  GriffinNeighbours_det[4][1] = 11;
-  GriffinNeighbours_det[4][2] = 9999;
-  GriffinNeighbours_det[4][3] = 9999;
-  GriffinNeighbours_det[5][0] = 0;
-  GriffinNeighbours_det[5][1] = 12;
-  GriffinNeighbours_det[5][2] = 4;
-  GriffinNeighbours_det[5][3] = 6;
-  GriffinNeighbours_det[6][0] = 5;
-  GriffinNeighbours_det[6][1] = 7;
-  GriffinNeighbours_det[6][2] = 9999;
-  GriffinNeighbours_det[6][3] = 9999;
-  GriffinNeighbours_det[7][0] = 1;
-  GriffinNeighbours_det[7][1] = 13;
-  GriffinNeighbours_det[7][2] = 6;
-  GriffinNeighbours_det[7][3] = 8;
-  GriffinNeighbours_det[8][0] = 7;
-  GriffinNeighbours_det[8][1] = 9;
-  GriffinNeighbours_det[8][2] = 9999;
-  GriffinNeighbours_det[8][3] = 9999;
-  GriffinNeighbours_det[9][0] = 2;
-  GriffinNeighbours_det[9][1] = 14;
-  GriffinNeighbours_det[9][2] = 8;
-  GriffinNeighbours_det[9][3] = 10;
-  GriffinNeighbours_det[10][0] = 9;
-  GriffinNeighbours_det[10][1] = 11;
-  GriffinNeighbours_det[10][2] = 9999;
-  GriffinNeighbours_det[10][3] = 9999;
-  GriffinNeighbours_det[11][0] = 3;
-  GriffinNeighbours_det[11][1] = 15;
-  GriffinNeighbours_det[11][2] = 4;
-  GriffinNeighbours_det[11][3] = 10;
-  GriffinNeighbours_det[12][0] = 5;
-  GriffinNeighbours_det[12][1] = 9999;
-  GriffinNeighbours_det[12][2] = 9999;
-  GriffinNeighbours_det[12][3] = 9999;
-  GriffinNeighbours_det[13][0] = 7;
-  GriffinNeighbours_det[13][1] = 9999;
-  GriffinNeighbours_det[13][2] = 9999;
-  GriffinNeighbours_det[13][3] = 9999;
-  GriffinNeighbours_det[14][0] = 9;
-  GriffinNeighbours_det[14][1] = 9999;
-  GriffinNeighbours_det[14][2] = 9999;
-  GriffinNeighbours_det[14][3] = 9999;
-  GriffinNeighbours_det[15][0] = 11;
-  GriffinNeighbours_det[15][1] = 9999;
-  GriffinNeighbours_det[15][2] = 9999;
-  GriffinNeighbours_det[15][3] = 9999;
+    GriffinNeighbours_det[0][0] = 5;
+    GriffinNeighbours_det[0][1] = 9999;
+    GriffinNeighbours_det[0][2] = 9999;
+    GriffinNeighbours_det[0][3] = 9999;
+    // Next detector
+    GriffinNeighbours_det[1][0] = 7;
+    GriffinNeighbours_det[1][1] = 9999;
+    GriffinNeighbours_det[1][2] = 9999;
+    GriffinNeighbours_det[1][3] = 9999;
+    GriffinNeighbours_det[2][0] = 9;
+    GriffinNeighbours_det[2][1] = 9999;
+    GriffinNeighbours_det[2][2] = 9999;
+    GriffinNeighbours_det[2][3] = 9999;
+    GriffinNeighbours_det[3][0] = 11;
+    GriffinNeighbours_det[3][1] = 9999;
+    GriffinNeighbours_det[3][2] = 9999;
+    GriffinNeighbours_det[3][3] = 9999;
+    GriffinNeighbours_det[4][0] = 5;
+    GriffinNeighbours_det[4][1] = 11;
+    GriffinNeighbours_det[4][2] = 9999;
+    GriffinNeighbours_det[4][3] = 9999;
+    GriffinNeighbours_det[5][0] = 0;
+    GriffinNeighbours_det[5][1] = 12;
+    GriffinNeighbours_det[5][2] = 4;
+    GriffinNeighbours_det[5][3] = 6;
+    GriffinNeighbours_det[6][0] = 5;
+    GriffinNeighbours_det[6][1] = 7;
+    GriffinNeighbours_det[6][2] = 9999;
+    GriffinNeighbours_det[6][3] = 9999;
+    GriffinNeighbours_det[7][0] = 1;
+    GriffinNeighbours_det[7][1] = 13;
+    GriffinNeighbours_det[7][2] = 6;
+    GriffinNeighbours_det[7][3] = 8;
+    GriffinNeighbours_det[8][0] = 7;
+    GriffinNeighbours_det[8][1] = 9;
+    GriffinNeighbours_det[8][2] = 9999;
+    GriffinNeighbours_det[8][3] = 9999;
+    GriffinNeighbours_det[9][0] = 2;
+    GriffinNeighbours_det[9][1] = 14;
+    GriffinNeighbours_det[9][2] = 8;
+    GriffinNeighbours_det[9][3] = 10;
+    GriffinNeighbours_det[10][0] = 9;
+    GriffinNeighbours_det[10][1] = 11;
+    GriffinNeighbours_det[10][2] = 9999;
+    GriffinNeighbours_det[10][3] = 9999;
+    GriffinNeighbours_det[11][0] = 3;
+    GriffinNeighbours_det[11][1] = 15;
+    GriffinNeighbours_det[11][2] = 4;
+    GriffinNeighbours_det[11][3] = 10;
+    GriffinNeighbours_det[12][0] = 5;
+    GriffinNeighbours_det[12][1] = 9999;
+    GriffinNeighbours_det[12][2] = 9999;
+    GriffinNeighbours_det[12][3] = 9999;
+    GriffinNeighbours_det[13][0] = 7;
+    GriffinNeighbours_det[13][1] = 9999;
+    GriffinNeighbours_det[13][2] = 9999;
+    GriffinNeighbours_det[13][3] = 9999;
+    GriffinNeighbours_det[14][0] = 9;
+    GriffinNeighbours_det[14][1] = 9999;
+    GriffinNeighbours_det[14][2] = 9999;
+    GriffinNeighbours_det[14][3] = 9999;
+    GriffinNeighbours_det[15][0] = 11;
+    GriffinNeighbours_det[15][1] = 9999;
+    GriffinNeighbours_det[15][2] = 9999;
+    GriffinNeighbours_det[15][3] = 9999;
 
-  /////////////////////////////////////////////////////////////////////
-  // Coords for GRIFFIN
-  // Note that the GRIFFIN lampshade angles are rotated by 45 degrees with respect to those of TIGRESS.
-  // Modified coords for TIGRESS are below!
-  /////////////////////////////////////////////////////////////////////
-  double thisGriffinDetCoords[16][5];
-  // theta
-  thisGriffinDetCoords[0][0] 	= 45.0;
-  thisGriffinDetCoords[1][0] 	= 45.0;
-  thisGriffinDetCoords[2][0] 	= 45.0;
-  thisGriffinDetCoords[3][0] 	= 45.0;
-  thisGriffinDetCoords[4][0] 	= 90.0;
-  thisGriffinDetCoords[5][0] 	= 90.0;
-  thisGriffinDetCoords[6][0] 	= 90.0;
-  thisGriffinDetCoords[7][0] 	= 90.0;
-  thisGriffinDetCoords[8][0] 	= 90.0;
-  thisGriffinDetCoords[9][0] 	= 90.0;
-  thisGriffinDetCoords[10][0] 	= 90.0;
-  thisGriffinDetCoords[11][0] 	= 90.0;
-  thisGriffinDetCoords[12][0] 	= 135.0;
-  thisGriffinDetCoords[13][0] 	= 135.0;
-  thisGriffinDetCoords[14][0] 	= 135.0;
-  thisGriffinDetCoords[15][0] 	= 135.0;
-  // phi
-  thisGriffinDetCoords[0][1] 	= 67.5;
-  thisGriffinDetCoords[1][1] 	= 157.5;
-  thisGriffinDetCoords[2][1] 	= 247.5;
-  thisGriffinDetCoords[3][1] 	= 337.5;
-  thisGriffinDetCoords[4][1] 	= 22.5;
-  thisGriffinDetCoords[5][1] 	= 67.5;
-  thisGriffinDetCoords[6][1] 	= 112.5;
-  thisGriffinDetCoords[7][1] 	= 157.5;
-  thisGriffinDetCoords[8][1] 	= 202.5;
-  thisGriffinDetCoords[9][1] 	= 247.5;
-  thisGriffinDetCoords[10][1] 	= 292.5;
-  thisGriffinDetCoords[11][1] 	= 337.5;
-  thisGriffinDetCoords[12][1] 	= 67.5;
-  thisGriffinDetCoords[13][1] 	= 157.5;
-  thisGriffinDetCoords[14][1] 	= 247.5;
-  thisGriffinDetCoords[15][1] 	= 337.5;
-  // yaw (alpha)
-  thisGriffinDetCoords[0][2] 	= 0.0;
-  thisGriffinDetCoords[1][2] 	= 0.0;
-  thisGriffinDetCoords[2][2] 	= 0.0;
-  thisGriffinDetCoords[3][2] 	= 0.0;
-  thisGriffinDetCoords[4][2] 	= 0.0;
-  thisGriffinDetCoords[5][2] 	= 0.0;
-  thisGriffinDetCoords[6][2] 	= 0.0;
-  thisGriffinDetCoords[7][2] 	= 0.0;
-  thisGriffinDetCoords[8][2] 	= 0.0;
-  thisGriffinDetCoords[9][2] 	= 0.0;
-  thisGriffinDetCoords[10][2] 	= 0.0;
-  thisGriffinDetCoords[11][2] 	= 0.0;
-  thisGriffinDetCoords[12][2] 	= 0.0;
-  thisGriffinDetCoords[13][2] 	= 0.0;
-  thisGriffinDetCoords[14][2] 	= 0.0;
-  thisGriffinDetCoords[15][2] 	= 0.0;
-  // pitch (beta)
-  thisGriffinDetCoords[0][3] 	= -45.0;
-  thisGriffinDetCoords[1][3] 	= -45.0;
-  thisGriffinDetCoords[2][3] 	= -45.0;
-  thisGriffinDetCoords[3][3] 	= -45.0;
-  thisGriffinDetCoords[4][3] 	= 0.0;
-  thisGriffinDetCoords[5][3] 	= 0.0;
-  thisGriffinDetCoords[6][3] 	= 0.0;
-  thisGriffinDetCoords[7][3] 	= 0.0;
-  thisGriffinDetCoords[8][3] 	= 0.0;
-  thisGriffinDetCoords[9][3] 	= 0.0;
-  thisGriffinDetCoords[10][3] 	= 0.0;
-  thisGriffinDetCoords[11][3] 	= 0.0;
-  thisGriffinDetCoords[12][3] 	= 45.0;
-  thisGriffinDetCoords[13][3] 	= 45.0;
-  thisGriffinDetCoords[14][3] 	= 45.0;
-  thisGriffinDetCoords[15][3] 	= 45.0;
-  // roll (gamma)
-  thisGriffinDetCoords[0][4] 	= 67.5;
-  thisGriffinDetCoords[1][4] 	= 157.5;
-  thisGriffinDetCoords[2][4] 	= 247.5;
-  thisGriffinDetCoords[3][4] 	= 337.5;
-  thisGriffinDetCoords[4][4] 	= 22.5;
-  thisGriffinDetCoords[5][4] 	= 67.5;
-  thisGriffinDetCoords[6][4] 	= 112.5;
-  thisGriffinDetCoords[7][4] 	= 157.5;
-  thisGriffinDetCoords[8][4] 	= 202.5;
-  thisGriffinDetCoords[9][4] 	= 247.5;
-  thisGriffinDetCoords[10][4] 	= 292.5;
-  thisGriffinDetCoords[11][4] 	= 337.5;
-  thisGriffinDetCoords[12][4] 	= 67.5;
-  thisGriffinDetCoords[13][4] 	= 157.5;
-  thisGriffinDetCoords[14][4] 	= 247.5;
-  thisGriffinDetCoords[15][4] 	= 337.5;
-  memcpy(GriffinDetCoords, thisGriffinDetCoords, sizeof(GriffinDetCoords));
+    /////////////////////////////////////////////////////////////////////
+    // Coords for GRIFFIN
+    // Note that the GRIFFIN lampshade angles are rotated by 45 degrees with respect to those of TIGRESS.
+    // Modified coords for TIGRESS are below!
+    /////////////////////////////////////////////////////////////////////
+    double thisGriffinDetCoords[16][5];
+    // theta
+    thisGriffinDetCoords[0][0] 	= 45.0;
+    thisGriffinDetCoords[1][0] 	= 45.0;
+    thisGriffinDetCoords[2][0] 	= 45.0;
+    thisGriffinDetCoords[3][0] 	= 45.0;
+    thisGriffinDetCoords[4][0] 	= 90.0;
+    thisGriffinDetCoords[5][0] 	= 90.0;
+    thisGriffinDetCoords[6][0] 	= 90.0;
+    thisGriffinDetCoords[7][0] 	= 90.0;
+    thisGriffinDetCoords[8][0] 	= 90.0;
+    thisGriffinDetCoords[9][0] 	= 90.0;
+    thisGriffinDetCoords[10][0] 	= 90.0;
+    thisGriffinDetCoords[11][0] 	= 90.0;
+    thisGriffinDetCoords[12][0] 	= 135.0;
+    thisGriffinDetCoords[13][0] 	= 135.0;
+    thisGriffinDetCoords[14][0] 	= 135.0;
+    thisGriffinDetCoords[15][0] 	= 135.0;
+    // phi
+    thisGriffinDetCoords[0][1] 	= 67.5;
+    thisGriffinDetCoords[1][1] 	= 157.5;
+    thisGriffinDetCoords[2][1] 	= 247.5;
+    thisGriffinDetCoords[3][1] 	= 337.5;
+    thisGriffinDetCoords[4][1] 	= 22.5;
+    thisGriffinDetCoords[5][1] 	= 67.5;
+    thisGriffinDetCoords[6][1] 	= 112.5;
+    thisGriffinDetCoords[7][1] 	= 157.5;
+    thisGriffinDetCoords[8][1] 	= 202.5;
+    thisGriffinDetCoords[9][1] 	= 247.5;
+    thisGriffinDetCoords[10][1] 	= 292.5;
+    thisGriffinDetCoords[11][1] 	= 337.5;
+    thisGriffinDetCoords[12][1] 	= 67.5;
+    thisGriffinDetCoords[13][1] 	= 157.5;
+    thisGriffinDetCoords[14][1] 	= 247.5;
+    thisGriffinDetCoords[15][1] 	= 337.5;
+    // yaw (alpha)
+    thisGriffinDetCoords[0][2] 	= 0.0;
+    thisGriffinDetCoords[1][2] 	= 0.0;
+    thisGriffinDetCoords[2][2] 	= 0.0;
+    thisGriffinDetCoords[3][2] 	= 0.0;
+    thisGriffinDetCoords[4][2] 	= 0.0;
+    thisGriffinDetCoords[5][2] 	= 0.0;
+    thisGriffinDetCoords[6][2] 	= 0.0;
+    thisGriffinDetCoords[7][2] 	= 0.0;
+    thisGriffinDetCoords[8][2] 	= 0.0;
+    thisGriffinDetCoords[9][2] 	= 0.0;
+    thisGriffinDetCoords[10][2] 	= 0.0;
+    thisGriffinDetCoords[11][2] 	= 0.0;
+    thisGriffinDetCoords[12][2] 	= 0.0;
+    thisGriffinDetCoords[13][2] 	= 0.0;
+    thisGriffinDetCoords[14][2] 	= 0.0;
+    thisGriffinDetCoords[15][2] 	= 0.0;
+    // pitch (beta)
+    thisGriffinDetCoords[0][3] 	= -45.0;
+    thisGriffinDetCoords[1][3] 	= -45.0;
+    thisGriffinDetCoords[2][3] 	= -45.0;
+    thisGriffinDetCoords[3][3] 	= -45.0;
+    thisGriffinDetCoords[4][3] 	= 0.0;
+    thisGriffinDetCoords[5][3] 	= 0.0;
+    thisGriffinDetCoords[6][3] 	= 0.0;
+    thisGriffinDetCoords[7][3] 	= 0.0;
+    thisGriffinDetCoords[8][3] 	= 0.0;
+    thisGriffinDetCoords[9][3] 	= 0.0;
+    thisGriffinDetCoords[10][3] 	= 0.0;
+    thisGriffinDetCoords[11][3] 	= 0.0;
+    thisGriffinDetCoords[12][3] 	= 45.0;
+    thisGriffinDetCoords[13][3] 	= 45.0;
+    thisGriffinDetCoords[14][3] 	= 45.0;
+    thisGriffinDetCoords[15][3] 	= 45.0;
+    // roll (gamma)
+    thisGriffinDetCoords[0][4] 	= 67.5;
+    thisGriffinDetCoords[1][4] 	= 157.5;
+    thisGriffinDetCoords[2][4] 	= 247.5;
+    thisGriffinDetCoords[3][4] 	= 337.5;
+    thisGriffinDetCoords[4][4] 	= 22.5;
+    thisGriffinDetCoords[5][4] 	= 67.5;
+    thisGriffinDetCoords[6][4] 	= 112.5;
+    thisGriffinDetCoords[7][4] 	= 157.5;
+    thisGriffinDetCoords[8][4] 	= 202.5;
+    thisGriffinDetCoords[9][4] 	= 247.5;
+    thisGriffinDetCoords[10][4] 	= 292.5;
+    thisGriffinDetCoords[11][4] 	= 337.5;
+    thisGriffinDetCoords[12][4] 	= 67.5;
+    thisGriffinDetCoords[13][4] 	= 157.5;
+    thisGriffinDetCoords[14][4] 	= 247.5;
+    thisGriffinDetCoords[15][4] 	= 337.5;
+    memcpy(GriffinDetCoords, thisGriffinDetCoords, sizeof(GriffinDetCoords));
 
 
-  // Detector Method
-  double thisGriffinDetMap[16][16] = {
-  {0,60,90,60,60,45,60,90,120,135,120,90,90,120,180,120},
-  {60,0,60,90,120,90,60,45,60,90,120,135,120,90,120,180},
-  {90,60,0,60,120,135,120,90,60,45,60,90,180,120,90,120},
-  {60,90,60,0,60,90,120,135,120,90,60,45,120,180,120,90},
-  {60,120,120,60,0,45,90,135,180,135,90,45,60,120,120,60},
-  {45,90,135,90,45,0,45,90,135,180,135,90,45,90,135,90},
-  {60,60,120,120,90,45,0,45,90,135,180,135,60,60,120,120},
-  {90,45,90,135,135,90,45,0,45,90,135,180,90,45,90,135},
-  {120,60,60,120,180,135,90,45,0,45,90,135,120,60,60,120},
-  {135,90,45,90,135,180,135,90,45,0,45,90,135,90,45,90},
-  {120,120,60,60,90,135,180,135,90,45,0,45,120,120,60,60},
-  {90,135,90,45,45,90,135,180,135,90,45,0,90,135,90,45},
-  {90,120,180,120,60,45,60,90,120,135,120,90,0,60,90,60},
-  {120,90,120,180,120,90,60,45,60,90,120,135,60,0,60,90},
-  {180,120,90,120,120,135,120,90,60,45,60,90,90,60,0,60},
-  {120,180,120,90,60,90,120,135,120,90,60,45,60,90,60,0}
-  };
-  memcpy(GriffinDetMap, thisGriffinDetMap, sizeof(GriffinDetMap));
+    // Detector Method
+    double thisGriffinDetMap[16][16] = {
+        {0,60,90,60,60,45,60,90,120,135,120,90,90,120,180,120},
+        {60,0,60,90,120,90,60,45,60,90,120,135,120,90,120,180},
+        {90,60,0,60,120,135,120,90,60,45,60,90,180,120,90,120},
+        {60,90,60,0,60,90,120,135,120,90,60,45,120,180,120,90},
+        {60,120,120,60,0,45,90,135,180,135,90,45,60,120,120,60},
+        {45,90,135,90,45,0,45,90,135,180,135,90,45,90,135,90},
+        {60,60,120,120,90,45,0,45,90,135,180,135,60,60,120,120},
+        {90,45,90,135,135,90,45,0,45,90,135,180,90,45,90,135},
+        {120,60,60,120,180,135,90,45,0,45,90,135,120,60,60,120},
+        {135,90,45,90,135,180,135,90,45,0,45,90,135,90,45,90},
+        {120,120,60,60,90,135,180,135,90,45,0,45,120,120,60,60},
+        {90,135,90,45,45,90,135,180,135,90,45,0,90,135,90,45},
+        {90,120,180,120,60,45,60,90,120,135,120,90,0,60,90,60},
+        {120,90,120,180,120,90,60,45,60,90,120,135,60,0,60,90},
+        {180,120,90,120,120,135,120,90,60,45,60,90,90,60,0,60},
+        {120,180,120,90,60,90,120,135,120,90,60,45,60,90,60,0}
+    };
+    memcpy(GriffinDetMap, thisGriffinDetMap, sizeof(GriffinDetMap));
 
-  double thisGriffinDetMapCombos[7][2] = {
-      {0, 16},
-      {45, 32},
-      {60, 48},
-      {90, 64},
-      {120, 48},
-      {135, 32},
-      {180, 16}
-  };
-  memcpy(GriffinDetMapCombos, thisGriffinDetMapCombos, sizeof(GriffinDetMapCombos));
+    double thisGriffinDetMapCombos[7][2] = {
+        {0, 16},
+        {45, 32},
+        {60, 48},
+        {90, 64},
+        {120, 48},
+        {135, 32},
+        {180, 16}
+    };
+    memcpy(GriffinDetMapCombos, thisGriffinDetMapCombos, sizeof(GriffinDetMapCombos));
 
-  double thisGriffinCryMap[64][64] = {
-      {0.0000, 19.131, 27.184, 19.131, 49.631, 60.157, 46.607, 33.166, 72.817, 91.582, 88.418, 69.473, 49.631, 65.195, 76.694, 62.720, 60.157, 76.694, 86.721, 71.054, 44.341, 63.403, 66.891, 48.703, 53.690, 71.054, 65.195, 46.607, 78.429, 93.836, 82.965, 67.049, 103.31, 119.84, 108.95, 93.279, 116.60, 135.66, 131.30, 113.11, 108.95, 126.31, 133.39, 114.81, 86.164, 101.57, 112.95, 97.035, 88.418, 107.18, 110.53, 91.582, 114.81, 130.37, 117.28, 103.31, 160.87, 180.00, 160.87, 152.82, 119.84, 130.37, 146.83, 133.39},
-      {19.131, 0.0000, 19.131, 27.184, 65.195, 71.054, 53.690, 46.607, 91.582, 110.53, 107.18, 88.418, 60.157, 71.054, 86.721, 76.694, 49.631, 62.720, 76.694, 65.195, 25.235, 44.341, 48.703, 31.860, 46.607, 60.157, 49.631, 33.166, 82.965, 93.836, 78.429, 67.049, 117.28, 130.37, 114.81, 103.31, 135.66, 154.77, 148.14, 131.30, 119.84, 133.39, 146.83, 130.37, 86.164, 97.035, 112.95, 101.57, 69.473, 88.418, 91.582, 72.817, 108.95, 119.84, 103.31, 93.279, 180.00, 160.87, 152.82, 160.87, 108.95, 114.81, 133.39, 126.31},
-      {27.184, 19.131, 0.0000, 19.131, 76.694, 86.721, 71.054, 60.157, 88.418, 107.18, 110.53, 91.582, 46.607, 53.690, 71.054, 65.195, 33.166, 49.631, 60.157, 46.607, 31.860, 48.703, 44.341, 25.235, 65.195, 76.694, 62.720, 49.631, 101.57, 112.95, 97.035, 86.164, 130.37, 146.83, 133.39, 119.84, 131.30, 148.14, 154.77, 135.66, 103.31, 114.81, 130.37, 117.28, 67.049, 78.429, 93.836, 82.965, 72.817, 91.582, 88.418, 69.473, 126.31, 133.39, 114.81, 108.95, 160.87, 152.82, 160.87, 180.00, 93.279, 103.31, 119.84, 108.95},
-      {19.131, 27.184, 19.131, 0.0000, 62.720, 76.694, 65.195, 49.631, 69.473, 88.418, 91.582, 72.817, 33.166, 46.607, 60.157, 49.631, 46.607, 65.195, 71.054, 53.690, 48.703, 66.891, 63.403, 44.341, 71.054, 86.721, 76.694, 60.157, 97.035, 112.95, 101.57, 86.164, 114.81, 133.39, 126.31, 108.95, 113.11, 131.30, 135.66, 116.60, 93.279, 108.95, 119.84, 103.31, 67.049, 82.965, 93.836, 78.429, 91.582, 110.53, 107.18, 88.418, 133.39, 146.83, 130.37, 119.84, 152.82, 160.87, 180.00, 160.87, 103.31, 117.28, 130.37, 114.81},
-      {49.631, 65.195, 76.694, 62.720, 0.0000, 19.131, 27.184, 19.131, 49.631, 60.157, 46.607, 33.166, 72.817, 91.582, 88.418, 69.473, 108.95, 126.31, 133.39, 114.81, 86.164, 101.57, 112.95, 97.035, 60.157, 76.694, 86.721, 71.054, 44.341, 63.403, 66.891, 48.703, 53.690, 71.054, 65.195, 46.607, 78.429, 93.836, 82.965, 67.049, 103.31, 119.84, 108.95, 93.279, 116.60, 135.66, 131.30, 113.11, 119.84, 130.37, 146.83, 133.39, 88.418, 107.18, 110.53, 91.582, 114.81, 130.37, 117.28, 103.31, 160.87, 180.00, 160.87, 152.82},
-      {60.157, 71.054, 86.721, 76.694, 19.131, 0.0000, 19.131, 27.184, 65.195, 71.054, 53.690, 46.607, 91.582, 110.53, 107.18, 88.418, 119.84, 133.39, 146.83, 130.37, 86.164, 97.035, 112.95, 101.57, 49.631, 62.720, 76.694, 65.195, 25.235, 44.341, 48.703, 31.860, 46.607, 60.157, 49.631, 33.166, 82.965, 93.836, 78.429, 67.049, 117.28, 130.37, 114.81, 103.31, 135.66, 154.77, 148.14, 131.30, 108.95, 114.81, 133.39, 126.31, 69.473, 88.418, 91.582, 72.817, 108.95, 119.84, 103.31, 93.279, 180.00, 160.87, 152.82, 160.87},
-      {46.607, 53.690, 71.054, 65.195, 27.184, 19.131, 0.0000, 19.131, 76.694, 86.721, 71.054, 60.157, 88.418, 107.18, 110.53, 91.582, 103.31, 114.81, 130.37, 117.28, 67.049, 78.429, 93.836, 82.965, 33.166, 49.631, 60.157, 46.607, 31.860, 48.703, 44.341, 25.235, 65.195, 76.694, 62.720, 49.631, 101.57, 112.95, 97.035, 86.164, 130.37, 146.83, 133.39, 119.84, 131.30, 148.14, 154.77, 135.66, 93.279, 103.31, 119.84, 108.95, 72.817, 91.582, 88.418, 69.473, 126.31, 133.39, 114.81, 108.95, 160.87, 152.82, 160.87, 180},
-      {33.166, 46.607, 60.157, 49.631, 19.131, 27.184, 19.131, 0.0000, 62.720, 76.694, 65.195, 49.631, 69.473, 88.418, 91.582, 72.817, 93.279, 108.95, 119.84, 103.31, 67.049, 82.965, 93.836, 78.429, 46.607, 65.195, 71.054, 53.690, 48.703, 66.891, 63.403, 44.341, 71.054, 86.721, 76.694, 60.157, 97.035, 112.95, 101.57, 86.164, 114.81, 133.39, 126.31, 108.95, 113.11, 131.30, 135.66, 116.60, 103.31, 117.28, 130.37, 114.81, 91.582, 110.53, 107.18, 88.418, 133.39, 146.83, 130.37, 119.84, 152.82, 160.87, 180.00, 160.87},
-      {72.817, 91.582, 88.418, 69.473, 49.631, 65.195, 76.694, 62.720, 0.0000, 19.131, 27.184, 19.131, 49.631, 60.157, 46.607, 33.166, 103.31, 119.84, 108.95, 93.279, 116.60, 135.66, 131.30, 113.11, 108.95, 126.31, 133.39, 114.81, 86.164, 101.57, 112.95, 97.035, 60.157, 76.694, 86.721, 71.054, 44.341, 63.403, 66.891, 48.703, 53.690, 71.054, 65.195, 46.607, 78.429, 93.836, 82.965, 67.049, 160.87, 180.00, 160.87, 152.82, 119.84, 130.37, 146.83, 133.39, 88.418, 107.18, 110.53, 91.582, 114.81, 130.37, 117.28, 103.31},
-      {91.582, 110.53, 107.18, 88.418, 60.157, 71.054, 86.721, 76.694, 19.131, 0.0000, 19.131, 27.184, 65.195, 71.054, 53.690, 46.607, 117.28, 130.37, 114.81, 103.31, 135.66, 154.77, 148.14, 131.30, 119.84, 133.39, 146.83, 130.37, 86.164, 97.035, 112.95, 101.57, 49.631, 62.720, 76.694, 65.195, 25.235, 44.341, 48.703, 31.860, 46.607, 60.157, 49.631, 33.166, 82.965, 93.836, 78.429, 67.049, 180.00, 160.87, 152.82, 160.87, 108.95, 114.81, 133.39, 126.31, 69.473, 88.418, 91.582, 72.817, 108.95, 119.84, 103.31, 93.279},
-      {88.418, 107.18, 110.53, 91.582, 46.607, 53.690, 71.054, 65.195, 27.184, 19.131, 0.0000, 19.131, 76.694, 86.721, 71.054, 60.157, 130.37, 146.83, 133.39, 119.84, 131.30, 148.14, 154.77, 135.66, 103.31, 114.81, 130.37, 117.28, 67.049, 78.429, 93.836, 82.965, 33.166, 49.631, 60.157, 46.607, 31.860, 48.703, 44.341, 25.235, 65.195, 76.694, 62.720, 49.631, 101.57, 112.95, 97.035, 86.164, 160.87, 152.82, 160.87, 180.00, 93.279, 103.31, 119.84, 108.95, 72.817, 91.582, 88.418, 69.473, 126.31, 133.39, 114.81, 108.95},
-      {69.473, 88.418, 91.582, 72.817, 33.166, 46.607, 60.157, 49.631, 19.131, 27.184, 19.131, 0.0000, 62.720, 76.694, 65.195, 49.631, 114.81, 133.39, 126.31, 108.95, 113.11, 131.30, 135.66, 116.60, 93.279, 108.95, 119.84, 103.31, 67.049, 82.965, 93.836, 78.429, 46.607, 65.195, 71.054, 53.690, 48.703, 66.891, 63.403, 44.341, 71.054, 86.721, 76.694, 60.157, 97.035, 112.95, 101.57, 86.164, 152.82, 160.87, 180.00, 160.87, 103.31, 117.28, 130.37, 114.81, 91.582, 110.53, 107.18, 88.418, 133.39, 146.83, 130.37, 119.84},
-      {49.631, 60.157, 46.607, 33.166, 72.817, 91.582, 88.418, 69.473, 49.631, 65.195, 76.694, 62.720, 0.0000, 19.131, 27.184, 19.131, 53.690, 71.054, 65.195, 46.607, 78.429, 93.836, 82.965, 67.049, 103.31, 119.84, 108.95, 93.279, 116.60, 135.66, 131.30, 113.11, 108.95, 126.31, 133.39, 114.81, 86.164, 101.57, 112.95, 97.035, 60.157, 76.694, 86.721, 71.054, 44.341, 63.403, 66.891, 48.703, 114.81, 130.37, 117.28, 103.31, 160.87, 180.00, 160.87, 152.82, 119.84, 130.37, 146.83, 133.39, 88.418, 107.18, 110.53, 91.582},
-      {65.195, 71.054, 53.690, 46.607, 91.582, 110.53, 107.18, 88.418, 60.157, 71.054, 86.721, 76.694, 19.131, 0.0000, 19.131, 27.184, 46.607, 60.157, 49.631, 33.166, 82.965, 93.836, 78.429, 67.049, 117.28, 130.37, 114.81, 103.31, 135.66, 154.77, 148.14, 131.30, 119.84, 133.39, 146.83, 130.37, 86.164, 97.035, 112.95, 101.57, 49.631, 62.720, 76.694, 65.195, 25.235, 44.341, 48.703, 31.860, 108.95, 119.84, 103.31, 93.279, 180.00, 160.87, 152.82, 160.87, 108.95, 114.81, 133.39, 126.31, 69.473, 88.418, 91.582, 72.817},
-      {76.694, 86.721, 71.054, 60.157, 88.418, 107.18, 110.53, 91.582, 46.607, 53.690, 71.054, 65.195, 27.184, 19.131, 0.0000, 19.131, 65.195, 76.694, 62.720, 49.631, 101.57, 112.95, 97.035, 86.164, 130.37, 146.83, 133.39, 119.84, 131.30, 148.14, 154.77, 135.66, 103.31, 114.81, 130.37, 117.28, 67.049, 78.429, 93.836, 82.965, 33.166, 49.631, 60.157, 46.607, 31.860, 48.703, 44.341, 25.235, 126.31, 133.39, 114.81, 108.95, 160.87, 152.82, 160.87, 180.00, 93.279, 103.31, 119.84, 108.95, 72.817, 91.582, 88.418, 69.473},
-      {62.720, 76.694, 65.195, 49.631, 69.473, 88.418, 91.582, 72.817, 33.166, 46.607, 60.157, 49.631, 19.131, 27.184, 19.131, 0.0000, 71.054, 86.721, 76.694, 60.157, 97.035, 112.95, 101.57, 86.164, 114.81, 133.39, 126.31, 108.95, 113.11, 131.30, 135.66, 116.60, 93.279, 108.95, 119.84, 103.31, 67.049, 82.965, 93.836, 78.429, 46.607, 65.195, 71.054, 53.690, 48.703, 66.891, 63.403, 44.341, 133.39, 146.83, 130.37, 119.84, 152.82, 160.87, 180.00, 160.87, 103.31, 117.28, 130.37, 114.81, 91.582, 110.53, 107.18, 88.418},
-      {60.157, 49.631, 33.166, 46.607, 108.95, 119.84, 103.31, 93.279, 103.31, 117.28, 130.37, 114.81, 53.690, 46.607, 65.195, 71.054, 0.0000, 19.131, 27.184, 19.131, 44.341, 48.703, 31.860, 25.235, 88.418, 91.582, 72.817, 69.473, 131.30, 135.66, 116.60, 113.11, 160.87, 180.00, 160.87, 152.82, 131.30, 135.66, 154.77, 148.14, 88.418, 91.582, 110.53, 107.18, 44.341, 48.703, 66.891, 63.403, 62.720, 76.694, 65.195, 49.631, 133.39, 126.31, 108.95, 114.81, 130.37, 119.84, 133.39, 146.83, 60.157, 71.054, 86.721, 76.694},
-      {76.694, 62.720, 49.631, 65.195, 126.31, 133.39, 114.81, 108.95, 119.84, 130.37, 146.83, 133.39, 71.054, 60.157, 76.694, 86.721, 19.131, 0.0000, 19.131, 27.184, 48.703, 44.341, 25.235, 31.860, 91.582, 88.418, 69.473, 72.817, 135.66, 131.30, 113.11, 116.60, 180.00, 160.87, 152.82, 160.87, 135.66, 131.30, 148.14, 154.77, 91.582, 88.418, 107.18, 110.53, 48.703, 44.341, 63.403, 66.891, 49.631, 60.157, 46.607, 33.166, 119.84, 108.95, 93.279, 103.31, 117.28, 103.31, 114.81, 130.37, 46.607, 53.690, 71.054, 65.195},
-      {86.721, 76.694, 60.157, 71.054, 133.39, 146.83, 130.37, 119.84, 108.95, 114.81, 133.39, 126.31, 65.195, 49.631, 62.720, 76.694, 27.184, 19.131, 0.0000, 19.131, 66.891, 63.403, 44.341, 48.703, 110.53, 107.18, 88.418, 91.582, 154.77, 148.14, 131.30, 135.66, 160.87, 152.82, 160.87, 180.00, 116.60, 113.11, 131.30, 135.66, 72.817, 69.473, 88.418, 91.582, 31.860, 25.235, 44.341, 48.703, 65.195, 71.054, 53.690, 46.607, 130.37, 114.81, 103.31, 117.28, 103.31, 93.279, 108.95, 119.84, 33.166, 46.607, 60.157, 49.631},
-      {71.054, 65.195, 46.607, 53.690, 114.81, 130.37, 117.28, 103.31, 93.279, 103.31, 119.84, 108.95, 46.607, 33.166, 49.631, 60.157, 19.131, 27.184, 19.131, 0.0000, 63.403, 66.891, 48.703, 44.341, 107.18, 110.53, 91.582, 88.418, 148.14, 154.77, 135.66, 131.30, 152.82, 160.87, 180.00, 160.87, 113.11, 116.60, 135.66, 131.30, 69.473, 72.817, 91.582, 88.418, 25.235, 31.860, 48.703, 44.341, 76.694, 86.721, 71.054, 60.157, 146.83, 133.39, 119.84, 130.37, 114.81, 108.95, 126.31, 133.39, 49.631, 65.195, 76.694, 62.720},
-      {44.341, 25.235, 31.860, 48.703, 86.164, 86.164, 67.049, 67.049, 116.60, 135.66, 131.30, 113.11, 78.429, 82.965, 101.57, 97.035, 44.341, 48.703, 66.891, 63.403, 0.0000, 19.131, 27.184, 19.131, 44.341, 48.703, 31.860, 25.235, 88.418, 91.582, 72.817, 69.473, 131.30, 135.66, 116.60, 113.11, 160.87, 180.00, 160.87, 152.82, 131.30, 135.66, 154.77, 148.14, 88.418, 91.582, 110.53, 107.18, 44.341, 63.403, 66.891, 48.703, 97.035, 101.57, 82.965, 78.429, 154.77, 135.66, 131.30, 148.14, 93.836, 93.836, 112.95, 112.95},
-      {63.403, 44.341, 48.703, 66.891, 101.57, 97.035, 78.429, 82.965, 135.66, 154.77, 148.14, 131.30, 93.836, 93.836, 112.95, 112.95, 48.703, 44.341, 63.403, 66.891, 19.131, 0.0000, 19.131, 27.184, 48.703, 44.341, 25.235, 31.860, 91.582, 88.418, 69.473, 72.817, 135.66, 131.30, 113.11, 116.60, 180.00, 160.87, 152.82, 160.87, 135.66, 131.30, 148.14, 154.77, 91.582, 88.418, 107.18, 110.53, 25.235, 44.341, 48.703, 31.860, 86.164, 86.164, 67.049, 67.049, 135.66, 116.60, 113.11, 131.30, 82.965, 78.429, 97.035, 101.57},
-      {66.891, 48.703, 44.341, 63.403, 112.95, 112.95, 93.836, 93.836, 131.30, 148.14, 154.77, 135.66, 82.965, 78.429, 97.035, 101.57, 31.860, 25.235, 44.341, 48.703, 27.184, 19.131, 0.0000, 19.131, 66.891, 63.403, 44.341, 48.703, 110.53, 107.18, 88.418, 91.582, 154.77, 148.14, 131.30, 135.66, 160.87, 152.82, 160.87, 180.00, 116.60, 113.11, 131.30, 135.66, 72.817, 69.473, 88.418, 91.582, 31.860, 48.703, 44.341, 25.235, 101.57, 97.035, 78.429, 82.965, 131.30, 113.11, 116.60, 135.66, 67.049, 67.049, 86.164, 86.164},
-      {48.703, 31.860, 25.235, 44.341, 97.035, 101.57, 82.965, 78.429, 113.11, 131.30, 135.66, 116.60, 67.049, 67.049, 86.164, 86.164, 25.235, 31.860, 48.703, 44.341, 19.131, 27.184, 19.131, 0.0000, 63.403, 66.891, 48.703, 44.341, 107.18, 110.53, 91.582, 88.418, 148.14, 154.77, 135.66, 131.30, 152.82, 160.87, 180.00, 160.87, 113.11, 116.60, 135.66, 131.30, 69.473, 72.817, 91.582, 88.418, 48.703, 66.891, 63.403, 44.341, 112.95, 112.95, 93.836, 93.836, 148.14, 131.30, 135.66, 154.77, 78.429, 82.965, 101.57, 97.035},
-      {53.690, 46.607, 65.195, 71.054, 60.157, 49.631, 33.166, 46.607, 108.95, 119.84, 103.31, 93.279, 103.31, 117.28, 130.37, 114.81, 88.418, 91.582, 110.53, 107.18, 44.341, 48.703, 66.891, 63.403, 0.0000, 19.131, 27.184, 19.131, 44.341, 48.703, 31.860, 25.235, 88.418, 91.582, 72.817, 69.473, 131.30, 135.66, 116.60, 113.11, 160.87, 180.00, 160.87, 152.82, 131.30, 135.66, 154.77, 148.14, 60.157, 71.054, 86.721, 76.694, 62.720, 76.694, 65.195, 49.631, 133.39, 126.31, 108.95, 114.81, 130.37, 119.84, 133.39, 146.83},
-      {71.054, 60.157, 76.694, 86.721, 76.694, 62.720, 49.631, 65.195, 126.31, 133.39, 114.81, 108.95, 119.84, 130.37, 146.83, 133.39, 91.582, 88.418, 107.18, 110.53, 48.703, 44.341, 63.403, 66.891, 19.131, 0.0000, 19.131, 27.184, 48.703, 44.341, 25.235, 31.860, 91.582, 88.418, 69.473, 72.817, 135.66, 131.30, 113.11, 116.60, 180.00, 160.87, 152.82, 160.87, 135.66, 131.30, 148.14, 154.77, 46.607, 53.690, 71.054, 65.195, 49.631, 60.157, 46.607, 33.166, 119.84, 108.95, 93.279, 103.31, 117.28, 103.31, 114.81, 130.37},
-      {65.195, 49.631, 62.720, 76.694, 86.721, 76.694, 60.157, 71.054, 133.39, 146.83, 130.37, 119.84, 108.95, 114.81, 133.39, 126.31, 72.817, 69.473, 88.418, 91.582, 31.860, 25.235, 44.341, 48.703, 27.184, 19.131, 0.0000, 19.131, 66.891, 63.403, 44.341, 48.703, 110.53, 107.18, 88.418, 91.582, 154.77, 148.14, 131.30, 135.66, 160.87, 152.82, 160.87, 180.00, 116.60, 113.11, 131.30, 135.66, 33.166, 46.607, 60.157, 49.631, 65.195, 71.054, 53.690, 46.607, 130.37, 114.81, 103.31, 117.28, 103.31, 93.279, 108.95, 119.84},
-      {46.607, 33.166, 49.631, 60.157, 71.054, 65.195, 46.607, 53.690, 114.81, 130.37, 117.28, 103.31, 93.279, 103.31, 119.84, 108.95, 69.473, 72.817, 91.582, 88.418, 25.235, 31.860, 48.703, 44.341, 19.131, 27.184, 19.131, 0.0000, 63.403, 66.891, 48.703, 44.341, 107.18, 110.53, 91.582, 88.418, 148.14, 154.77, 135.66, 131.30, 152.82, 160.87, 180.00, 160.87, 113.11, 116.60, 135.66, 131.30, 49.631, 65.195, 76.694, 62.720, 76.694, 86.721, 71.054, 60.157, 146.83, 133.39, 119.84, 130.37, 114.81, 108.95, 126.31, 133.39},
-      {78.429, 82.965, 101.57, 97.035, 44.341, 25.235, 31.860, 48.703, 86.164, 86.164, 67.049, 67.049, 116.60, 135.66, 131.30, 113.11, 131.30, 135.66, 154.77, 148.14, 88.418, 91.582, 110.53, 107.18, 44.341, 48.703, 66.891, 63.403, 0.0000, 19.131, 27.184, 19.131, 44.341, 48.703, 31.860, 25.235, 88.418, 91.582, 72.817, 69.473, 131.30, 135.66, 116.60, 113.11, 160.87, 180.00, 160.87, 152.82, 93.836, 93.836, 112.95, 112.95, 44.341, 63.403, 66.891, 48.703, 97.035, 101.57, 82.965, 78.429, 154.77, 135.66, 131.30, 148.14},
-      {93.836, 93.836, 112.95, 112.95, 63.403, 44.341, 48.703, 66.891, 101.57, 97.035, 78.429, 82.965, 135.66, 154.77, 148.14, 131.30, 135.66, 131.30, 148.14, 154.77, 91.582, 88.418, 107.18, 110.53, 48.703, 44.341, 63.403, 66.891, 19.131, 0.0000, 19.131, 27.184, 48.703, 44.341, 25.235, 31.860, 91.582, 88.418, 69.473, 72.817, 135.66, 131.30, 113.11, 116.60, 180.00, 160.87, 152.82, 160.87, 82.965, 78.429, 97.035, 101.57, 25.235, 44.341, 48.703, 31.860, 86.164, 86.164, 67.049, 67.049, 135.66, 116.60, 113.11, 131.30},
-      {82.965, 78.429, 97.035, 101.57, 66.891, 48.703, 44.341, 63.403, 112.95, 112.95, 93.836, 93.836, 131.30, 148.14, 154.77, 135.66, 116.60, 113.11, 131.30, 135.66, 72.817, 69.473, 88.418, 91.582, 31.860, 25.235, 44.341, 48.703, 27.184, 19.131, 0.0000, 19.131, 66.891, 63.403, 44.341, 48.703, 110.53, 107.18, 88.418, 91.582, 154.77, 148.14, 131.30, 135.66, 160.87, 152.82, 160.87, 180.00, 67.049, 67.049, 86.164, 86.164, 31.860, 48.703, 44.341, 25.235, 101.57, 97.035, 78.429, 82.965, 131.30, 113.11, 116.60, 135.66},
-      {67.049, 67.049, 86.164, 86.164, 48.703, 31.860, 25.235, 44.341, 97.035, 101.57, 82.965, 78.429, 113.11, 131.30, 135.66, 116.60, 113.11, 116.60, 135.66, 131.30, 69.473, 72.817, 91.582, 88.418, 25.235, 31.860, 48.703, 44.341, 19.131, 27.184, 19.131, 0.0000, 63.403, 66.891, 48.703, 44.341, 107.18, 110.53, 91.582, 88.418, 148.14, 154.77, 135.66, 131.30, 152.82, 160.87, 180.00, 160.87, 78.429, 82.965, 101.57, 97.035, 48.703, 66.891, 63.403, 44.341, 112.95, 112.95, 93.836, 93.836, 148.14, 131.30, 135.66, 154.77},
-      {103.31, 117.28, 130.37, 114.81, 53.690, 46.607, 65.195, 71.054, 60.157, 49.631, 33.166, 46.607, 108.95, 119.84, 103.31, 93.279, 160.87, 180.00, 160.87, 152.82, 131.30, 135.66, 154.77, 148.14, 88.418, 91.582, 110.53, 107.18, 44.341, 48.703, 66.891, 63.403, 0.0000, 19.131, 27.184, 19.131, 44.341, 48.703, 31.860, 25.235, 88.418, 91.582, 72.817, 69.473, 131.30, 135.66, 116.60, 113.11, 130.37, 119.84, 133.39, 146.83, 60.157, 71.054, 86.721, 76.694, 62.720, 76.694, 65.195, 49.631, 133.39, 126.31, 108.95, 114.81},
-      {119.84, 130.37, 146.83, 133.39, 71.054, 60.157, 76.694, 86.721, 76.694, 62.720, 49.631, 65.195, 126.31, 133.39, 114.81, 108.95, 180.00, 160.87, 152.82, 160.87, 135.66, 131.30, 148.14, 154.77, 91.582, 88.418, 107.18, 110.53, 48.703, 44.341, 63.403, 66.891, 19.131, 0.0000, 19.131, 27.184, 48.703, 44.341, 25.235, 31.860, 91.582, 88.418, 69.473, 72.817, 135.66, 131.30, 113.11, 116.60, 117.28, 103.31, 114.81, 130.37, 46.607, 53.690, 71.054, 65.195, 49.631, 60.157, 46.607, 33.166, 119.84, 108.95, 93.279, 103.31},
-      {108.95, 114.81, 133.39, 126.31, 65.195, 49.631, 62.720, 76.694, 86.721, 76.694, 60.157, 71.054, 133.39, 146.83, 130.37, 119.84, 160.87, 152.82, 160.87, 180.00, 116.60, 113.11, 131.30, 135.66, 72.817, 69.473, 88.418, 91.582, 31.860, 25.235, 44.341, 48.703, 27.184, 19.131, 0.0000, 19.131, 66.891, 63.403, 44.341, 48.703, 110.53, 107.18, 88.418, 91.582, 154.77, 148.14, 131.30, 135.66, 103.31, 93.279, 108.95, 119.84, 33.166, 46.607, 60.157, 49.631, 65.195, 71.054, 53.690, 46.607, 130.37, 114.81, 103.31, 117.28},
-      {93.279, 103.31, 119.84, 108.95, 46.607, 33.166, 49.631, 60.157, 71.054, 65.195, 46.607, 53.690, 114.81, 130.37, 117.28, 103.31, 152.82, 160.87, 180.00, 160.87, 113.11, 116.60, 135.66, 131.30, 69.473, 72.817, 91.582, 88.418, 25.235, 31.860, 48.703, 44.341, 19.131, 27.184, 19.131, 0.0000, 63.403, 66.891, 48.703, 44.341, 107.18, 110.53, 91.582, 88.418, 148.14, 154.77, 135.66, 131.30, 114.81, 108.95, 126.31, 133.39, 49.631, 65.195, 76.694, 62.720, 76.694, 86.721, 71.054, 60.157, 146.83, 133.39, 119.84, 130.37},
-      {116.60, 135.66, 131.30, 113.11, 78.429, 82.965, 101.57, 97.035, 44.341, 25.235, 31.860, 48.703, 86.164, 86.164, 67.049, 67.049, 131.30, 135.66, 116.60, 113.11, 160.87, 180.00, 160.87, 152.82, 131.30, 135.66, 154.77, 148.14, 88.418, 91.582, 110.53, 107.18, 44.341, 48.703, 66.891, 63.403, 0.0000, 19.131, 27.184, 19.131, 44.341, 48.703, 31.860, 25.235, 88.418, 91.582, 72.817, 69.473, 154.77, 135.66, 131.30, 148.14, 93.836, 93.836, 112.95, 112.95, 44.341, 63.403, 66.891, 48.703, 97.035, 101.57, 82.965, 78.429},
-      {135.66, 154.77, 148.14, 131.30, 93.836, 93.836, 112.95, 112.95, 63.403, 44.341, 48.703, 66.891, 101.57, 97.035, 78.429, 82.965, 135.66, 131.30, 113.11, 116.60, 180.00, 160.87, 152.82, 160.87, 135.66, 131.30, 148.14, 154.77, 91.582, 88.418, 107.18, 110.53, 48.703, 44.341, 63.403, 66.891, 19.131, 0.0000, 19.131, 27.184, 48.703, 44.341, 25.235, 31.860, 91.582, 88.418, 69.473, 72.817, 135.66, 116.60, 113.11, 131.30, 82.965, 78.429, 97.035, 101.57, 25.235, 44.341, 48.703, 31.860, 86.164, 86.164, 67.049, 67.049},
-      {131.30, 148.14, 154.77, 135.66, 82.965, 78.429, 97.035, 101.57, 66.891, 48.703, 44.341, 63.403, 112.95, 112.95, 93.836, 93.836, 154.77, 148.14, 131.30, 135.66, 160.87, 152.82, 160.87, 180.00, 116.60, 113.11, 131.30, 135.66, 72.817, 69.473, 88.418, 91.582, 31.860, 25.235, 44.341, 48.703, 27.184, 19.131, 0.0000, 19.131, 66.891, 63.403, 44.341, 48.703, 110.53, 107.18, 88.418, 91.582, 131.30, 113.11, 116.60, 135.66, 67.049, 67.049, 86.164, 86.164, 31.860, 48.703, 44.341, 25.235, 101.57, 97.035, 78.429, 82.965},
-      {113.11, 131.30, 135.66, 116.60, 67.049, 67.049, 86.164, 86.164, 48.703, 31.860, 25.235, 44.341, 97.035, 101.57, 82.965, 78.429, 148.14, 154.77, 135.66, 131.30, 152.82, 160.87, 180.00, 160.87, 113.11, 116.60, 135.66, 131.30, 69.473, 72.817, 91.582, 88.418, 25.235, 31.860, 48.703, 44.341, 19.131, 27.184, 19.131, 0.0000, 63.403, 66.891, 48.703, 44.341, 107.18, 110.53, 91.582, 88.418, 148.14, 131.30, 135.66, 154.77, 78.429, 82.965, 101.57, 97.035, 48.703, 66.891, 63.403, 44.341, 112.95, 112.95, 93.836, 93.836},
-      {108.95, 119.84, 103.31, 93.279, 103.31, 117.28, 130.37, 114.81, 53.690, 46.607, 65.195, 71.054, 60.157, 49.631, 33.166, 46.607, 88.418, 91.582, 72.817, 69.473, 131.30, 135.66, 116.60, 113.11, 160.87, 180.00, 160.87, 152.82, 131.30, 135.66, 154.77, 148.14, 88.418, 91.582, 110.53, 107.18, 44.341, 48.703, 66.891, 63.403, 0.0000, 19.131, 27.184, 19.131, 44.341, 48.703, 31.860, 25.235, 133.39, 126.31, 108.95, 114.81, 130.37, 119.84, 133.39, 146.83, 60.157, 71.054, 86.721, 76.694, 62.720, 76.694, 65.195, 49.631},
-      {126.31, 133.39, 114.81, 108.95, 119.84, 130.37, 146.83, 133.39, 71.054, 60.157, 76.694, 86.721, 76.694, 62.720, 49.631, 65.195, 91.582, 88.418, 69.473, 72.817, 135.66, 131.30, 113.11, 116.60, 180.00, 160.87, 152.82, 160.87, 135.66, 131.30, 148.14, 154.77, 91.582, 88.418, 107.18, 110.53, 48.703, 44.341, 63.403, 66.891, 19.131, 0.0000, 19.131, 27.184, 48.703, 44.341, 25.235, 31.860, 119.84, 108.95, 93.279, 103.31, 117.28, 103.31, 114.81, 130.37, 46.607, 53.690, 71.054, 65.195, 49.631, 60.157, 46.607, 33.166},
-      {133.39, 146.83, 130.37, 119.84, 108.95, 114.81, 133.39, 126.31, 65.195, 49.631, 62.720, 76.694, 86.721, 76.694, 60.157, 71.054, 110.53, 107.18, 88.418, 91.582, 154.77, 148.14, 131.30, 135.66, 160.87, 152.82, 160.87, 180.00, 116.60, 113.11, 131.30, 135.66, 72.817, 69.473, 88.418, 91.582, 31.860, 25.235, 44.341, 48.703, 27.184, 19.131, 0.0000, 19.131, 66.891, 63.403, 44.341, 48.703, 130.37, 114.81, 103.31, 117.28, 103.31, 93.279, 108.95, 119.84, 33.166, 46.607, 60.157, 49.631, 65.195, 71.054, 53.690, 46.607},
-      {114.81, 130.37, 117.28, 103.31, 93.279, 103.31, 119.84, 108.95, 46.607, 33.166, 49.631, 60.157, 71.054, 65.195, 46.607, 53.690, 107.18, 110.53, 91.582, 88.418, 148.14, 154.77, 135.66, 131.30, 152.82, 160.87, 180.00, 160.87, 113.11, 116.60, 135.66, 131.30, 69.473, 72.817, 91.582, 88.418, 25.235, 31.860, 48.703, 44.341, 19.131, 27.184, 19.131, 0.0000, 63.403, 66.891, 48.703, 44.341, 146.83, 133.39, 119.84, 130.37, 114.81, 108.95, 126.31, 133.39, 49.631, 65.195, 76.694, 62.720, 76.694, 86.721, 71.054, 60.157},
-      {86.164, 86.164, 67.049, 67.049, 116.60, 135.66, 131.30, 113.11, 78.429, 82.965, 101.57, 97.035, 44.341, 25.235, 31.860, 48.703, 44.341, 48.703, 31.860, 25.235, 88.418, 91.582, 72.817, 69.473, 131.30, 135.66, 116.60, 113.11, 160.87, 180.00, 160.87, 152.82, 131.30, 135.66, 154.77, 148.14, 88.418, 91.582, 110.53, 107.18, 44.341, 48.703, 66.891, 63.403, 0.0000, 19.131, 27.184, 19.131, 97.035, 101.57, 82.965, 78.429, 154.77, 135.66, 131.30, 148.14, 93.836, 93.836, 112.95, 112.95, 44.341, 63.403, 66.891, 48.703},
-      {101.57, 97.035, 78.429, 82.965, 135.66, 154.77, 148.14, 131.30, 93.836, 93.836, 112.95, 112.95, 63.403, 44.341, 48.703, 66.891, 48.703, 44.341, 25.235, 31.860, 91.582, 88.418, 69.473, 72.817, 135.66, 131.30, 113.11, 116.60, 180.00, 160.87, 152.82, 160.87, 135.66, 131.30, 148.14, 154.77, 91.582, 88.418, 107.18, 110.53, 48.703, 44.341, 63.403, 66.891, 19.131, 0.0000, 19.131, 27.184, 86.164, 86.164, 67.049, 67.049, 135.66, 116.60, 113.11, 131.30, 82.965, 78.429, 97.035, 101.57, 25.235, 44.341, 48.703, 31.860},
-      {112.95, 112.95, 93.836, 93.836, 131.30, 148.14, 154.77, 135.66, 82.965, 78.429, 97.035, 101.57, 66.891, 48.703, 44.341, 63.403, 66.891, 63.403, 44.341, 48.703, 110.53, 107.18, 88.418, 91.582, 154.77, 148.14, 131.30, 135.66, 160.87, 152.82, 160.87, 180.00, 116.60, 113.11, 131.30, 135.66, 72.817, 69.473, 88.418, 91.582, 31.860, 25.235, 44.341, 48.703, 27.184, 19.131, 0.0000, 19.131, 101.57, 97.035, 78.429, 82.965, 131.30, 113.11, 116.60, 135.66, 67.049, 67.049, 86.164, 86.164, 31.860, 48.703, 44.341, 25.235},
-      {97.035, 101.57, 82.965, 78.429, 113.11, 131.30, 135.66, 116.60, 67.049, 67.049, 86.164, 86.164, 48.703, 31.860, 25.235, 44.341, 63.403, 66.891, 48.703, 44.341, 107.18, 110.53, 91.582, 88.418, 148.14, 154.77, 135.66, 131.30, 152.82, 160.87, 180.00, 160.87, 113.11, 116.60, 135.66, 131.30, 69.473, 72.817, 91.582, 88.418, 25.235, 31.860, 48.703, 44.341, 19.131, 27.184, 19.131, 0.0000, 112.95, 112.95, 93.836, 93.836, 148.14, 131.30, 135.66, 154.77, 78.429, 82.965, 101.57, 97.035, 48.703, 66.891, 63.403, 44.341},
-      {88.418, 69.473, 72.817, 91.582, 119.84, 108.95, 93.279, 103.31, 160.87, 180.00, 160.87, 152.82, 114.81, 108.95, 126.31, 133.39, 62.720, 49.631, 65.195, 76.694, 44.341, 25.235, 31.860, 48.703, 60.157, 46.607, 33.166, 49.631, 93.836, 82.965, 67.049, 78.429, 130.37, 117.28, 103.31, 114.81, 154.77, 135.66, 131.30, 148.14, 133.39, 119.84, 130.37, 146.83, 97.035, 86.164, 101.57, 112.95, 0.0000, 19.131, 27.184, 19.131, 71.054, 65.195, 46.607, 53.690, 110.53, 91.582, 88.418, 107.18, 71.054, 60.157, 76.694, 86.721},
-      {107.18, 88.418, 91.582, 110.53, 130.37, 114.81, 103.31, 117.28, 180.00, 160.87, 152.82, 160.87, 130.37, 119.84, 133.39, 146.83, 76.694, 60.157, 71.054, 86.721, 63.403, 44.341, 48.703, 66.891, 71.054, 53.690, 46.607, 65.195, 93.836, 78.429, 67.049, 82.965, 119.84, 103.31, 93.279, 108.95, 135.66, 116.60, 113.11, 131.30, 126.31, 108.95, 114.81, 133.39, 101.57, 86.164, 97.035, 112.95, 19.131, 0.0000, 19.131, 27.184, 60.157, 49.631, 33.166, 46.607, 91.582, 72.817, 69.473, 88.418, 65.195, 49.631, 62.720, 76.694},
-      {110.53, 91.582, 88.418, 107.18, 146.83, 133.39, 119.84, 130.37, 160.87, 152.82, 160.87, 180.00, 117.28, 103.31, 114.81, 130.37, 65.195, 46.607, 53.690, 71.054, 66.891, 48.703, 44.341, 63.403, 86.721, 71.054, 60.157, 76.694, 112.95, 97.035, 86.164, 101.57, 133.39, 114.81, 108.95, 126.31, 131.30, 113.11, 116.60, 135.66, 108.95, 93.279, 103.31, 119.84, 82.965, 67.049, 78.429, 93.836, 27.184, 19.131, 0.0000, 19.131, 76.694, 62.720, 49.631, 65.195, 88.418, 69.473, 72.817, 91.582, 46.607, 33.166, 49.631, 60.157},
-      {91.582, 72.817, 69.473, 88.418, 133.39, 126.31, 108.95, 114.81, 152.82, 160.87, 180.00, 160.87, 103.31, 93.279, 108.95, 119.84, 49.631, 33.166, 46.607, 60.157, 48.703, 31.860, 25.235, 44.341, 76.694, 65.195, 49.631, 62.720, 112.95, 101.57, 86.164, 97.035, 146.83, 130.37, 119.84, 133.39, 148.14, 131.30, 135.66, 154.77, 114.81, 103.31, 117.28, 130.37, 78.429, 67.049, 82.965, 93.836, 19.131, 27.184, 19.131, 0.0000, 86.721, 76.694, 60.157, 71.054, 107.18, 88.418, 91.582, 110.53, 53.690, 46.607, 65.195, 71.054},
-      {114.81, 108.95, 126.31, 133.39, 88.418, 69.473, 72.817, 91.582, 119.84, 108.95, 93.279, 103.31, 160.87, 180.00, 160.87, 152.82, 133.39, 119.84, 130.37, 146.83, 97.035, 86.164, 101.57, 112.95, 62.720, 49.631, 65.195, 76.694, 44.341, 25.235, 31.860, 48.703, 60.157, 46.607, 33.166, 49.631, 93.836, 82.965, 67.049, 78.429, 130.37, 117.28, 103.31, 114.81, 154.77, 135.66, 131.30, 148.14, 71.054, 60.157, 76.694, 86.721, 0.0000, 19.131, 27.184, 19.131, 71.054, 65.195, 46.607, 53.690, 110.53, 91.582, 88.418, 107.18},
-      {130.37, 119.84, 133.39, 146.83, 107.18, 88.418, 91.582, 110.53, 130.37, 114.81, 103.31, 117.28, 180.00, 160.87, 152.82, 160.87, 126.31, 108.95, 114.81, 133.39, 101.57, 86.164, 97.035, 112.95, 76.694, 60.157, 71.054, 86.721, 63.403, 44.341, 48.703, 66.891, 71.054, 53.690, 46.607, 65.195, 93.836, 78.429, 67.049, 82.965, 119.84, 103.31, 93.279, 108.95, 135.66, 116.60, 113.11, 131.30, 65.195, 49.631, 62.720, 76.694, 19.131, 0.0000, 19.131, 27.184, 60.157, 49.631, 33.166, 46.607, 91.582, 72.817, 69.473, 88.418},
-      {117.28, 103.31, 114.81, 130.37, 110.53, 91.582, 88.418, 107.18, 146.83, 133.39, 119.84, 130.37, 160.87, 152.82, 160.87, 180.00, 108.95, 93.279, 103.31, 119.84, 82.965, 67.049, 78.429, 93.836, 65.195, 46.607, 53.690, 71.054, 66.891, 48.703, 44.341, 63.403, 86.721, 71.054, 60.157, 76.694, 112.95, 97.035, 86.164, 101.57, 133.39, 114.81, 108.95, 126.31, 131.30, 113.11, 116.60, 135.66, 46.607, 33.166, 49.631, 60.157, 27.184, 19.131, 0.0000, 19.131, 76.694, 62.720, 49.631, 65.195, 88.418, 69.473, 72.817, 91.582},
-      {103.31, 93.279, 108.95, 119.84, 91.582, 72.817, 69.473, 88.418, 133.39, 126.31, 108.95, 114.81, 152.82, 160.87, 180.00, 160.87, 114.81, 103.31, 117.28, 130.37, 78.429, 67.049, 82.965, 93.836, 49.631, 33.166, 46.607, 60.157, 48.703, 31.860, 25.235, 44.341, 76.694, 65.195, 49.631, 62.720, 112.95, 101.57, 86.164, 97.035, 146.83, 130.37, 119.84, 133.39, 148.14, 131.30, 135.66, 154.77, 53.690, 46.607, 65.195, 71.054, 19.131, 27.184, 19.131, 0.0000, 86.721, 76.694, 60.157, 71.054, 107.18, 88.418, 91.582, 110.53},
-      {160.87, 180.00, 160.87, 152.82, 114.81, 108.95, 126.31, 133.39, 88.418, 69.473, 72.817, 91.582, 119.84, 108.95, 93.279, 103.31, 130.37, 117.28, 103.31, 114.81, 154.77, 135.66, 131.30, 148.14, 133.39, 119.84, 130.37, 146.83, 97.035, 86.164, 101.57, 112.95, 62.720, 49.631, 65.195, 76.694, 44.341, 25.235, 31.860, 48.703, 60.157, 46.607, 33.166, 49.631, 93.836, 82.965, 67.049, 78.429, 110.53, 91.582, 88.418, 107.18, 71.054, 60.157, 76.694, 86.721, 0.0000, 19.131, 27.184, 19.131, 71.054, 65.195, 46.607, 53.690},
-      {180.00, 160.87, 152.82, 160.87, 130.37, 119.84, 133.39, 146.83, 107.18, 88.418, 91.582, 110.53, 130.37, 114.81, 103.31, 117.28, 119.84, 103.31, 93.279, 108.95, 135.66, 116.60, 113.11, 131.30, 126.31, 108.95, 114.81, 133.39, 101.57, 86.164, 97.035, 112.95, 76.694, 60.157, 71.054, 86.721, 63.403, 44.341, 48.703, 66.891, 71.054, 53.690, 46.607, 65.195, 93.836, 78.429, 67.049, 82.965, 91.582, 72.817, 69.473, 88.418, 65.195, 49.631, 62.720, 76.694, 19.131, 0.0000, 19.131, 27.184, 60.157, 49.631, 33.166, 46.607},
-      {160.87, 152.82, 160.87, 180.00, 117.28, 103.31, 114.81, 130.37, 110.53, 91.582, 88.418, 107.18, 146.83, 133.39, 119.84, 130.37, 133.39, 114.81, 108.95, 126.31, 131.30, 113.11, 116.60, 135.66, 108.95, 93.279, 103.31, 119.84, 82.965, 67.049, 78.429, 93.836, 65.195, 46.607, 53.690, 71.054, 66.891, 48.703, 44.341, 63.403, 86.721, 71.054, 60.157, 76.694, 112.95, 97.035, 86.164, 101.57, 88.418, 69.473, 72.817, 91.582, 46.607, 33.166, 49.631, 60.157, 27.184, 19.131, 0.0000, 19.131, 76.694, 62.720, 49.631, 65.195},
-      {152.82, 160.87, 180.00, 160.87, 103.31, 93.279, 108.95, 119.84, 91.582, 72.817, 69.473, 88.418, 133.39, 126.31, 108.95, 114.81, 146.83, 130.37, 119.84, 133.39, 148.14, 131.30, 135.66, 154.77, 114.81, 103.31, 117.28, 130.37, 78.429, 67.049, 82.965, 93.836, 49.631, 33.166, 46.607, 60.157, 48.703, 31.860, 25.235, 44.341, 76.694, 65.195, 49.631, 62.720, 112.95, 101.57, 86.164, 97.035, 107.18, 88.418, 91.582, 110.53, 53.690, 46.607, 65.195, 71.054, 19.131, 27.184, 19.131, 0.0000, 86.721, 76.694, 60.157, 71.054},
-      {119.84, 108.95, 93.279, 103.31, 160.87, 180.00, 160.87, 152.82, 114.81, 108.95, 126.31, 133.39, 88.418, 69.473, 72.817, 91.582, 60.157, 46.607, 33.166, 49.631, 93.836, 82.965, 67.049, 78.429, 130.37, 117.28, 103.31, 114.81, 154.77, 135.66, 131.30, 148.14, 133.39, 119.84, 130.37, 146.83, 97.035, 86.164, 101.57, 112.95, 62.720, 49.631, 65.195, 76.694, 44.341, 25.235, 31.860, 48.703, 71.054, 65.195, 46.607, 53.690, 110.53, 91.582, 88.418, 107.18, 71.054, 60.157, 76.694, 86.721, 0.0000, 19.131, 27.184, 19.131},
-      {130.37, 114.81, 103.31, 117.28, 180.00, 160.87, 152.82, 160.87, 130.37, 119.84, 133.39, 146.83, 107.18, 88.418, 91.582, 110.53, 71.054, 53.690, 46.607, 65.195, 93.836, 78.429, 67.049, 82.965, 119.84, 103.31, 93.279, 108.95, 135.66, 116.60, 113.11, 131.30, 126.31, 108.95, 114.81, 133.39, 101.57, 86.164, 97.035, 112.95, 76.694, 60.157, 71.054, 86.721, 63.403, 44.341, 48.703, 66.891, 60.157, 49.631, 33.166, 46.607, 91.582, 72.817, 69.473, 88.418, 65.195, 49.631, 62.720, 76.694, 19.131, 0.0000, 19.131, 27.184},
-      {146.83, 133.39, 119.84, 130.37, 160.87, 152.82, 160.87, 180.00, 117.28, 103.31, 114.81, 130.37, 110.53, 91.582, 88.418, 107.18, 86.721, 71.054, 60.157, 76.694, 112.95, 97.035, 86.164, 101.57, 133.39, 114.81, 108.95, 126.31, 131.30, 113.11, 116.60, 135.66, 108.95, 93.279, 103.31, 119.84, 82.965, 67.049, 78.429, 93.836, 65.195, 46.607, 53.690, 71.054, 66.891, 48.703, 44.341, 63.403, 76.694, 62.720, 49.631, 65.195, 88.418, 69.473, 72.817, 91.582, 46.607, 33.166, 49.631, 60.157, 27.184, 19.131, 0.0000, 19.131},
-      {133.39, 126.31, 108.95, 114.81, 152.82, 160.87, 180.00, 160.87, 103.31, 93.279, 108.95, 119.84, 91.582, 72.817, 69.473, 88.418, 76.694, 65.195, 49.631, 62.720, 112.95, 101.57, 86.164, 97.035, 146.83, 130.37, 119.84, 133.39, 148.14, 131.30, 135.66, 154.77, 114.81, 103.31, 117.28, 130.37, 78.429, 67.049, 82.965, 93.836, 49.631, 33.166, 46.607, 60.157, 48.703, 31.860, 25.235, 44.341, 86.721, 76.694, 60.157, 71.054, 107.18, 88.418, 91.582, 110.53, 53.690, 46.607, 65.195, 71.054, 19.131, 27.184, 19.131, 0}
-  };
-  memcpy(GriffinCryMap, thisGriffinCryMap, sizeof(GriffinCryMap));
+    double thisGriffinCryMap[64][64] = {
+        {0.0000, 19.131, 27.184, 19.131, 49.631, 60.157, 46.607, 33.166, 72.817, 91.582, 88.418, 69.473, 49.631, 65.195, 76.694, 62.720, 60.157, 76.694, 86.721, 71.054, 44.341, 63.403, 66.891, 48.703, 53.690, 71.054, 65.195, 46.607, 78.429, 93.836, 82.965, 67.049, 103.31, 119.84, 108.95, 93.279, 116.60, 135.66, 131.30, 113.11, 108.95, 126.31, 133.39, 114.81, 86.164, 101.57, 112.95, 97.035, 88.418, 107.18, 110.53, 91.582, 114.81, 130.37, 117.28, 103.31, 160.87, 180.00, 160.87, 152.82, 119.84, 130.37, 146.83, 133.39},
+        {19.131, 0.0000, 19.131, 27.184, 65.195, 71.054, 53.690, 46.607, 91.582, 110.53, 107.18, 88.418, 60.157, 71.054, 86.721, 76.694, 49.631, 62.720, 76.694, 65.195, 25.235, 44.341, 48.703, 31.860, 46.607, 60.157, 49.631, 33.166, 82.965, 93.836, 78.429, 67.049, 117.28, 130.37, 114.81, 103.31, 135.66, 154.77, 148.14, 131.30, 119.84, 133.39, 146.83, 130.37, 86.164, 97.035, 112.95, 101.57, 69.473, 88.418, 91.582, 72.817, 108.95, 119.84, 103.31, 93.279, 180.00, 160.87, 152.82, 160.87, 108.95, 114.81, 133.39, 126.31},
+        {27.184, 19.131, 0.0000, 19.131, 76.694, 86.721, 71.054, 60.157, 88.418, 107.18, 110.53, 91.582, 46.607, 53.690, 71.054, 65.195, 33.166, 49.631, 60.157, 46.607, 31.860, 48.703, 44.341, 25.235, 65.195, 76.694, 62.720, 49.631, 101.57, 112.95, 97.035, 86.164, 130.37, 146.83, 133.39, 119.84, 131.30, 148.14, 154.77, 135.66, 103.31, 114.81, 130.37, 117.28, 67.049, 78.429, 93.836, 82.965, 72.817, 91.582, 88.418, 69.473, 126.31, 133.39, 114.81, 108.95, 160.87, 152.82, 160.87, 180.00, 93.279, 103.31, 119.84, 108.95},
+        {19.131, 27.184, 19.131, 0.0000, 62.720, 76.694, 65.195, 49.631, 69.473, 88.418, 91.582, 72.817, 33.166, 46.607, 60.157, 49.631, 46.607, 65.195, 71.054, 53.690, 48.703, 66.891, 63.403, 44.341, 71.054, 86.721, 76.694, 60.157, 97.035, 112.95, 101.57, 86.164, 114.81, 133.39, 126.31, 108.95, 113.11, 131.30, 135.66, 116.60, 93.279, 108.95, 119.84, 103.31, 67.049, 82.965, 93.836, 78.429, 91.582, 110.53, 107.18, 88.418, 133.39, 146.83, 130.37, 119.84, 152.82, 160.87, 180.00, 160.87, 103.31, 117.28, 130.37, 114.81},
+        {49.631, 65.195, 76.694, 62.720, 0.0000, 19.131, 27.184, 19.131, 49.631, 60.157, 46.607, 33.166, 72.817, 91.582, 88.418, 69.473, 108.95, 126.31, 133.39, 114.81, 86.164, 101.57, 112.95, 97.035, 60.157, 76.694, 86.721, 71.054, 44.341, 63.403, 66.891, 48.703, 53.690, 71.054, 65.195, 46.607, 78.429, 93.836, 82.965, 67.049, 103.31, 119.84, 108.95, 93.279, 116.60, 135.66, 131.30, 113.11, 119.84, 130.37, 146.83, 133.39, 88.418, 107.18, 110.53, 91.582, 114.81, 130.37, 117.28, 103.31, 160.87, 180.00, 160.87, 152.82},
+        {60.157, 71.054, 86.721, 76.694, 19.131, 0.0000, 19.131, 27.184, 65.195, 71.054, 53.690, 46.607, 91.582, 110.53, 107.18, 88.418, 119.84, 133.39, 146.83, 130.37, 86.164, 97.035, 112.95, 101.57, 49.631, 62.720, 76.694, 65.195, 25.235, 44.341, 48.703, 31.860, 46.607, 60.157, 49.631, 33.166, 82.965, 93.836, 78.429, 67.049, 117.28, 130.37, 114.81, 103.31, 135.66, 154.77, 148.14, 131.30, 108.95, 114.81, 133.39, 126.31, 69.473, 88.418, 91.582, 72.817, 108.95, 119.84, 103.31, 93.279, 180.00, 160.87, 152.82, 160.87},
+        {46.607, 53.690, 71.054, 65.195, 27.184, 19.131, 0.0000, 19.131, 76.694, 86.721, 71.054, 60.157, 88.418, 107.18, 110.53, 91.582, 103.31, 114.81, 130.37, 117.28, 67.049, 78.429, 93.836, 82.965, 33.166, 49.631, 60.157, 46.607, 31.860, 48.703, 44.341, 25.235, 65.195, 76.694, 62.720, 49.631, 101.57, 112.95, 97.035, 86.164, 130.37, 146.83, 133.39, 119.84, 131.30, 148.14, 154.77, 135.66, 93.279, 103.31, 119.84, 108.95, 72.817, 91.582, 88.418, 69.473, 126.31, 133.39, 114.81, 108.95, 160.87, 152.82, 160.87, 180},
+        {33.166, 46.607, 60.157, 49.631, 19.131, 27.184, 19.131, 0.0000, 62.720, 76.694, 65.195, 49.631, 69.473, 88.418, 91.582, 72.817, 93.279, 108.95, 119.84, 103.31, 67.049, 82.965, 93.836, 78.429, 46.607, 65.195, 71.054, 53.690, 48.703, 66.891, 63.403, 44.341, 71.054, 86.721, 76.694, 60.157, 97.035, 112.95, 101.57, 86.164, 114.81, 133.39, 126.31, 108.95, 113.11, 131.30, 135.66, 116.60, 103.31, 117.28, 130.37, 114.81, 91.582, 110.53, 107.18, 88.418, 133.39, 146.83, 130.37, 119.84, 152.82, 160.87, 180.00, 160.87},
+        {72.817, 91.582, 88.418, 69.473, 49.631, 65.195, 76.694, 62.720, 0.0000, 19.131, 27.184, 19.131, 49.631, 60.157, 46.607, 33.166, 103.31, 119.84, 108.95, 93.279, 116.60, 135.66, 131.30, 113.11, 108.95, 126.31, 133.39, 114.81, 86.164, 101.57, 112.95, 97.035, 60.157, 76.694, 86.721, 71.054, 44.341, 63.403, 66.891, 48.703, 53.690, 71.054, 65.195, 46.607, 78.429, 93.836, 82.965, 67.049, 160.87, 180.00, 160.87, 152.82, 119.84, 130.37, 146.83, 133.39, 88.418, 107.18, 110.53, 91.582, 114.81, 130.37, 117.28, 103.31},
+        {91.582, 110.53, 107.18, 88.418, 60.157, 71.054, 86.721, 76.694, 19.131, 0.0000, 19.131, 27.184, 65.195, 71.054, 53.690, 46.607, 117.28, 130.37, 114.81, 103.31, 135.66, 154.77, 148.14, 131.30, 119.84, 133.39, 146.83, 130.37, 86.164, 97.035, 112.95, 101.57, 49.631, 62.720, 76.694, 65.195, 25.235, 44.341, 48.703, 31.860, 46.607, 60.157, 49.631, 33.166, 82.965, 93.836, 78.429, 67.049, 180.00, 160.87, 152.82, 160.87, 108.95, 114.81, 133.39, 126.31, 69.473, 88.418, 91.582, 72.817, 108.95, 119.84, 103.31, 93.279},
+        {88.418, 107.18, 110.53, 91.582, 46.607, 53.690, 71.054, 65.195, 27.184, 19.131, 0.0000, 19.131, 76.694, 86.721, 71.054, 60.157, 130.37, 146.83, 133.39, 119.84, 131.30, 148.14, 154.77, 135.66, 103.31, 114.81, 130.37, 117.28, 67.049, 78.429, 93.836, 82.965, 33.166, 49.631, 60.157, 46.607, 31.860, 48.703, 44.341, 25.235, 65.195, 76.694, 62.720, 49.631, 101.57, 112.95, 97.035, 86.164, 160.87, 152.82, 160.87, 180.00, 93.279, 103.31, 119.84, 108.95, 72.817, 91.582, 88.418, 69.473, 126.31, 133.39, 114.81, 108.95},
+        {69.473, 88.418, 91.582, 72.817, 33.166, 46.607, 60.157, 49.631, 19.131, 27.184, 19.131, 0.0000, 62.720, 76.694, 65.195, 49.631, 114.81, 133.39, 126.31, 108.95, 113.11, 131.30, 135.66, 116.60, 93.279, 108.95, 119.84, 103.31, 67.049, 82.965, 93.836, 78.429, 46.607, 65.195, 71.054, 53.690, 48.703, 66.891, 63.403, 44.341, 71.054, 86.721, 76.694, 60.157, 97.035, 112.95, 101.57, 86.164, 152.82, 160.87, 180.00, 160.87, 103.31, 117.28, 130.37, 114.81, 91.582, 110.53, 107.18, 88.418, 133.39, 146.83, 130.37, 119.84},
+        {49.631, 60.157, 46.607, 33.166, 72.817, 91.582, 88.418, 69.473, 49.631, 65.195, 76.694, 62.720, 0.0000, 19.131, 27.184, 19.131, 53.690, 71.054, 65.195, 46.607, 78.429, 93.836, 82.965, 67.049, 103.31, 119.84, 108.95, 93.279, 116.60, 135.66, 131.30, 113.11, 108.95, 126.31, 133.39, 114.81, 86.164, 101.57, 112.95, 97.035, 60.157, 76.694, 86.721, 71.054, 44.341, 63.403, 66.891, 48.703, 114.81, 130.37, 117.28, 103.31, 160.87, 180.00, 160.87, 152.82, 119.84, 130.37, 146.83, 133.39, 88.418, 107.18, 110.53, 91.582},
+        {65.195, 71.054, 53.690, 46.607, 91.582, 110.53, 107.18, 88.418, 60.157, 71.054, 86.721, 76.694, 19.131, 0.0000, 19.131, 27.184, 46.607, 60.157, 49.631, 33.166, 82.965, 93.836, 78.429, 67.049, 117.28, 130.37, 114.81, 103.31, 135.66, 154.77, 148.14, 131.30, 119.84, 133.39, 146.83, 130.37, 86.164, 97.035, 112.95, 101.57, 49.631, 62.720, 76.694, 65.195, 25.235, 44.341, 48.703, 31.860, 108.95, 119.84, 103.31, 93.279, 180.00, 160.87, 152.82, 160.87, 108.95, 114.81, 133.39, 126.31, 69.473, 88.418, 91.582, 72.817},
+        {76.694, 86.721, 71.054, 60.157, 88.418, 107.18, 110.53, 91.582, 46.607, 53.690, 71.054, 65.195, 27.184, 19.131, 0.0000, 19.131, 65.195, 76.694, 62.720, 49.631, 101.57, 112.95, 97.035, 86.164, 130.37, 146.83, 133.39, 119.84, 131.30, 148.14, 154.77, 135.66, 103.31, 114.81, 130.37, 117.28, 67.049, 78.429, 93.836, 82.965, 33.166, 49.631, 60.157, 46.607, 31.860, 48.703, 44.341, 25.235, 126.31, 133.39, 114.81, 108.95, 160.87, 152.82, 160.87, 180.00, 93.279, 103.31, 119.84, 108.95, 72.817, 91.582, 88.418, 69.473},
+        {62.720, 76.694, 65.195, 49.631, 69.473, 88.418, 91.582, 72.817, 33.166, 46.607, 60.157, 49.631, 19.131, 27.184, 19.131, 0.0000, 71.054, 86.721, 76.694, 60.157, 97.035, 112.95, 101.57, 86.164, 114.81, 133.39, 126.31, 108.95, 113.11, 131.30, 135.66, 116.60, 93.279, 108.95, 119.84, 103.31, 67.049, 82.965, 93.836, 78.429, 46.607, 65.195, 71.054, 53.690, 48.703, 66.891, 63.403, 44.341, 133.39, 146.83, 130.37, 119.84, 152.82, 160.87, 180.00, 160.87, 103.31, 117.28, 130.37, 114.81, 91.582, 110.53, 107.18, 88.418},
+        {60.157, 49.631, 33.166, 46.607, 108.95, 119.84, 103.31, 93.279, 103.31, 117.28, 130.37, 114.81, 53.690, 46.607, 65.195, 71.054, 0.0000, 19.131, 27.184, 19.131, 44.341, 48.703, 31.860, 25.235, 88.418, 91.582, 72.817, 69.473, 131.30, 135.66, 116.60, 113.11, 160.87, 180.00, 160.87, 152.82, 131.30, 135.66, 154.77, 148.14, 88.418, 91.582, 110.53, 107.18, 44.341, 48.703, 66.891, 63.403, 62.720, 76.694, 65.195, 49.631, 133.39, 126.31, 108.95, 114.81, 130.37, 119.84, 133.39, 146.83, 60.157, 71.054, 86.721, 76.694},
+        {76.694, 62.720, 49.631, 65.195, 126.31, 133.39, 114.81, 108.95, 119.84, 130.37, 146.83, 133.39, 71.054, 60.157, 76.694, 86.721, 19.131, 0.0000, 19.131, 27.184, 48.703, 44.341, 25.235, 31.860, 91.582, 88.418, 69.473, 72.817, 135.66, 131.30, 113.11, 116.60, 180.00, 160.87, 152.82, 160.87, 135.66, 131.30, 148.14, 154.77, 91.582, 88.418, 107.18, 110.53, 48.703, 44.341, 63.403, 66.891, 49.631, 60.157, 46.607, 33.166, 119.84, 108.95, 93.279, 103.31, 117.28, 103.31, 114.81, 130.37, 46.607, 53.690, 71.054, 65.195},
+        {86.721, 76.694, 60.157, 71.054, 133.39, 146.83, 130.37, 119.84, 108.95, 114.81, 133.39, 126.31, 65.195, 49.631, 62.720, 76.694, 27.184, 19.131, 0.0000, 19.131, 66.891, 63.403, 44.341, 48.703, 110.53, 107.18, 88.418, 91.582, 154.77, 148.14, 131.30, 135.66, 160.87, 152.82, 160.87, 180.00, 116.60, 113.11, 131.30, 135.66, 72.817, 69.473, 88.418, 91.582, 31.860, 25.235, 44.341, 48.703, 65.195, 71.054, 53.690, 46.607, 130.37, 114.81, 103.31, 117.28, 103.31, 93.279, 108.95, 119.84, 33.166, 46.607, 60.157, 49.631},
+        {71.054, 65.195, 46.607, 53.690, 114.81, 130.37, 117.28, 103.31, 93.279, 103.31, 119.84, 108.95, 46.607, 33.166, 49.631, 60.157, 19.131, 27.184, 19.131, 0.0000, 63.403, 66.891, 48.703, 44.341, 107.18, 110.53, 91.582, 88.418, 148.14, 154.77, 135.66, 131.30, 152.82, 160.87, 180.00, 160.87, 113.11, 116.60, 135.66, 131.30, 69.473, 72.817, 91.582, 88.418, 25.235, 31.860, 48.703, 44.341, 76.694, 86.721, 71.054, 60.157, 146.83, 133.39, 119.84, 130.37, 114.81, 108.95, 126.31, 133.39, 49.631, 65.195, 76.694, 62.720},
+        {44.341, 25.235, 31.860, 48.703, 86.164, 86.164, 67.049, 67.049, 116.60, 135.66, 131.30, 113.11, 78.429, 82.965, 101.57, 97.035, 44.341, 48.703, 66.891, 63.403, 0.0000, 19.131, 27.184, 19.131, 44.341, 48.703, 31.860, 25.235, 88.418, 91.582, 72.817, 69.473, 131.30, 135.66, 116.60, 113.11, 160.87, 180.00, 160.87, 152.82, 131.30, 135.66, 154.77, 148.14, 88.418, 91.582, 110.53, 107.18, 44.341, 63.403, 66.891, 48.703, 97.035, 101.57, 82.965, 78.429, 154.77, 135.66, 131.30, 148.14, 93.836, 93.836, 112.95, 112.95},
+        {63.403, 44.341, 48.703, 66.891, 101.57, 97.035, 78.429, 82.965, 135.66, 154.77, 148.14, 131.30, 93.836, 93.836, 112.95, 112.95, 48.703, 44.341, 63.403, 66.891, 19.131, 0.0000, 19.131, 27.184, 48.703, 44.341, 25.235, 31.860, 91.582, 88.418, 69.473, 72.817, 135.66, 131.30, 113.11, 116.60, 180.00, 160.87, 152.82, 160.87, 135.66, 131.30, 148.14, 154.77, 91.582, 88.418, 107.18, 110.53, 25.235, 44.341, 48.703, 31.860, 86.164, 86.164, 67.049, 67.049, 135.66, 116.60, 113.11, 131.30, 82.965, 78.429, 97.035, 101.57},
+        {66.891, 48.703, 44.341, 63.403, 112.95, 112.95, 93.836, 93.836, 131.30, 148.14, 154.77, 135.66, 82.965, 78.429, 97.035, 101.57, 31.860, 25.235, 44.341, 48.703, 27.184, 19.131, 0.0000, 19.131, 66.891, 63.403, 44.341, 48.703, 110.53, 107.18, 88.418, 91.582, 154.77, 148.14, 131.30, 135.66, 160.87, 152.82, 160.87, 180.00, 116.60, 113.11, 131.30, 135.66, 72.817, 69.473, 88.418, 91.582, 31.860, 48.703, 44.341, 25.235, 101.57, 97.035, 78.429, 82.965, 131.30, 113.11, 116.60, 135.66, 67.049, 67.049, 86.164, 86.164},
+        {48.703, 31.860, 25.235, 44.341, 97.035, 101.57, 82.965, 78.429, 113.11, 131.30, 135.66, 116.60, 67.049, 67.049, 86.164, 86.164, 25.235, 31.860, 48.703, 44.341, 19.131, 27.184, 19.131, 0.0000, 63.403, 66.891, 48.703, 44.341, 107.18, 110.53, 91.582, 88.418, 148.14, 154.77, 135.66, 131.30, 152.82, 160.87, 180.00, 160.87, 113.11, 116.60, 135.66, 131.30, 69.473, 72.817, 91.582, 88.418, 48.703, 66.891, 63.403, 44.341, 112.95, 112.95, 93.836, 93.836, 148.14, 131.30, 135.66, 154.77, 78.429, 82.965, 101.57, 97.035},
+        {53.690, 46.607, 65.195, 71.054, 60.157, 49.631, 33.166, 46.607, 108.95, 119.84, 103.31, 93.279, 103.31, 117.28, 130.37, 114.81, 88.418, 91.582, 110.53, 107.18, 44.341, 48.703, 66.891, 63.403, 0.0000, 19.131, 27.184, 19.131, 44.341, 48.703, 31.860, 25.235, 88.418, 91.582, 72.817, 69.473, 131.30, 135.66, 116.60, 113.11, 160.87, 180.00, 160.87, 152.82, 131.30, 135.66, 154.77, 148.14, 60.157, 71.054, 86.721, 76.694, 62.720, 76.694, 65.195, 49.631, 133.39, 126.31, 108.95, 114.81, 130.37, 119.84, 133.39, 146.83},
+        {71.054, 60.157, 76.694, 86.721, 76.694, 62.720, 49.631, 65.195, 126.31, 133.39, 114.81, 108.95, 119.84, 130.37, 146.83, 133.39, 91.582, 88.418, 107.18, 110.53, 48.703, 44.341, 63.403, 66.891, 19.131, 0.0000, 19.131, 27.184, 48.703, 44.341, 25.235, 31.860, 91.582, 88.418, 69.473, 72.817, 135.66, 131.30, 113.11, 116.60, 180.00, 160.87, 152.82, 160.87, 135.66, 131.30, 148.14, 154.77, 46.607, 53.690, 71.054, 65.195, 49.631, 60.157, 46.607, 33.166, 119.84, 108.95, 93.279, 103.31, 117.28, 103.31, 114.81, 130.37},
+        {65.195, 49.631, 62.720, 76.694, 86.721, 76.694, 60.157, 71.054, 133.39, 146.83, 130.37, 119.84, 108.95, 114.81, 133.39, 126.31, 72.817, 69.473, 88.418, 91.582, 31.860, 25.235, 44.341, 48.703, 27.184, 19.131, 0.0000, 19.131, 66.891, 63.403, 44.341, 48.703, 110.53, 107.18, 88.418, 91.582, 154.77, 148.14, 131.30, 135.66, 160.87, 152.82, 160.87, 180.00, 116.60, 113.11, 131.30, 135.66, 33.166, 46.607, 60.157, 49.631, 65.195, 71.054, 53.690, 46.607, 130.37, 114.81, 103.31, 117.28, 103.31, 93.279, 108.95, 119.84},
+        {46.607, 33.166, 49.631, 60.157, 71.054, 65.195, 46.607, 53.690, 114.81, 130.37, 117.28, 103.31, 93.279, 103.31, 119.84, 108.95, 69.473, 72.817, 91.582, 88.418, 25.235, 31.860, 48.703, 44.341, 19.131, 27.184, 19.131, 0.0000, 63.403, 66.891, 48.703, 44.341, 107.18, 110.53, 91.582, 88.418, 148.14, 154.77, 135.66, 131.30, 152.82, 160.87, 180.00, 160.87, 113.11, 116.60, 135.66, 131.30, 49.631, 65.195, 76.694, 62.720, 76.694, 86.721, 71.054, 60.157, 146.83, 133.39, 119.84, 130.37, 114.81, 108.95, 126.31, 133.39},
+        {78.429, 82.965, 101.57, 97.035, 44.341, 25.235, 31.860, 48.703, 86.164, 86.164, 67.049, 67.049, 116.60, 135.66, 131.30, 113.11, 131.30, 135.66, 154.77, 148.14, 88.418, 91.582, 110.53, 107.18, 44.341, 48.703, 66.891, 63.403, 0.0000, 19.131, 27.184, 19.131, 44.341, 48.703, 31.860, 25.235, 88.418, 91.582, 72.817, 69.473, 131.30, 135.66, 116.60, 113.11, 160.87, 180.00, 160.87, 152.82, 93.836, 93.836, 112.95, 112.95, 44.341, 63.403, 66.891, 48.703, 97.035, 101.57, 82.965, 78.429, 154.77, 135.66, 131.30, 148.14},
+        {93.836, 93.836, 112.95, 112.95, 63.403, 44.341, 48.703, 66.891, 101.57, 97.035, 78.429, 82.965, 135.66, 154.77, 148.14, 131.30, 135.66, 131.30, 148.14, 154.77, 91.582, 88.418, 107.18, 110.53, 48.703, 44.341, 63.403, 66.891, 19.131, 0.0000, 19.131, 27.184, 48.703, 44.341, 25.235, 31.860, 91.582, 88.418, 69.473, 72.817, 135.66, 131.30, 113.11, 116.60, 180.00, 160.87, 152.82, 160.87, 82.965, 78.429, 97.035, 101.57, 25.235, 44.341, 48.703, 31.860, 86.164, 86.164, 67.049, 67.049, 135.66, 116.60, 113.11, 131.30},
+        {82.965, 78.429, 97.035, 101.57, 66.891, 48.703, 44.341, 63.403, 112.95, 112.95, 93.836, 93.836, 131.30, 148.14, 154.77, 135.66, 116.60, 113.11, 131.30, 135.66, 72.817, 69.473, 88.418, 91.582, 31.860, 25.235, 44.341, 48.703, 27.184, 19.131, 0.0000, 19.131, 66.891, 63.403, 44.341, 48.703, 110.53, 107.18, 88.418, 91.582, 154.77, 148.14, 131.30, 135.66, 160.87, 152.82, 160.87, 180.00, 67.049, 67.049, 86.164, 86.164, 31.860, 48.703, 44.341, 25.235, 101.57, 97.035, 78.429, 82.965, 131.30, 113.11, 116.60, 135.66},
+        {67.049, 67.049, 86.164, 86.164, 48.703, 31.860, 25.235, 44.341, 97.035, 101.57, 82.965, 78.429, 113.11, 131.30, 135.66, 116.60, 113.11, 116.60, 135.66, 131.30, 69.473, 72.817, 91.582, 88.418, 25.235, 31.860, 48.703, 44.341, 19.131, 27.184, 19.131, 0.0000, 63.403, 66.891, 48.703, 44.341, 107.18, 110.53, 91.582, 88.418, 148.14, 154.77, 135.66, 131.30, 152.82, 160.87, 180.00, 160.87, 78.429, 82.965, 101.57, 97.035, 48.703, 66.891, 63.403, 44.341, 112.95, 112.95, 93.836, 93.836, 148.14, 131.30, 135.66, 154.77},
+        {103.31, 117.28, 130.37, 114.81, 53.690, 46.607, 65.195, 71.054, 60.157, 49.631, 33.166, 46.607, 108.95, 119.84, 103.31, 93.279, 160.87, 180.00, 160.87, 152.82, 131.30, 135.66, 154.77, 148.14, 88.418, 91.582, 110.53, 107.18, 44.341, 48.703, 66.891, 63.403, 0.0000, 19.131, 27.184, 19.131, 44.341, 48.703, 31.860, 25.235, 88.418, 91.582, 72.817, 69.473, 131.30, 135.66, 116.60, 113.11, 130.37, 119.84, 133.39, 146.83, 60.157, 71.054, 86.721, 76.694, 62.720, 76.694, 65.195, 49.631, 133.39, 126.31, 108.95, 114.81},
+        {119.84, 130.37, 146.83, 133.39, 71.054, 60.157, 76.694, 86.721, 76.694, 62.720, 49.631, 65.195, 126.31, 133.39, 114.81, 108.95, 180.00, 160.87, 152.82, 160.87, 135.66, 131.30, 148.14, 154.77, 91.582, 88.418, 107.18, 110.53, 48.703, 44.341, 63.403, 66.891, 19.131, 0.0000, 19.131, 27.184, 48.703, 44.341, 25.235, 31.860, 91.582, 88.418, 69.473, 72.817, 135.66, 131.30, 113.11, 116.60, 117.28, 103.31, 114.81, 130.37, 46.607, 53.690, 71.054, 65.195, 49.631, 60.157, 46.607, 33.166, 119.84, 108.95, 93.279, 103.31},
+        {108.95, 114.81, 133.39, 126.31, 65.195, 49.631, 62.720, 76.694, 86.721, 76.694, 60.157, 71.054, 133.39, 146.83, 130.37, 119.84, 160.87, 152.82, 160.87, 180.00, 116.60, 113.11, 131.30, 135.66, 72.817, 69.473, 88.418, 91.582, 31.860, 25.235, 44.341, 48.703, 27.184, 19.131, 0.0000, 19.131, 66.891, 63.403, 44.341, 48.703, 110.53, 107.18, 88.418, 91.582, 154.77, 148.14, 131.30, 135.66, 103.31, 93.279, 108.95, 119.84, 33.166, 46.607, 60.157, 49.631, 65.195, 71.054, 53.690, 46.607, 130.37, 114.81, 103.31, 117.28},
+        {93.279, 103.31, 119.84, 108.95, 46.607, 33.166, 49.631, 60.157, 71.054, 65.195, 46.607, 53.690, 114.81, 130.37, 117.28, 103.31, 152.82, 160.87, 180.00, 160.87, 113.11, 116.60, 135.66, 131.30, 69.473, 72.817, 91.582, 88.418, 25.235, 31.860, 48.703, 44.341, 19.131, 27.184, 19.131, 0.0000, 63.403, 66.891, 48.703, 44.341, 107.18, 110.53, 91.582, 88.418, 148.14, 154.77, 135.66, 131.30, 114.81, 108.95, 126.31, 133.39, 49.631, 65.195, 76.694, 62.720, 76.694, 86.721, 71.054, 60.157, 146.83, 133.39, 119.84, 130.37},
+        {116.60, 135.66, 131.30, 113.11, 78.429, 82.965, 101.57, 97.035, 44.341, 25.235, 31.860, 48.703, 86.164, 86.164, 67.049, 67.049, 131.30, 135.66, 116.60, 113.11, 160.87, 180.00, 160.87, 152.82, 131.30, 135.66, 154.77, 148.14, 88.418, 91.582, 110.53, 107.18, 44.341, 48.703, 66.891, 63.403, 0.0000, 19.131, 27.184, 19.131, 44.341, 48.703, 31.860, 25.235, 88.418, 91.582, 72.817, 69.473, 154.77, 135.66, 131.30, 148.14, 93.836, 93.836, 112.95, 112.95, 44.341, 63.403, 66.891, 48.703, 97.035, 101.57, 82.965, 78.429},
+        {135.66, 154.77, 148.14, 131.30, 93.836, 93.836, 112.95, 112.95, 63.403, 44.341, 48.703, 66.891, 101.57, 97.035, 78.429, 82.965, 135.66, 131.30, 113.11, 116.60, 180.00, 160.87, 152.82, 160.87, 135.66, 131.30, 148.14, 154.77, 91.582, 88.418, 107.18, 110.53, 48.703, 44.341, 63.403, 66.891, 19.131, 0.0000, 19.131, 27.184, 48.703, 44.341, 25.235, 31.860, 91.582, 88.418, 69.473, 72.817, 135.66, 116.60, 113.11, 131.30, 82.965, 78.429, 97.035, 101.57, 25.235, 44.341, 48.703, 31.860, 86.164, 86.164, 67.049, 67.049},
+        {131.30, 148.14, 154.77, 135.66, 82.965, 78.429, 97.035, 101.57, 66.891, 48.703, 44.341, 63.403, 112.95, 112.95, 93.836, 93.836, 154.77, 148.14, 131.30, 135.66, 160.87, 152.82, 160.87, 180.00, 116.60, 113.11, 131.30, 135.66, 72.817, 69.473, 88.418, 91.582, 31.860, 25.235, 44.341, 48.703, 27.184, 19.131, 0.0000, 19.131, 66.891, 63.403, 44.341, 48.703, 110.53, 107.18, 88.418, 91.582, 131.30, 113.11, 116.60, 135.66, 67.049, 67.049, 86.164, 86.164, 31.860, 48.703, 44.341, 25.235, 101.57, 97.035, 78.429, 82.965},
+        {113.11, 131.30, 135.66, 116.60, 67.049, 67.049, 86.164, 86.164, 48.703, 31.860, 25.235, 44.341, 97.035, 101.57, 82.965, 78.429, 148.14, 154.77, 135.66, 131.30, 152.82, 160.87, 180.00, 160.87, 113.11, 116.60, 135.66, 131.30, 69.473, 72.817, 91.582, 88.418, 25.235, 31.860, 48.703, 44.341, 19.131, 27.184, 19.131, 0.0000, 63.403, 66.891, 48.703, 44.341, 107.18, 110.53, 91.582, 88.418, 148.14, 131.30, 135.66, 154.77, 78.429, 82.965, 101.57, 97.035, 48.703, 66.891, 63.403, 44.341, 112.95, 112.95, 93.836, 93.836},
+        {108.95, 119.84, 103.31, 93.279, 103.31, 117.28, 130.37, 114.81, 53.690, 46.607, 65.195, 71.054, 60.157, 49.631, 33.166, 46.607, 88.418, 91.582, 72.817, 69.473, 131.30, 135.66, 116.60, 113.11, 160.87, 180.00, 160.87, 152.82, 131.30, 135.66, 154.77, 148.14, 88.418, 91.582, 110.53, 107.18, 44.341, 48.703, 66.891, 63.403, 0.0000, 19.131, 27.184, 19.131, 44.341, 48.703, 31.860, 25.235, 133.39, 126.31, 108.95, 114.81, 130.37, 119.84, 133.39, 146.83, 60.157, 71.054, 86.721, 76.694, 62.720, 76.694, 65.195, 49.631},
+        {126.31, 133.39, 114.81, 108.95, 119.84, 130.37, 146.83, 133.39, 71.054, 60.157, 76.694, 86.721, 76.694, 62.720, 49.631, 65.195, 91.582, 88.418, 69.473, 72.817, 135.66, 131.30, 113.11, 116.60, 180.00, 160.87, 152.82, 160.87, 135.66, 131.30, 148.14, 154.77, 91.582, 88.418, 107.18, 110.53, 48.703, 44.341, 63.403, 66.891, 19.131, 0.0000, 19.131, 27.184, 48.703, 44.341, 25.235, 31.860, 119.84, 108.95, 93.279, 103.31, 117.28, 103.31, 114.81, 130.37, 46.607, 53.690, 71.054, 65.195, 49.631, 60.157, 46.607, 33.166},
+        {133.39, 146.83, 130.37, 119.84, 108.95, 114.81, 133.39, 126.31, 65.195, 49.631, 62.720, 76.694, 86.721, 76.694, 60.157, 71.054, 110.53, 107.18, 88.418, 91.582, 154.77, 148.14, 131.30, 135.66, 160.87, 152.82, 160.87, 180.00, 116.60, 113.11, 131.30, 135.66, 72.817, 69.473, 88.418, 91.582, 31.860, 25.235, 44.341, 48.703, 27.184, 19.131, 0.0000, 19.131, 66.891, 63.403, 44.341, 48.703, 130.37, 114.81, 103.31, 117.28, 103.31, 93.279, 108.95, 119.84, 33.166, 46.607, 60.157, 49.631, 65.195, 71.054, 53.690, 46.607},
+        {114.81, 130.37, 117.28, 103.31, 93.279, 103.31, 119.84, 108.95, 46.607, 33.166, 49.631, 60.157, 71.054, 65.195, 46.607, 53.690, 107.18, 110.53, 91.582, 88.418, 148.14, 154.77, 135.66, 131.30, 152.82, 160.87, 180.00, 160.87, 113.11, 116.60, 135.66, 131.30, 69.473, 72.817, 91.582, 88.418, 25.235, 31.860, 48.703, 44.341, 19.131, 27.184, 19.131, 0.0000, 63.403, 66.891, 48.703, 44.341, 146.83, 133.39, 119.84, 130.37, 114.81, 108.95, 126.31, 133.39, 49.631, 65.195, 76.694, 62.720, 76.694, 86.721, 71.054, 60.157},
+        {86.164, 86.164, 67.049, 67.049, 116.60, 135.66, 131.30, 113.11, 78.429, 82.965, 101.57, 97.035, 44.341, 25.235, 31.860, 48.703, 44.341, 48.703, 31.860, 25.235, 88.418, 91.582, 72.817, 69.473, 131.30, 135.66, 116.60, 113.11, 160.87, 180.00, 160.87, 152.82, 131.30, 135.66, 154.77, 148.14, 88.418, 91.582, 110.53, 107.18, 44.341, 48.703, 66.891, 63.403, 0.0000, 19.131, 27.184, 19.131, 97.035, 101.57, 82.965, 78.429, 154.77, 135.66, 131.30, 148.14, 93.836, 93.836, 112.95, 112.95, 44.341, 63.403, 66.891, 48.703},
+        {101.57, 97.035, 78.429, 82.965, 135.66, 154.77, 148.14, 131.30, 93.836, 93.836, 112.95, 112.95, 63.403, 44.341, 48.703, 66.891, 48.703, 44.341, 25.235, 31.860, 91.582, 88.418, 69.473, 72.817, 135.66, 131.30, 113.11, 116.60, 180.00, 160.87, 152.82, 160.87, 135.66, 131.30, 148.14, 154.77, 91.582, 88.418, 107.18, 110.53, 48.703, 44.341, 63.403, 66.891, 19.131, 0.0000, 19.131, 27.184, 86.164, 86.164, 67.049, 67.049, 135.66, 116.60, 113.11, 131.30, 82.965, 78.429, 97.035, 101.57, 25.235, 44.341, 48.703, 31.860},
+        {112.95, 112.95, 93.836, 93.836, 131.30, 148.14, 154.77, 135.66, 82.965, 78.429, 97.035, 101.57, 66.891, 48.703, 44.341, 63.403, 66.891, 63.403, 44.341, 48.703, 110.53, 107.18, 88.418, 91.582, 154.77, 148.14, 131.30, 135.66, 160.87, 152.82, 160.87, 180.00, 116.60, 113.11, 131.30, 135.66, 72.817, 69.473, 88.418, 91.582, 31.860, 25.235, 44.341, 48.703, 27.184, 19.131, 0.0000, 19.131, 101.57, 97.035, 78.429, 82.965, 131.30, 113.11, 116.60, 135.66, 67.049, 67.049, 86.164, 86.164, 31.860, 48.703, 44.341, 25.235},
+        {97.035, 101.57, 82.965, 78.429, 113.11, 131.30, 135.66, 116.60, 67.049, 67.049, 86.164, 86.164, 48.703, 31.860, 25.235, 44.341, 63.403, 66.891, 48.703, 44.341, 107.18, 110.53, 91.582, 88.418, 148.14, 154.77, 135.66, 131.30, 152.82, 160.87, 180.00, 160.87, 113.11, 116.60, 135.66, 131.30, 69.473, 72.817, 91.582, 88.418, 25.235, 31.860, 48.703, 44.341, 19.131, 27.184, 19.131, 0.0000, 112.95, 112.95, 93.836, 93.836, 148.14, 131.30, 135.66, 154.77, 78.429, 82.965, 101.57, 97.035, 48.703, 66.891, 63.403, 44.341},
+        {88.418, 69.473, 72.817, 91.582, 119.84, 108.95, 93.279, 103.31, 160.87, 180.00, 160.87, 152.82, 114.81, 108.95, 126.31, 133.39, 62.720, 49.631, 65.195, 76.694, 44.341, 25.235, 31.860, 48.703, 60.157, 46.607, 33.166, 49.631, 93.836, 82.965, 67.049, 78.429, 130.37, 117.28, 103.31, 114.81, 154.77, 135.66, 131.30, 148.14, 133.39, 119.84, 130.37, 146.83, 97.035, 86.164, 101.57, 112.95, 0.0000, 19.131, 27.184, 19.131, 71.054, 65.195, 46.607, 53.690, 110.53, 91.582, 88.418, 107.18, 71.054, 60.157, 76.694, 86.721},
+        {107.18, 88.418, 91.582, 110.53, 130.37, 114.81, 103.31, 117.28, 180.00, 160.87, 152.82, 160.87, 130.37, 119.84, 133.39, 146.83, 76.694, 60.157, 71.054, 86.721, 63.403, 44.341, 48.703, 66.891, 71.054, 53.690, 46.607, 65.195, 93.836, 78.429, 67.049, 82.965, 119.84, 103.31, 93.279, 108.95, 135.66, 116.60, 113.11, 131.30, 126.31, 108.95, 114.81, 133.39, 101.57, 86.164, 97.035, 112.95, 19.131, 0.0000, 19.131, 27.184, 60.157, 49.631, 33.166, 46.607, 91.582, 72.817, 69.473, 88.418, 65.195, 49.631, 62.720, 76.694},
+        {110.53, 91.582, 88.418, 107.18, 146.83, 133.39, 119.84, 130.37, 160.87, 152.82, 160.87, 180.00, 117.28, 103.31, 114.81, 130.37, 65.195, 46.607, 53.690, 71.054, 66.891, 48.703, 44.341, 63.403, 86.721, 71.054, 60.157, 76.694, 112.95, 97.035, 86.164, 101.57, 133.39, 114.81, 108.95, 126.31, 131.30, 113.11, 116.60, 135.66, 108.95, 93.279, 103.31, 119.84, 82.965, 67.049, 78.429, 93.836, 27.184, 19.131, 0.0000, 19.131, 76.694, 62.720, 49.631, 65.195, 88.418, 69.473, 72.817, 91.582, 46.607, 33.166, 49.631, 60.157},
+        {91.582, 72.817, 69.473, 88.418, 133.39, 126.31, 108.95, 114.81, 152.82, 160.87, 180.00, 160.87, 103.31, 93.279, 108.95, 119.84, 49.631, 33.166, 46.607, 60.157, 48.703, 31.860, 25.235, 44.341, 76.694, 65.195, 49.631, 62.720, 112.95, 101.57, 86.164, 97.035, 146.83, 130.37, 119.84, 133.39, 148.14, 131.30, 135.66, 154.77, 114.81, 103.31, 117.28, 130.37, 78.429, 67.049, 82.965, 93.836, 19.131, 27.184, 19.131, 0.0000, 86.721, 76.694, 60.157, 71.054, 107.18, 88.418, 91.582, 110.53, 53.690, 46.607, 65.195, 71.054},
+        {114.81, 108.95, 126.31, 133.39, 88.418, 69.473, 72.817, 91.582, 119.84, 108.95, 93.279, 103.31, 160.87, 180.00, 160.87, 152.82, 133.39, 119.84, 130.37, 146.83, 97.035, 86.164, 101.57, 112.95, 62.720, 49.631, 65.195, 76.694, 44.341, 25.235, 31.860, 48.703, 60.157, 46.607, 33.166, 49.631, 93.836, 82.965, 67.049, 78.429, 130.37, 117.28, 103.31, 114.81, 154.77, 135.66, 131.30, 148.14, 71.054, 60.157, 76.694, 86.721, 0.0000, 19.131, 27.184, 19.131, 71.054, 65.195, 46.607, 53.690, 110.53, 91.582, 88.418, 107.18},
+        {130.37, 119.84, 133.39, 146.83, 107.18, 88.418, 91.582, 110.53, 130.37, 114.81, 103.31, 117.28, 180.00, 160.87, 152.82, 160.87, 126.31, 108.95, 114.81, 133.39, 101.57, 86.164, 97.035, 112.95, 76.694, 60.157, 71.054, 86.721, 63.403, 44.341, 48.703, 66.891, 71.054, 53.690, 46.607, 65.195, 93.836, 78.429, 67.049, 82.965, 119.84, 103.31, 93.279, 108.95, 135.66, 116.60, 113.11, 131.30, 65.195, 49.631, 62.720, 76.694, 19.131, 0.0000, 19.131, 27.184, 60.157, 49.631, 33.166, 46.607, 91.582, 72.817, 69.473, 88.418},
+        {117.28, 103.31, 114.81, 130.37, 110.53, 91.582, 88.418, 107.18, 146.83, 133.39, 119.84, 130.37, 160.87, 152.82, 160.87, 180.00, 108.95, 93.279, 103.31, 119.84, 82.965, 67.049, 78.429, 93.836, 65.195, 46.607, 53.690, 71.054, 66.891, 48.703, 44.341, 63.403, 86.721, 71.054, 60.157, 76.694, 112.95, 97.035, 86.164, 101.57, 133.39, 114.81, 108.95, 126.31, 131.30, 113.11, 116.60, 135.66, 46.607, 33.166, 49.631, 60.157, 27.184, 19.131, 0.0000, 19.131, 76.694, 62.720, 49.631, 65.195, 88.418, 69.473, 72.817, 91.582},
+        {103.31, 93.279, 108.95, 119.84, 91.582, 72.817, 69.473, 88.418, 133.39, 126.31, 108.95, 114.81, 152.82, 160.87, 180.00, 160.87, 114.81, 103.31, 117.28, 130.37, 78.429, 67.049, 82.965, 93.836, 49.631, 33.166, 46.607, 60.157, 48.703, 31.860, 25.235, 44.341, 76.694, 65.195, 49.631, 62.720, 112.95, 101.57, 86.164, 97.035, 146.83, 130.37, 119.84, 133.39, 148.14, 131.30, 135.66, 154.77, 53.690, 46.607, 65.195, 71.054, 19.131, 27.184, 19.131, 0.0000, 86.721, 76.694, 60.157, 71.054, 107.18, 88.418, 91.582, 110.53},
+        {160.87, 180.00, 160.87, 152.82, 114.81, 108.95, 126.31, 133.39, 88.418, 69.473, 72.817, 91.582, 119.84, 108.95, 93.279, 103.31, 130.37, 117.28, 103.31, 114.81, 154.77, 135.66, 131.30, 148.14, 133.39, 119.84, 130.37, 146.83, 97.035, 86.164, 101.57, 112.95, 62.720, 49.631, 65.195, 76.694, 44.341, 25.235, 31.860, 48.703, 60.157, 46.607, 33.166, 49.631, 93.836, 82.965, 67.049, 78.429, 110.53, 91.582, 88.418, 107.18, 71.054, 60.157, 76.694, 86.721, 0.0000, 19.131, 27.184, 19.131, 71.054, 65.195, 46.607, 53.690},
+        {180.00, 160.87, 152.82, 160.87, 130.37, 119.84, 133.39, 146.83, 107.18, 88.418, 91.582, 110.53, 130.37, 114.81, 103.31, 117.28, 119.84, 103.31, 93.279, 108.95, 135.66, 116.60, 113.11, 131.30, 126.31, 108.95, 114.81, 133.39, 101.57, 86.164, 97.035, 112.95, 76.694, 60.157, 71.054, 86.721, 63.403, 44.341, 48.703, 66.891, 71.054, 53.690, 46.607, 65.195, 93.836, 78.429, 67.049, 82.965, 91.582, 72.817, 69.473, 88.418, 65.195, 49.631, 62.720, 76.694, 19.131, 0.0000, 19.131, 27.184, 60.157, 49.631, 33.166, 46.607},
+        {160.87, 152.82, 160.87, 180.00, 117.28, 103.31, 114.81, 130.37, 110.53, 91.582, 88.418, 107.18, 146.83, 133.39, 119.84, 130.37, 133.39, 114.81, 108.95, 126.31, 131.30, 113.11, 116.60, 135.66, 108.95, 93.279, 103.31, 119.84, 82.965, 67.049, 78.429, 93.836, 65.195, 46.607, 53.690, 71.054, 66.891, 48.703, 44.341, 63.403, 86.721, 71.054, 60.157, 76.694, 112.95, 97.035, 86.164, 101.57, 88.418, 69.473, 72.817, 91.582, 46.607, 33.166, 49.631, 60.157, 27.184, 19.131, 0.0000, 19.131, 76.694, 62.720, 49.631, 65.195},
+        {152.82, 160.87, 180.00, 160.87, 103.31, 93.279, 108.95, 119.84, 91.582, 72.817, 69.473, 88.418, 133.39, 126.31, 108.95, 114.81, 146.83, 130.37, 119.84, 133.39, 148.14, 131.30, 135.66, 154.77, 114.81, 103.31, 117.28, 130.37, 78.429, 67.049, 82.965, 93.836, 49.631, 33.166, 46.607, 60.157, 48.703, 31.860, 25.235, 44.341, 76.694, 65.195, 49.631, 62.720, 112.95, 101.57, 86.164, 97.035, 107.18, 88.418, 91.582, 110.53, 53.690, 46.607, 65.195, 71.054, 19.131, 27.184, 19.131, 0.0000, 86.721, 76.694, 60.157, 71.054},
+        {119.84, 108.95, 93.279, 103.31, 160.87, 180.00, 160.87, 152.82, 114.81, 108.95, 126.31, 133.39, 88.418, 69.473, 72.817, 91.582, 60.157, 46.607, 33.166, 49.631, 93.836, 82.965, 67.049, 78.429, 130.37, 117.28, 103.31, 114.81, 154.77, 135.66, 131.30, 148.14, 133.39, 119.84, 130.37, 146.83, 97.035, 86.164, 101.57, 112.95, 62.720, 49.631, 65.195, 76.694, 44.341, 25.235, 31.860, 48.703, 71.054, 65.195, 46.607, 53.690, 110.53, 91.582, 88.418, 107.18, 71.054, 60.157, 76.694, 86.721, 0.0000, 19.131, 27.184, 19.131},
+        {130.37, 114.81, 103.31, 117.28, 180.00, 160.87, 152.82, 160.87, 130.37, 119.84, 133.39, 146.83, 107.18, 88.418, 91.582, 110.53, 71.054, 53.690, 46.607, 65.195, 93.836, 78.429, 67.049, 82.965, 119.84, 103.31, 93.279, 108.95, 135.66, 116.60, 113.11, 131.30, 126.31, 108.95, 114.81, 133.39, 101.57, 86.164, 97.035, 112.95, 76.694, 60.157, 71.054, 86.721, 63.403, 44.341, 48.703, 66.891, 60.157, 49.631, 33.166, 46.607, 91.582, 72.817, 69.473, 88.418, 65.195, 49.631, 62.720, 76.694, 19.131, 0.0000, 19.131, 27.184},
+        {146.83, 133.39, 119.84, 130.37, 160.87, 152.82, 160.87, 180.00, 117.28, 103.31, 114.81, 130.37, 110.53, 91.582, 88.418, 107.18, 86.721, 71.054, 60.157, 76.694, 112.95, 97.035, 86.164, 101.57, 133.39, 114.81, 108.95, 126.31, 131.30, 113.11, 116.60, 135.66, 108.95, 93.279, 103.31, 119.84, 82.965, 67.049, 78.429, 93.836, 65.195, 46.607, 53.690, 71.054, 66.891, 48.703, 44.341, 63.403, 76.694, 62.720, 49.631, 65.195, 88.418, 69.473, 72.817, 91.582, 46.607, 33.166, 49.631, 60.157, 27.184, 19.131, 0.0000, 19.131},
+        {133.39, 126.31, 108.95, 114.81, 152.82, 160.87, 180.00, 160.87, 103.31, 93.279, 108.95, 119.84, 91.582, 72.817, 69.473, 88.418, 76.694, 65.195, 49.631, 62.720, 112.95, 101.57, 86.164, 97.035, 146.83, 130.37, 119.84, 133.39, 148.14, 131.30, 135.66, 154.77, 114.81, 103.31, 117.28, 130.37, 78.429, 67.049, 82.965, 93.836, 49.631, 33.166, 46.607, 60.157, 48.703, 31.860, 25.235, 44.341, 86.721, 76.694, 60.157, 71.054, 107.18, 88.418, 91.582, 110.53, 53.690, 46.607, 65.195, 71.054, 19.131, 27.184, 19.131, 0}
+    };
+    memcpy(GriffinCryMap, thisGriffinCryMap, sizeof(GriffinCryMap));
 
-  double thisGriffinCryMapCombos[52][2] = {
-      {0.0000, 64},
-      {19.131, 128},
-      {25.235, 64},
-      {27.184, 64},
-      {31.860, 64},
-      {33.166, 48},
-      {44.341, 128},
-      {46.607, 96},
-      {48.703, 128},
-      {49.631, 96},
-      {53.690, 48},
-      {60.157, 96},
-      {62.720, 48},
-      {63.403, 64},
-      {65.195, 96},
-      {66.891, 64},
-      {67.049, 64},
-      {69.473, 64},
-      {71.054, 96},
-      {72.817, 64},
-      {76.694, 96},
-      {78.429, 64},
-      {82.965, 64},
-      {86.164, 64},
-      {86.721, 48},
-      {88.418, 128},
-      {91.582, 128},
-      {93.279, 48},
-      {93.836, 64},
-      {97.035, 64},
-      {101.57, 64},
-      {103.31, 96},
-      {107.18, 64},
-      {108.95, 96},
-      {110.53, 64},
-      {112.95, 64},
-      {113.11, 64},
-      {114.81, 96},
-      {116.60, 64},
-      {117.28, 48},
-      {119.84, 96},
-      {126.31, 48},
-      {130.37, 96},
-      {131.30, 128},
-      {133.39, 96},
-      {135.66, 128},
-      {146.83, 48},
-      {148.14, 64},
-      {152.82, 64},
-      {154.77, 64},
-      {160.87, 128},
-      {180.00, 64}
-  };
-  memcpy(GriffinCryMapCombos, thisGriffinCryMapCombos, sizeof(GriffinCryMapCombos));
+    double thisGriffinCryMapCombos[52][2] = {
+        {0.0000, 64},
+        {19.131, 128},
+        {25.235, 64},
+        {27.184, 64},
+        {31.860, 64},
+        {33.166, 48},
+        {44.341, 128},
+        {46.607, 96},
+        {48.703, 128},
+        {49.631, 96},
+        {53.690, 48},
+        {60.157, 96},
+        {62.720, 48},
+        {63.403, 64},
+        {65.195, 96},
+        {66.891, 64},
+        {67.049, 64},
+        {69.473, 64},
+        {71.054, 96},
+        {72.817, 64},
+        {76.694, 96},
+        {78.429, 64},
+        {82.965, 64},
+        {86.164, 64},
+        {86.721, 48},
+        {88.418, 128},
+        {91.582, 128},
+        {93.279, 48},
+        {93.836, 64},
+        {97.035, 64},
+        {101.57, 64},
+        {103.31, 96},
+        {107.18, 64},
+        {108.95, 96},
+        {110.53, 64},
+        {112.95, 64},
+        {113.11, 64},
+        {114.81, 96},
+        {116.60, 64},
+        {117.28, 48},
+        {119.84, 96},
+        {126.31, 48},
+        {130.37, 96},
+        {131.30, 128},
+        {133.39, 96},
+        {135.66, 128},
+        {146.83, 48},
+        {148.14, 64},
+        {152.82, 64},
+        {154.77, 64},
+        {160.87, 128},
+        {180.00, 64}
+    };
+    memcpy(GriffinCryMapCombos, thisGriffinCryMapCombos, sizeof(GriffinCryMapCombos));
 
-  //----------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------------
 
-  if(fSettings->WriteGriffinAddbackVector()) {
-    for(int i = 0; i < 4; i++) {
-      for(int j = 0; j < 16; j++) {
-         GriffinCrystalCenterVectors[i+(j*4)] = GriffinCrystalCenterPosition(i,j);
-         //cout << "cry = " << i << " det = " << j << " : x = " << GriffinCrystalCenterVectors[i+(j*4)].X() << " mm - y = " << GriffinCrystalCenterVectors[i+(j*4)].Y() << " mm - z = " << GriffinCrystalCenterVectors[i+(j*4)].Z() << " mm" << endl;
-      }
+    if(fSettings->WriteGriffinAddbackVector()) {
+        for(int i = 0; i < 4; i++) {
+            for(int j = 0; j < 16; j++) {
+                GriffinCrystalCenterVectors[i+(j*4)] = GriffinCrystalCenterPosition(i,j);
+                //cout << "cry = " << i << " det = " << j << " : x = " << GriffinCrystalCenterVectors[i+(j*4)].X() << " mm - y = " << GriffinCrystalCenterVectors[i+(j*4)].Y() << " mm - z = " << GriffinCrystalCenterVectors[i+(j*4)].Z() << " mm" << endl;
+            }
+        }
     }
-  }
 
-  fSceptarHit = false;
+    fSceptarHit = false;
 
-  //add branches to input chain
-  fChain.SetBranchAddress("eventNumber", &fEventNumber);
-  fChain.SetBranchAddress("trackID", &fTrackID);
-  fChain.SetBranchAddress("parentID", &fParentID);
-  fChain.SetBranchAddress("stepNumber", &fStepNumber);
-  fChain.SetBranchAddress("particleType", &fParticleType);
-  fChain.SetBranchAddress("processType", &fProcessType);
-  fChain.SetBranchAddress("systemID", &fSystemID);
-  fChain.SetBranchAddress("detNumber", &fDetNumber);
-  fChain.SetBranchAddress("cryNumber", &fCryNumber);
-  fChain.SetBranchAddress("depEnergy", &fDepEnergy);
-  fChain.SetBranchAddress("posx", &fPosx);
-  fChain.SetBranchAddress("posy", &fPosy);
-  fChain.SetBranchAddress("posz", &fPosz);
-  fChain.SetBranchAddress("time", &fTime);
+    //add branches to input chain
+    fChain.SetBranchAddress("eventNumber", &fEventNumber);
+    fChain.SetBranchAddress("trackID", &fTrackID);
+    fChain.SetBranchAddress("parentID", &fParentID);
+    fChain.SetBranchAddress("stepNumber", &fStepNumber);
+    fChain.SetBranchAddress("particleType", &fParticleType);
+    fChain.SetBranchAddress("processType", &fProcessType);
+    fChain.SetBranchAddress("systemID", &fSystemID);
+    fChain.SetBranchAddress("detNumber", &fDetNumber);
+    fChain.SetBranchAddress("cryNumber", &fCryNumber);
+    fChain.SetBranchAddress("depEnergy", &fDepEnergy);
+    fChain.SetBranchAddress("posx", &fPosx);
+    fChain.SetBranchAddress("posy", &fPosy);
+    fChain.SetBranchAddress("posz", &fPosz);
+    fChain.SetBranchAddress("time", &fTime);
 
-  //create output file
-  fOutput = new TFile(outputFileName.c_str(),"recreate");
-  if(!fOutput->IsOpen()) {
-    std::cerr<<"Failed to open file '"<<outputFileName<<"', check permissions on directory and disk space!"<<std::endl;
-    throw;
-  }
+    //create output file
+    fOutput = new TFile(outputFileName.c_str(),"recreate");
+    if(!fOutput->IsOpen()) {
+        std::cerr<<"Failed to open file '"<<outputFileName<<"', check permissions on directory and disk space!"<<std::endl;
+        throw;
+    }
 
-  //set tree to belong to output file
-  if(fSettings->WriteTree())
-    fTree.SetDirectory(fOutput);
+    //set tree to belong to output file
+    if(fSettings->WriteTree())
+        fTree.SetDirectory(fOutput);
 
+    //create branches for output tree
+    // GRIFFIN
+    fGriffinCrystal       = new std::vector<Detector>;
+    fGriffinDetector      = new std::vector<Detector>;
+    fGriffinNeighbour     = new std::vector<Detector>;
+    fGriffinNeighbourVector = new std::vector<Detector>;
+    fGriffinArray         = new std::vector<Detector>;
+    fGriffinBgo           = new std::vector<Detector>;
+    fGriffinBgoBack       = new std::vector<Detector>;
+    fTree.Branch("GriffinCrystal",&fGriffinCrystal, fSettings->BufferSize());
+    fTree.Branch("GriffinDetector",&fGriffinDetector, fSettings->BufferSize());
+    fTree.Branch("GriffinNeighbour",&fGriffinNeighbour, fSettings->BufferSize());
+    fTree.Branch("GriffinNeighbourVector",&fGriffinNeighbourVector, fSettings->BufferSize());
+    fTree.Branch("GriffinArray",&fGriffinArray, fSettings->BufferSize());
+    fTree.Branch("GriffinBgo",&fGriffinBgo, fSettings->BufferSize());
+    fTree.Branch("GriffinBgo",&fGriffinBgoBack, fSettings->BufferSize());
 
-  //create branches for output tree
-  // GRIFFIN
-  fGriffinCrystal       = new std::vector<Detector>;
-  fGriffinDetector      = new std::vector<Detector>;
-  fGriffinNeighbour     = new std::vector<Detector>;
-  fGriffinNeighbourVector = new std::vector<Detector>;
-  fGriffinArray         = new std::vector<Detector>;
-  fGriffinBgo           = new std::vector<Detector>;
-  fGriffinBgoBack       = new std::vector<Detector>;
-  fTree.Branch("GriffinCrystal",&fGriffinCrystal, fSettings->BufferSize());
-  fTree.Branch("GriffinDetector",&fGriffinDetector, fSettings->BufferSize());
-  fTree.Branch("GriffinNeighbour",&fGriffinNeighbour, fSettings->BufferSize());
-  fTree.Branch("GriffinNeighbourVector",&fGriffinNeighbourVector, fSettings->BufferSize());
-  fTree.Branch("GriffinArray",&fGriffinArray, fSettings->BufferSize());
-  fTree.Branch("GriffinBgo",&fGriffinBgo, fSettings->BufferSize());
-  fTree.Branch("GriffinBgo",&fGriffinBgoBack, fSettings->BufferSize());
+    // LaBr
+    fLaBrArray            = new std::vector<Detector>;
+    fLaBrDetector         = new std::vector<Detector>;
+    fTree.Branch("LaBrArray",&fLaBrArray, fSettings->BufferSize());
+    fTree.Branch("LaBrDetector",&fLaBrDetector, fSettings->BufferSize());
 
-  // LaBr
-  fLaBrArray            = new std::vector<Detector>;
-  fLaBrDetector         = new std::vector<Detector>;
-  fTree.Branch("LaBrArray",&fLaBrArray, fSettings->BufferSize());
-  fTree.Branch("LaBrDetector",&fLaBrDetector, fSettings->BufferSize());
+    // EightPi
+    fEightPiArray            = new std::vector<Detector>;
+    fEightPiDetector         = new std::vector<Detector>;
+    fEightPiBgoDetector         = new std::vector<Detector>;
+    fTree.Branch("EightPiArray",&fEightPiArray, fSettings->BufferSize());
+    fTree.Branch("EightPiDetector",&fEightPiDetector, fSettings->BufferSize());
+    fTree.Branch("EightPiBgoDetector",&fEightPiBgoDetector, fSettings->BufferSize());
 
-  // EightPi
-  fEightPiArray            = new std::vector<Detector>;
-  fEightPiDetector         = new std::vector<Detector>;
-  fEightPiBgoDetector         = new std::vector<Detector>;
-  fTree.Branch("EightPiArray",&fEightPiArray, fSettings->BufferSize());
-  fTree.Branch("EightPiDetector",&fEightPiDetector, fSettings->BufferSize());
-  fTree.Branch("EightPiBgoDetector",&fEightPiBgoDetector, fSettings->BufferSize());
+    // Ancillary Detector
+    fAncillaryBgoCrystal  = new std::vector<Detector>;
+    fAncillaryBgoDetector = new std::vector<Detector>;
+    fAncillaryBgoArray    = new std::vector<Detector>;
+    fTree.Branch("AncillaryBgoCrystal",&fAncillaryBgoCrystal, fSettings->BufferSize());
+    fTree.Branch("AncillaryBgoDetector",&fAncillaryBgoDetector, fSettings->BufferSize());
+    fTree.Branch("AncillaryBgoArray",&fAncillaryBgoArray, fSettings->BufferSize());
 
-  // Ancillary Detector
-  fAncillaryBgoCrystal  = new std::vector<Detector>;
-  fAncillaryBgoDetector = new std::vector<Detector>;
-  fAncillaryBgoArray    = new std::vector<Detector>;
-  fTree.Branch("AncillaryBgoCrystal",&fAncillaryBgoCrystal, fSettings->BufferSize());
-  fTree.Branch("AncillaryBgoDetector",&fAncillaryBgoDetector, fSettings->BufferSize());
-  fTree.Branch("AncillaryBgoArray",&fAncillaryBgoArray, fSettings->BufferSize());
+    // SCEPTAR
+    fSceptarArray         = new std::vector<Detector>;
+    fSceptarDetector      = new std::vector<Detector>;
+    fTree.Branch("SceptarArray",&fSceptarArray, fSettings->BufferSize());
+    fTree.Branch("SceptarDetector",&fSceptarDetector, fSettings->BufferSize());
 
-  // SCEPTAR
-  fSceptarArray         = new std::vector<Detector>;
-  fSceptarDetector      = new std::vector<Detector>;
-  fTree.Branch("SceptarArray",&fSceptarArray, fSettings->BufferSize());
-  fTree.Branch("SceptarDetector",&fSceptarDetector, fSettings->BufferSize());
-
-  // DESCANT
-  fDescantArray            = new std::vector<Detector>;
-  fTree.Branch("DescantArray",&fDescantArray, fSettings->BufferSize());
-  fDescantBlueDetector = new std::vector<Detector>;
-  fDescantGreenDetector = new std::vector<Detector>;
-  fDescantRedDetector = new std::vector<Detector>;
-  fDescantWhiteDetector = new std::vector<Detector>;
-  fDescantYellowDetector = new std::vector<Detector>;
-  fTree.Branch("DescantBlueDetector",&fDescantBlueDetector, fSettings->BufferSize());
-  fTree.Branch("DescantGreenDetector",&fDescantGreenDetector, fSettings->BufferSize());
-  fTree.Branch("DescantRedDetector",&fDescantRedDetector, fSettings->BufferSize());
-  fTree.Branch("DescantWhiteDetector",&fDescantWhiteDetector, fSettings->BufferSize());
-  fTree.Branch("DescantYellowDetector",&fDescantYellowDetector, fSettings->BufferSize());
+    // DESCANT
+    fDescantArray            = new std::vector<Detector>;
+    fTree.Branch("DescantArray",&fDescantArray, fSettings->BufferSize());
+    fDescantBlueDetector = new std::vector<Detector>;
+    fDescantGreenDetector = new std::vector<Detector>;
+    fDescantRedDetector = new std::vector<Detector>;
+    fDescantWhiteDetector = new std::vector<Detector>;
+    fDescantYellowDetector = new std::vector<Detector>;
+    fTree.Branch("DescantBlueDetector",&fDescantBlueDetector, fSettings->BufferSize());
+    fTree.Branch("DescantGreenDetector",&fDescantGreenDetector, fSettings->BufferSize());
+    fTree.Branch("DescantRedDetector",&fDescantRedDetector, fSettings->BufferSize());
+    fTree.Branch("DescantWhiteDetector",&fDescantWhiteDetector, fSettings->BufferSize());
+    fTree.Branch("DescantYellowDetector",&fDescantYellowDetector, fSettings->BufferSize());
 }
 
 Converter::~Converter() {
-  if(fOutput->IsOpen()) {
-    if(fSettings->WriteTree())
-      fTree.Write("tree");
-    for(auto list = fHistograms.begin(); list != fHistograms.end(); ++list) {	
-      fOutput->mkdir(list->first.c_str());
-      fOutput->cd(list->first.c_str());
-      list->second->Write();
+    if(fOutput->IsOpen()) {
+        if(fSettings->WriteTree())
+            fTree.Write("tree");
+        for(auto list = fHistograms.begin(); list != fHistograms.end(); ++list) {
+            fOutput->mkdir(list->first.c_str());
+            fOutput->cd(list->first.c_str());
+            list->second->Write();
+        }
+        fOutput->Close();
     }
-    fOutput->Close();
-  }
 }
 
 bool Converter::Run() {
-  int status;
-  int eventNumber = 0;
-  // for 3d gamma-gamma correlations
-  int cry1 = 0;
-  int cry2 = 0;
-  int det1 = 0;
-  int det2 = 0;
-  int index = 0;
-  double cry1energy = 0;
-  double cry2energy = 0;
-  double det1energy = 0;
-  double det2energy = 0;
-  double angle = 0;
-  double norm = 0;
+    int status;
+    int eventNumber = 0;
+    // for 3d gamma-gamma correlations
+    int cry1 = 0;
+    int cry2 = 0;
+    int det1 = 0;
+    int det2 = 0;
+    int index = 0;
+    double cry1energy = 0;
+    double cry2energy = 0;
+    double det1energy = 0;
+    double det2energy = 0;
+    double angle = 0;
+    double norm = 0;
 
-  double buffer1 = 0;
-  double buffer2 = 0;
+    double buffer1 = 0;
+    double buffer2 = 0;
 
-  double smearedEnergy;
-  std::map<int,int> belowThreshold;
-  TH1F* hist1D;
-  TH2F* hist2D;
-  TH3I* hist3D;
-  long int nEntries = fChain.GetEntries();
-
-
-
-//  const char* charbuffer;
-//  std::string stringbuffer;
-//  std::stringstream ss;
-
-  for(int i = 0; i < nEntries; ++i) {
-    status = fChain.GetEntry(i);
-    if(status == -1) {
-      std::cerr<<"Error occured, couldn't read entry "<<i<<" from tree "<<fChain.GetName()<<" in file "<<fChain.GetFile()->GetName()<<std::endl;
-      continue;
-    } else if(status == 0) {
-      std::cerr<<"Error occured, entry "<<i<<" in tree "<<fChain.GetName()<<" in file "<<fChain.GetFile()->GetName()<<" doesn't exist"<<std::endl;
-      return false;
-    }
-
-    //if this entry is from the next event, we fill the tree with everything we've collected so far (after SupressGriffinion) and reset the vector(s)
-    if((fEventNumber != eventNumber) && ((fSettings->SortNumberOfEvents()==0)||(fSettings->SortNumberOfEvents()>=eventNumber))) {
-
-      for(int j = 0; j < 16; j++) {
-          GriffinNeighbours_counted[j] = 0;
-      }
-
-      //---------------------------------------------------------------------
-      // Unsuppressed GRIFFIN
-      //---------------------------------------------------------------------
-      AddbackGriffin();
-      if(fSettings->WriteGriffinAddbackVector())
-        AddbackGriffinNeighbourVector();
-
-      //statistics histograms
-      hist1D = Get1DHistogram("GriffinCrystalMultiplicityUnsup","Statistics");
-      hist1D->Fill(fGriffinCrystal->size());
-      hist1D = Get1DHistogram("GriffinBgoMultiplicityUnsup","Statistics");
-      hist1D->Fill(fGriffinBgo->size());
-      hist1D = Get1DHistogram("GriffinDetectorMultiplicityUnsup","Statistics");
-      hist1D->Fill(fGriffinDetector->size());
-      hist1D = Get1DHistogram("GriffinCrystalHitPattern","Statistics");
-      for(size_t firstDet = 0; firstDet < fGriffinCrystal->size(); ++firstDet) {
-          hist1D->Fill((4*fGriffinCrystal->at(firstDet).DetectorId())+fGriffinCrystal->at(firstDet).CrystalId());
-      }
-      hist1D = Get1DHistogram("GriffinDetectorHitPattern","Statistics");
-      for(size_t firstDet = 0; firstDet < fGriffinDetector->size(); ++firstDet) {
-          hist1D->Fill((fGriffinDetector->at(firstDet).DetectorId()));
-      }
-      hist1D = Get1DHistogram("SceptarDetectorHitPattern","Statistics");
-      for(size_t firstDet = 0; firstDet < fSceptarDetector->size(); ++firstDet) {
-          hist1D->Fill((fSceptarDetector->at(firstDet).DetectorId()));
-      }
-
-      // GRIFFIN Crystal
-      FillHistDetector1DGamma(hist1D, fGriffinCrystal, "griffin_crystal_unsup_edep_cry", "Griffin1D");
-      FillHistDetector1DGammaNR(hist1D, fGriffinCrystal, "griffin_crystal_unsup_edep_cry_nr", "0RES_Griffin1D");
-
-      FillHistDetector2DGammaGamma(hist2D, fGriffinCrystal, "griffin_crystal_unsup_edep_cry_matrix", "Griffin2D");
-      FillHistDetector2DGammaGammaNR(hist2D, fGriffinCrystal, "griffin_crystal_unsup_edep_cry_matrix_nr", "0RES_Griffin2D");
-
-      // GRIFFIN Detector / Clover
-      FillHistDetector1DGamma(hist1D, fGriffinDetector, "griffin_crystal_unsup_edep", "Griffin1D");
-      FillHistDetector1DGammaNR(hist1D, fGriffinDetector, "griffin_crystal_unsup_edep_nr", "0RES_Griffin1D");
-
-      if(fSceptarHit) {
-        FillHist2DGriffinSceptarHitPattern(hist2D, fGriffinDetector, fSceptarDetector, "griffin_crystal_sceptar_hit_pattern","Griffin2D");
-
-        FillHistDetector1DGamma(hist1D, fGriffinDetector, "griffin_crystal_unsup_sceptar_coin_edep", "Griffin1D");
-        FillHistDetector1DGammaNR(hist1D, fGriffinDetector, "griffin_crystal_unsup_sceptar_coin_edep_nr", "0RES_Griffin1D");
-        if(fSettings->Write2DSGGHist())
-          FillHistDetector2DGammaGamma(hist2D, fGriffinDetector, "griffin_crystal_unsup_sceptar_coin_edep_matrix","Griffin2D");
-      } else {
-        FillHistDetector1DGamma(hist1D, fGriffinDetector, "griffin_crystal_unsup_sceptar_anticoin_edep", "Griffin1D");
-        FillHistDetector1DGammaNR(hist1D, fGriffinDetector, "griffin_crystal_unsup_sceptar_anticoin_edep_nr", "0RES_Griffin1D");
-        if(fSettings->Write2DSGGHist())
-          FillHistDetector2DGammaGamma(hist2D, fGriffinDetector, "griffin_crystal_unsup_sceptar_anticoin_edep_matrix","Griffin2D");
-      }
-
-      FillHist2DGriffinHitPattern(hist2D, fGriffinDetector, "griffin_crystal_hit_pattern","Griffin2D");
-
-      FillHistDetector2DGammaGamma(hist2D, fGriffinDetector, "griffin_crystal_unsup_edep_matrix","Griffin2D");
-      FillHistDetector2DGammaGammaNR(hist2D, fGriffinDetector, "griffin_crystal_unsup_edep_matrix_nr","0RES_Griffin2D");
+    double smearedEnergy;
+    std::map<int,int> belowThreshold;
+    TH1F* hist1D;
+    TH2F* hist2D;
+    TH3I* hist3D;
+    long int nEntries = fChain.GetEntries();
 
 
-      // 3D gamma-gamma corr - Crystal Method
-      for(size_t firstDet = 0; firstDet < fGriffinCrystal->size(); ++firstDet) {
-        if(fSettings->Write3DHist()) {
-            // add-back 0 deg hits
-            if(fGriffinCrystal->size()==1) {
-                    hist3D = Get3DHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_cry","Griffin3D");
-                    hist3D->Fill(fGriffinCrystal->at(0).Energy(),fGriffinCrystal->at(0).Energy(),0.0,1.0); //1.0/64);
+
+    //  const char* charbuffer;
+    //  std::string stringbuffer;
+    //  std::stringstream ss;
+
+    for(int i = 0; i < nEntries; ++i) {
+        status = fChain.GetEntry(i);
+        if(status == -1) {
+            std::cerr<<"Error occured, couldn't read entry "<<i<<" from tree "<<fChain.GetName()<<" in file "<<fChain.GetFile()->GetName()<<std::endl;
+            continue;
+        } else if(status == 0) {
+            std::cerr<<"Error occured, entry "<<i<<" in tree "<<fChain.GetName()<<" in file "<<fChain.GetFile()->GetName()<<" doesn't exist"<<std::endl;
+            return false;
+        }
+
+        //if this entry is from the next event, we fill the tree with everything we've collected so far (after SupressGriffinion) and reset the vector(s)
+        if((fEventNumber != eventNumber) && ((fSettings->SortNumberOfEvents()==0)||(fSettings->SortNumberOfEvents()>=eventNumber))) {
+
+            for(int j = 0; j < 16; j++) {
+                GriffinNeighbours_counted[j] = 0;
             }
-            for(size_t secondDet = firstDet+1; secondDet < fGriffinCrystal->size(); ++secondDet) {
-                cry1energy  = fGriffinCrystal->at(firstDet).Energy();
-                cry1        = fGriffinCrystal->at(firstDet).CrystalId();
-                cry2energy  = fGriffinCrystal->at(secondDet).Energy();
-                cry2        = fGriffinCrystal->at(secondDet).CrystalId();
-                angle = GriffinCryMap[(int)((4*fGriffinCrystal->at(firstDet).DetectorId())+fGriffinCrystal->at(firstDet).CrystalId())][(int)((4*fGriffinCrystal->at(secondDet).DetectorId())+fGriffinCrystal->at(secondDet).CrystalId())];
-                for(int i = 0; i < 52; i++) {
-                    if(GriffinCryMapCombos[i][0] == angle) {
-                        norm = (double)GriffinCryMapCombos[i][1];
-                        index = i;
-                        break;
+
+            //---------------------------------------------------------------------
+            // Unsuppressed GRIFFIN
+            //---------------------------------------------------------------------
+            AddbackGriffin();
+            if(fSettings->WriteGriffinAddbackVector())
+                AddbackGriffinNeighbourVector();
+
+            //statistics histograms
+            hist1D = Get1DHistogram("GriffinCrystalMultiplicityUnsup","Statistics");
+            hist1D->Fill(fGriffinCrystal->size());
+            hist1D = Get1DHistogram("GriffinBgoMultiplicityUnsup","Statistics");
+            hist1D->Fill(fGriffinBgo->size());
+            hist1D = Get1DHistogram("GriffinDetectorMultiplicityUnsup","Statistics");
+            hist1D->Fill(fGriffinDetector->size());
+            hist1D = Get1DHistogram("GriffinCrystalHitPattern","Statistics");
+            for(size_t firstDet = 0; firstDet < fGriffinCrystal->size(); ++firstDet) {
+                hist1D->Fill((4*fGriffinCrystal->at(firstDet).DetectorId())+fGriffinCrystal->at(firstDet).CrystalId());
+            }
+            hist1D = Get1DHistogram("GriffinDetectorHitPattern","Statistics");
+            for(size_t firstDet = 0; firstDet < fGriffinDetector->size(); ++firstDet) {
+                hist1D->Fill((fGriffinDetector->at(firstDet).DetectorId()));
+            }
+            hist1D = Get1DHistogram("SceptarDetectorHitPattern","Statistics");
+            for(size_t firstDet = 0; firstDet < fSceptarDetector->size(); ++firstDet) {
+                hist1D->Fill((fSceptarDetector->at(firstDet).DetectorId()));
+            }
+
+            // GRIFFIN Crystal
+            FillHistDetector1DGamma(hist1D, fGriffinCrystal, "griffin_crystal_unsup_edep_cry", "Griffin1D");
+            FillHistDetector1DGammaNR(hist1D, fGriffinCrystal, "griffin_crystal_unsup_edep_cry_nr", "0RES_Griffin1D");
+
+            FillHistDetector2DGammaGamma(hist2D, fGriffinCrystal, "griffin_crystal_unsup_edep_cry_matrix", "Griffin2D");
+            FillHistDetector2DGammaGammaNR(hist2D, fGriffinCrystal, "griffin_crystal_unsup_edep_cry_matrix_nr", "0RES_Griffin2D");
+
+            // GRIFFIN Detector / Clover
+            FillHistDetector1DGamma(hist1D, fGriffinDetector, "griffin_crystal_unsup_edep", "Griffin1D");
+            FillHistDetector1DGammaNR(hist1D, fGriffinDetector, "griffin_crystal_unsup_edep_nr", "0RES_Griffin1D");
+
+            if(fSceptarHit) {
+                FillHist2DGriffinSceptarHitPattern(hist2D, fGriffinDetector, fSceptarDetector, "griffin_crystal_sceptar_hit_pattern","Griffin2D");
+
+                FillHistDetector1DGamma(hist1D, fGriffinDetector, "griffin_crystal_unsup_sceptar_coin_edep", "Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinDetector, "griffin_crystal_unsup_sceptar_coin_edep_nr", "0RES_Griffin1D");
+                if(fSettings->Write2DSGGHist())
+                    FillHistDetector2DGammaGamma(hist2D, fGriffinDetector, "griffin_crystal_unsup_sceptar_coin_edep_matrix","Griffin2D");
+            } else {
+                FillHistDetector1DGamma(hist1D, fGriffinDetector, "griffin_crystal_unsup_sceptar_anticoin_edep", "Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinDetector, "griffin_crystal_unsup_sceptar_anticoin_edep_nr", "0RES_Griffin1D");
+                if(fSettings->Write2DSGGHist())
+                    FillHistDetector2DGammaGamma(hist2D, fGriffinDetector, "griffin_crystal_unsup_sceptar_anticoin_edep_matrix","Griffin2D");
+            }
+
+            FillHist2DGriffinHitPattern(hist2D, fGriffinDetector, "griffin_crystal_hit_pattern","Griffin2D");
+
+            FillHistDetector2DGammaGamma(hist2D, fGriffinDetector, "griffin_crystal_unsup_edep_matrix","Griffin2D");
+            FillHistDetector2DGammaGammaNR(hist2D, fGriffinDetector, "griffin_crystal_unsup_edep_matrix_nr","0RES_Griffin2D");
+
+
+            // 3D gamma-gamma corr - Crystal Method
+            for(size_t firstDet = 0; firstDet < fGriffinCrystal->size(); ++firstDet) {
+                if(fSettings->Write3DHist()) {
+                    // add-back 0 deg hits
+                    if(fGriffinCrystal->size()==1) {
+                        hist3D = Get3DHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_cry","Griffin3D");
+                        hist3D->Fill(fGriffinCrystal->at(0).Energy(),fGriffinCrystal->at(0).Energy(),0.0,1.0); //1.0/64);
                     }
-                }
-                if(cry1energy == 0 || cry2energy == 0 || norm == 0) {
-                    cout << "error, didn't find something" << endl;
-                    cout << "cry1energy = " << cry1energy << endl;
-                    cout << "cry2energy = " << cry2energy << endl;
-                    cout << "norm = " << norm << endl;
-                    cout << "angle = " << angle << endl;
-                }
-                //cout << "angle = " << angle << endl;
-                hist3D = Get3DHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_cry","Griffin3D");
-                hist3D->Fill(fGriffinCrystal->at(firstDet).Energy(),fGriffinCrystal->at(secondDet).Energy(),(double)index,1.0); //angle,1.0); //1.0/norm);
-                hist3D->Fill(fGriffinCrystal->at(secondDet).Energy(),fGriffinCrystal->at(firstDet).Energy(),(double)index,1.0); //angle,1.0); //1.0/norm);
-                cry1 = 0;
-                cry2 = 0;
-                cry1energy = 0;
-                cry2energy = 0;
-                angle = 0;
-                norm = 0;
-            }
-          }
-      }
-
-
-      // 3D gamma-gamma corr - Detector Method
-      for(size_t firstDet = 0; firstDet < fGriffinDetector->size(); ++firstDet) {
-        if(fSettings->Write3DHist()) {
-            // add-back 0 deg hits
-            if(fGriffinDetector->size()==1) {
-                    hist3D = Get3DHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_det","Griffin3D");
-                    hist3D->Fill(fGriffinDetector->at(0).Energy(),fGriffinDetector->at(0).Energy(),0.0,1.0); //1.0/16);
-            }
-            for(size_t secondDet = firstDet+1; secondDet < fGriffinDetector->size(); ++secondDet) {
-                det1        = fGriffinDetector->at(firstDet).DetectorId();
-                det2        = fGriffinDetector->at(secondDet).DetectorId();
-                det1energy  = fGriffinDetector->at(firstDet).Energy();
-                det2energy  = fGriffinDetector->at(secondDet).Energy();
-                angle = GriffinDetMap[(int)((fGriffinDetector->at(firstDet).DetectorId()))][(int)((fGriffinDetector->at(secondDet).DetectorId()))];
-                for(int i = 0; i < 7; i++) {
-                    if(GriffinDetMapCombos[i][0] == angle) {
-                        norm = (double)GriffinDetMapCombos[i][1];
-                        index = i;
-                        break;
-                    }
-                }
-                if(det1energy == 0 || det2energy == 0 || norm == 0) {
-                    cout << "error, didn't find something" << endl;
-                    cout << "det1energy = " << det1energy << endl;
-                    cout << "det2energy = " << det2energy << endl;
-                    cout << "det1 = " << det1 << endl;
-                    cout << "det2 = " << det2 << endl;
-                    cout << "norm = " << norm << endl;
-                    cout << "angle = " << angle << endl;
-                }
-                //cout << "angle = " << angle << endl;
-                hist3D = Get3DHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_det","Griffin3D");
-                hist3D->Fill(fGriffinDetector->at(firstDet).Energy(),fGriffinDetector->at(secondDet).Energy(),(double)index,1.0); //angle,1.0); //1.0/norm);
-                hist3D->Fill(fGriffinDetector->at(secondDet).Energy(),fGriffinDetector->at(firstDet).Energy(),(double)index,1.0); //angle,1.0); //1.0/norm);
-                det1 = 0;
-                det2 = 0;
-                det1energy = 0;
-                det2energy = 0;
-                angle = 0;
-                norm = 0;
-            }
-          }
-      }
-
-
-
-      // 3D gamma-gamma corr - Add-back Method
-      for(size_t firstDet = 0; firstDet < fGriffinDetector->size(); ++firstDet) {
-        if(fSettings->Write3DHist()) {
-            cry1 = 0;
-            cry2 = 0;
-            cry1energy = 0;
-            cry2energy = 0;
-            angle = 0;
-            norm = 0;
-            // add-back 0 deg hits
-            if(fGriffinDetector->size()==1) {
-                if(fGriffinCrystal->size()==1) { // true 0 deg hits
-                    hist3D = Get3DHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_cry_addback","Griffin3D");
-                    hist3D->Fill(fGriffinCrystal->at(0).Energy(),fGriffinCrystal->at(0).Energy(),0.0,1.0); //,1.0/64);
-                }
-                else {
-                    for(size_t thiscry = 0; thiscry < fGriffinCrystal->size(); ++thiscry) {
-                        if(cry1energy == 0){
-                            cry1energy  = fGriffinCrystal->at(thiscry).Energy();
-                            cry1        = fGriffinCrystal->at(thiscry).CrystalId();
-                        }
-                        else if(cry2energy == 0){
-                            cry2energy  = fGriffinCrystal->at(thiscry).Energy();
-                            cry2        = fGriffinCrystal->at(thiscry).CrystalId();
-                        }
-                        else{
-                            if(cry1energy != 0 && cry2energy != 0 && cry1energy < fGriffinCrystal->at(thiscry).Energy()) {
-                                if(cry1energy > cry2energy) {
-                                    cry2energy  = cry1energy;
-                                    cry2        = cry1;
-                                }
-                                cry1energy  = fGriffinCrystal->at(thiscry).Energy();
-                                cry1        = fGriffinCrystal->at(thiscry).CrystalId();
-                            }
-                            else if(cry1energy != 0 && cry2energy != 0 && cry2energy < fGriffinCrystal->at(thiscry).Energy()) {
-                                if(cry2energy > cry1energy) {
-                                    cry1energy  = cry2energy;
-                                    cry1        = cry2;
-                                }
-                                cry2energy  = fGriffinCrystal->at(thiscry).Energy();
-                                cry2        = fGriffinCrystal->at(thiscry).CrystalId();
+                    for(size_t secondDet = firstDet+1; secondDet < fGriffinCrystal->size(); ++secondDet) {
+                        cry1energy  = fGriffinCrystal->at(firstDet).Energy();
+                        cry1        = fGriffinCrystal->at(firstDet).CrystalId();
+                        cry2energy  = fGriffinCrystal->at(secondDet).Energy();
+                        cry2        = fGriffinCrystal->at(secondDet).CrystalId();
+                        angle = GriffinCryMap[(int)((4*fGriffinCrystal->at(firstDet).DetectorId())+fGriffinCrystal->at(firstDet).CrystalId())][(int)((4*fGriffinCrystal->at(secondDet).DetectorId())+fGriffinCrystal->at(secondDet).CrystalId())];
+                        for(int i = 0; i < 52; i++) {
+                            if(GriffinCryMapCombos[i][0] == angle) {
+                                norm = (double)GriffinCryMapCombos[i][1];
+                                index = i;
+                                break;
                             }
                         }
-                    }
-                    angle = GriffinCryMap[(int)((4*fGriffinDetector->at(firstDet).DetectorId())+cry1)][(int)((4*fGriffinDetector->at(firstDet).DetectorId())+cry2)];
-                    for(int i = 0; i < 52; i++) {
-                        if(GriffinCryMapCombos[i][0] == angle) {
-                            norm = (double)GriffinCryMapCombos[i][1];
-                            index = i;
-                            break;
+                        if(cry1energy == 0 || cry2energy == 0 || norm == 0) {
+                            cout << "error, didn't find something" << endl;
+                            cout << "cry1energy = " << cry1energy << endl;
+                            cout << "cry2energy = " << cry2energy << endl;
+                            cout << "norm = " << norm << endl;
+                            cout << "angle = " << angle << endl;
                         }
+                        //cout << "angle = " << angle << endl;
+                        hist3D = Get3DHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_cry","Griffin3D");
+                        hist3D->Fill(fGriffinCrystal->at(firstDet).Energy(),fGriffinCrystal->at(secondDet).Energy(),(double)index,1.0); //angle,1.0); //1.0/norm);
+                        hist3D->Fill(fGriffinCrystal->at(secondDet).Energy(),fGriffinCrystal->at(firstDet).Energy(),(double)index,1.0); //angle,1.0); //1.0/norm);
+                        cry1 = 0;
+                        cry2 = 0;
+                        cry1energy = 0;
+                        cry2energy = 0;
+                        angle = 0;
+                        norm = 0;
                     }
-                    hist3D = Get3DHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_cry_addback","Griffin3D");
-                    hist3D->Fill(fGriffinDetector->at(firstDet).Energy(),fGriffinDetector->at(firstDet).Energy(),(double)index,1.0); //angle,1.0); //1.0/norm);
+                }
+            }
+
+
+            // 3D gamma-gamma corr - Detector Method
+            for(size_t firstDet = 0; firstDet < fGriffinDetector->size(); ++firstDet) {
+                if(fSettings->Write3DHist()) {
+                    // add-back 0 deg hits
+                    if(fGriffinDetector->size()==1) {
+                        hist3D = Get3DHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_det","Griffin3D");
+                        hist3D->Fill(fGriffinDetector->at(0).Energy(),fGriffinDetector->at(0).Energy(),0.0,1.0); //1.0/16);
+                    }
+                    for(size_t secondDet = firstDet+1; secondDet < fGriffinDetector->size(); ++secondDet) {
+                        det1        = fGriffinDetector->at(firstDet).DetectorId();
+                        det2        = fGriffinDetector->at(secondDet).DetectorId();
+                        det1energy  = fGriffinDetector->at(firstDet).Energy();
+                        det2energy  = fGriffinDetector->at(secondDet).Energy();
+                        angle = GriffinDetMap[(int)((fGriffinDetector->at(firstDet).DetectorId()))][(int)((fGriffinDetector->at(secondDet).DetectorId()))];
+                        for(int i = 0; i < 7; i++) {
+                            if(GriffinDetMapCombos[i][0] == angle) {
+                                norm = (double)GriffinDetMapCombos[i][1];
+                                index = i;
+                                break;
+                            }
+                        }
+                        if(det1energy == 0 || det2energy == 0 || norm == 0) {
+                            cout << "error, didn't find something" << endl;
+                            cout << "det1energy = " << det1energy << endl;
+                            cout << "det2energy = " << det2energy << endl;
+                            cout << "det1 = " << det1 << endl;
+                            cout << "det2 = " << det2 << endl;
+                            cout << "norm = " << norm << endl;
+                            cout << "angle = " << angle << endl;
+                        }
+                        //cout << "angle = " << angle << endl;
+                        hist3D = Get3DHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_det","Griffin3D");
+                        hist3D->Fill(fGriffinDetector->at(firstDet).Energy(),fGriffinDetector->at(secondDet).Energy(),(double)index,1.0); //angle,1.0); //1.0/norm);
+                        hist3D->Fill(fGriffinDetector->at(secondDet).Energy(),fGriffinDetector->at(firstDet).Energy(),(double)index,1.0); //angle,1.0); //1.0/norm);
+                        det1 = 0;
+                        det2 = 0;
+                        det1energy = 0;
+                        det2energy = 0;
+                        angle = 0;
+                        norm = 0;
+                    }
+                }
+            }
+
+
+
+            // 3D gamma-gamma corr - Add-back Method
+            for(size_t firstDet = 0; firstDet < fGriffinDetector->size(); ++firstDet) {
+                if(fSettings->Write3DHist()) {
                     cry1 = 0;
                     cry2 = 0;
                     cry1energy = 0;
                     cry2energy = 0;
                     angle = 0;
                     norm = 0;
-                }
-            } // done 0 deg hits
-            else {
-            for(size_t secondDet = firstDet+1; secondDet < fGriffinDetector->size(); ++secondDet) {
-                for(size_t thiscry = 0; thiscry < fGriffinCrystal->size(); ++thiscry) {
-                    if(fGriffinCrystal->at(thiscry).DetectorId() == fGriffinDetector->at(firstDet).DetectorId() ) {
-                        if(fGriffinCrystal->at(thiscry).Energy() > cry1energy){
-                            cry1energy  = fGriffinCrystal->at(thiscry).Energy();
-                            cry1        = fGriffinCrystal->at(thiscry).CrystalId();
+                    // add-back 0 deg hits
+                    if(fGriffinDetector->size()==1) {
+                        if(fGriffinCrystal->size()==1) { // true 0 deg hits
+                            hist3D = Get3DHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_cry_addback","Griffin3D");
+                            hist3D->Fill(fGriffinCrystal->at(0).Energy(),fGriffinCrystal->at(0).Energy(),0.0,1.0); //,1.0/64);
+                        }
+                        else {
+                            for(size_t thiscry = 0; thiscry < fGriffinCrystal->size(); ++thiscry) {
+                                if(cry1energy == 0){
+                                    cry1energy  = fGriffinCrystal->at(thiscry).Energy();
+                                    cry1        = fGriffinCrystal->at(thiscry).CrystalId();
+                                }
+                                else if(cry2energy == 0){
+                                    cry2energy  = fGriffinCrystal->at(thiscry).Energy();
+                                    cry2        = fGriffinCrystal->at(thiscry).CrystalId();
+                                }
+                                else{
+                                    if(cry1energy != 0 && cry2energy != 0 && cry1energy < fGriffinCrystal->at(thiscry).Energy()) {
+                                        if(cry1energy > cry2energy) {
+                                            cry2energy  = cry1energy;
+                                            cry2        = cry1;
+                                        }
+                                        cry1energy  = fGriffinCrystal->at(thiscry).Energy();
+                                        cry1        = fGriffinCrystal->at(thiscry).CrystalId();
+                                    }
+                                    else if(cry1energy != 0 && cry2energy != 0 && cry2energy < fGriffinCrystal->at(thiscry).Energy()) {
+                                        if(cry2energy > cry1energy) {
+                                            cry1energy  = cry2energy;
+                                            cry1        = cry2;
+                                        }
+                                        cry2energy  = fGriffinCrystal->at(thiscry).Energy();
+                                        cry2        = fGriffinCrystal->at(thiscry).CrystalId();
+                                    }
+                                }
+                            }
+                            angle = GriffinCryMap[(int)((4*fGriffinDetector->at(firstDet).DetectorId())+cry1)][(int)((4*fGriffinDetector->at(firstDet).DetectorId())+cry2)];
+                            for(int i = 0; i < 52; i++) {
+                                if(GriffinCryMapCombos[i][0] == angle) {
+                                    norm = (double)GriffinCryMapCombos[i][1];
+                                    index = i;
+                                    break;
+                                }
+                            }
+                            hist3D = Get3DHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_cry_addback","Griffin3D");
+                            hist3D->Fill(fGriffinDetector->at(firstDet).Energy(),fGriffinDetector->at(firstDet).Energy(),(double)index,1.0); //angle,1.0); //1.0/norm);
+                            cry1 = 0;
+                            cry2 = 0;
+                            cry1energy = 0;
+                            cry2energy = 0;
+                            angle = 0;
+                            norm = 0;
+                        }
+                    } // done 0 deg hits
+                    else {
+                        for(size_t secondDet = firstDet+1; secondDet < fGriffinDetector->size(); ++secondDet) {
+                            for(size_t thiscry = 0; thiscry < fGriffinCrystal->size(); ++thiscry) {
+                                if(fGriffinCrystal->at(thiscry).DetectorId() == fGriffinDetector->at(firstDet).DetectorId() ) {
+                                    if(fGriffinCrystal->at(thiscry).Energy() > cry1energy){
+                                        cry1energy  = fGriffinCrystal->at(thiscry).Energy();
+                                        cry1        = fGriffinCrystal->at(thiscry).CrystalId();
+                                    }
+                                }
+                                if(fGriffinCrystal->at(thiscry).DetectorId() == fGriffinDetector->at(secondDet).DetectorId() ) {
+                                    if(fGriffinCrystal->at(thiscry).Energy() > cry2energy){
+                                        cry2energy  = fGriffinCrystal->at(thiscry).Energy();
+                                        cry2        = fGriffinCrystal->at(thiscry).CrystalId();
+                                    }
+                                }
+                            }
+                            angle = GriffinCryMap[(int)((4*fGriffinDetector->at(firstDet).DetectorId())+cry1)][(int)((4*fGriffinDetector->at(secondDet).DetectorId())+cry2)];
+                            for(int i = 0; i < 52; i++) {
+                                if(GriffinCryMapCombos[i][0] == angle) {
+                                    norm = (double)GriffinCryMapCombos[i][1];
+                                    index = i;
+                                    break;
+                                }
+                            }
+                            if(cry1energy == 0 || cry2energy == 0 || norm == 0) {
+                                cout << "error, didn't find something" << endl;
+                                cout << "cry1energy = " << cry1energy << endl;
+                                cout << "cry2energy = " << cry2energy << endl;
+                                cout << "norm = " << norm << endl;
+                                cout << "angle = " << angle << endl;
+                            }
+                            //cout << "angle = " << angle << endl;
+                            hist3D = Get3DHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_cry_addback","Griffin3D");
+                            hist3D->Fill(fGriffinDetector->at(firstDet).Energy(),fGriffinDetector->at(secondDet).Energy(),(double)index,1.0); //angle,1.0); //1.0/norm);
+                            hist3D->Fill(fGriffinDetector->at(secondDet).Energy(),fGriffinDetector->at(firstDet).Energy(),(double)index,1.0); //angle,1.0); //1.0/norm);
+                            cry1 = 0;
+                            cry2 = 0;
+                            cry1energy = 0;
+                            cry2energy = 0;
+                            angle = 0;
+                            norm = 0;
                         }
                     }
-                    if(fGriffinCrystal->at(thiscry).DetectorId() == fGriffinDetector->at(secondDet).DetectorId() ) {
-                        if(fGriffinCrystal->at(thiscry).Energy() > cry2energy){
-                            cry2energy  = fGriffinCrystal->at(thiscry).Energy();
-                            cry2        = fGriffinCrystal->at(thiscry).CrystalId();
-                        }
-                    }
                 }
-                angle = GriffinCryMap[(int)((4*fGriffinDetector->at(firstDet).DetectorId())+cry1)][(int)((4*fGriffinDetector->at(secondDet).DetectorId())+cry2)];
-                for(int i = 0; i < 52; i++) {
-                    if(GriffinCryMapCombos[i][0] == angle) {
-                        norm = (double)GriffinCryMapCombos[i][1];
-                        index = i;
-                        break;
-                    }
-                }
-                if(cry1energy == 0 || cry2energy == 0 || norm == 0) {
-                    cout << "error, didn't find something" << endl;
-                    cout << "cry1energy = " << cry1energy << endl;
-                    cout << "cry2energy = " << cry2energy << endl;
-                    cout << "norm = " << norm << endl;
-                    cout << "angle = " << angle << endl;
-                }
-                //cout << "angle = " << angle << endl;
-                hist3D = Get3DHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_cry_addback","Griffin3D");
-                hist3D->Fill(fGriffinDetector->at(firstDet).Energy(),fGriffinDetector->at(secondDet).Energy(),(double)index,1.0); //angle,1.0); //1.0/norm);
-                hist3D->Fill(fGriffinDetector->at(secondDet).Energy(),fGriffinDetector->at(firstDet).Energy(),(double)index,1.0); //angle,1.0); //1.0/norm);
-                cry1 = 0;
-                cry2 = 0;
-                cry1energy = 0;
-                cry2energy = 0;
-                angle = 0;
-                norm = 0;
             }
-          }
+
+            // Neighbours
+            FillHistDetector1DGamma(hist1D, fGriffinNeighbour, "griffin_crystal_unsup_edep_neigh", "Griffin1D");
+            FillHistDetector1DGammaNR(hist1D, fGriffinNeighbour, "griffin_crystal_unsup_edep_neigh_nr", "0RES_Griffin1D");
+
+            if(fSceptarHit) {
+                FillHistDetector1DGamma(hist1D, fGriffinNeighbour, "griffin_crystal_unsup_sceptar_coin_edep_neigh", "Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinNeighbour, "griffin_crystal_unsup_sceptar_coin_edep_neigh_nr", "0RES_Griffin1D");
+            } else {
+                FillHistDetector1DGamma(hist1D, fGriffinNeighbour, "griffin_crystal_unsup_sceptar_anticoin_edep_neigh", "Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinNeighbour, "griffin_crystal_unsup_sceptar_anticoin_edep_neigh_nr", "0RES_Griffin1D");
+            }
+
+            // Neighbours Vectors
+            FillHistDetector1DGamma(hist1D, fGriffinNeighbourVector, "griffin_crystal_unsup_edep_neighvec", "Griffin1D");
+            FillHistDetector1DGammaNR(hist1D, fGriffinNeighbourVector, "griffin_crystal_unsup_edep_neighvec_nr", "0RES_Griffin1D");
+
+            if(fSceptarHit) {
+                FillHistDetector1DGamma(hist1D, fGriffinNeighbourVector, "griffin_crystal_unsup_sceptar_coin_edep_neighvec", "Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinNeighbourVector, "griffin_crystal_unsup_sceptar_coin_edep_neighvec_nr", "0RES_Griffin1D");
+            } else {
+                FillHistDetector1DGamma(hist1D, fGriffinNeighbourVector, "griffin_crystal_unsup_sceptar_anticoin_edep_neighvec", "Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinNeighbourVector, "griffin_crystal_unsup_sceptar_anticoin_edep_neighvec_nr", "0RES_Griffin1D");
+            }
+
+            FillHistDetector1DGamma(hist1D, fGriffinArray, "griffin_crystal_unsup_edep_sum", "Griffin1D");
+            FillHistDetector1DGammaNR(hist1D, fGriffinArray, "griffin_crystal_unsup_edep_sum_nr", "0RES_Griffin1D");
+
+            // CLEAR GRIFFIN //
+            fGriffinDetector->clear();
+            fGriffinNeighbour->clear();
+            fGriffinNeighbourVector->clear();
+            fGriffinArray->clear();
+
+            //---------------------------------------------------------------------
+            // Suppressed GRIFFIN
+            //---------------------------------------------------------------------
+            SupressGriffin();
+            AddbackGriffin();
+            if(fSettings->WriteGriffinAddbackVector())
+                AddbackGriffinNeighbourVector();
+
+            if(fSettings->WriteTree())
+                fTree.Fill(); // Tree contains suppressed data
+
+            //-------------------- crystal histograms
+            //multiplicity histogram
+            hist1D = Get1DHistogram("GriffinCrystalMultiplicitySup","Statistics");
+            hist1D->Fill(fGriffinCrystal->size());
+            hist1D = Get1DHistogram("GriffinBgoMultiplicitySup","Statistics");
+            hist1D->Fill(fGriffinBgo->size());
+            hist1D = Get1DHistogram("GriffinDetectorMultiplicitySup","Statistics");
+            hist1D->Fill(fGriffinDetector->size());
+
+            // GRIFFIN Crystal
+            FillHistDetector1DGamma(hist1D, fGriffinCrystal, "griffin_crystal_sup_edep_cry", "Griffin1D");
+            FillHistDetector1DGammaNR(hist1D, fGriffinCrystal, "griffin_crystal_sup_edep_cry_nr", "0RES_Griffin1D");
+
+            FillHistDetector2DGammaGamma(hist2D, fGriffinCrystal, "griffin_crystal_sup_edep_cry_matrix", "Griffin2D");
+            FillHistDetector2DGammaGammaNR(hist2D, fGriffinCrystal, "griffin_crystal_sup_edep_cry_matrix_nr", "0RES_Griffin2D");
+
+            if(fGriffinBgo->size() == 0 && fGriffinBgoBack->size() == 0) {
+                FillHistDetector1DGamma(hist1D, fGriffinCrystal, "griffin_crystal_arraysup_edep_cry", "Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinCrystal, "griffin_crystal_arraysup_edep_cry_nr", "0RES_Griffin1D");
+
+                FillHistDetector2DGammaGamma(hist2D, fGriffinCrystal, "griffin_crystal_arraysup_edep_cry_matrix","Griffin2D");
+                FillHistDetector2DGammaGammaNR(hist2D, fGriffinCrystal, "griffin_crystal_arraysup_edep_cry_matrix_nr","0RES_Griffin2D");
+            }
+
+            // GRIFFIN Detector / Clover
+            FillHistDetector1DGamma(hist1D, fGriffinDetector, "griffin_crystal_sup_edep", "Griffin1D");
+            FillHistDetector1DGammaNR(hist1D, fGriffinDetector, "griffin_crystal_sup_edep_nr", "0RES_Griffin1D");
+
+            if(fSceptarHit) {
+                FillHistDetector1DGamma(hist1D, fGriffinDetector, "griffin_crystal_sup_sceptar_coin_edep", "Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinDetector, "griffin_crystal_sup_sceptar_coin_edep_nr", "0RES_Griffin1D");
+                if(fSettings->Write2DSGGHist())
+                    FillHistDetector2DGammaGamma(hist2D, fGriffinDetector, "griffin_crystal_sup_sceptar_coin_edep_matrix","Griffin2D");
+            } else {
+                FillHistDetector1DGamma(hist1D, fGriffinDetector, "griffin_crystal_sup_sceptar_anticoin_edep", "Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinDetector, "griffin_crystal_sup_sceptar_anticoin_edep_nr", "0RES_Griffin1D");
+                if(fSettings->Write2DSGGHist())
+                    FillHistDetector2DGammaGamma(hist2D, fGriffinDetector, "griffin_crystal_sup_sceptar_anticoin_edep_matrix","Griffin2D");
+            }
+
+            FillHistDetector2DGammaGamma(hist2D, fGriffinDetector, "griffin_crystal_sup_edep_matrix","Griffin2D");
+            FillHistDetector2DGammaGammaNR(hist2D, fGriffinDetector, "griffin_crystal_sup_edep_matrix_nr","0RES_Griffin2D");
+
+
+            // Neighbours
+            FillHistDetector1DGamma(hist1D, fGriffinNeighbour, "griffin_crystal_sup_edep_neigh", "Griffin1D");
+            FillHistDetector1DGammaNR(hist1D, fGriffinNeighbour, "griffin_crystal_sup_edep_neigh_nr", "0RES_Griffin1D");
+
+            if(fSceptarHit) {
+                FillHistDetector1DGamma(hist1D, fGriffinNeighbour, "griffin_crystal_sup_sceptar_coin_edep_neigh", "Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinNeighbour, "griffin_crystal_sup_sceptar_coin_edep_neigh_nr", "0RES_Griffin1D");
+            } else {
+                FillHistDetector1DGamma(hist1D, fGriffinNeighbour, "griffin_crystal_sup_sceptar_anticoin_edep_neigh", "Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinNeighbour, "griffin_crystal_sup_sceptar_anticoin_edep_neigh_nr", "0RES_Griffin1D");
+            }
+
+            // Neighbours Vectors
+            FillHistDetector1DGamma(hist1D, fGriffinNeighbourVector, "griffin_crystal_sup_edep_neighvec", "Griffin1D");
+            FillHistDetector1DGammaNR(hist1D, fGriffinNeighbourVector, "griffin_crystal_sup_edep_neighvec_nr", "0RES_Griffin1D");
+
+            if(fSceptarHit) {
+                FillHistDetector1DGamma(hist1D, fGriffinNeighbourVector, "griffin_crystal_sup_sceptar_coin_edep_neighvec", "Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinNeighbourVector, "griffin_crystal_sup_sceptar_coin_edep_neighvec_nr", "0RES_Griffin1D");
+            } else {
+                FillHistDetector1DGamma(hist1D, fGriffinNeighbourVector, "griffin_crystal_sup_sceptar_anticoin_edep_neighvec", "Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinNeighbourVector, "griffin_crystal_sup_sceptar_anticoin_edep_neighvec_nr", "0RES_Griffin1D");
+            }
+
+            // GRIFFIN Detector / Clover
+            if(fGriffinBgo->size() == 0 && fGriffinBgoBack->size() == 0) {
+                FillHistDetector1DGamma(hist1D, fGriffinDetector, "griffin_crystal_arraysup_edep", "Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinDetector, "griffin_crystal_arraysup_edep_nr", "0RES_Griffin1D");
+
+                FillHistDetector2DGammaGamma(hist2D, fGriffinDetector, "griffin_crystal_arraysup_edep_matrix","Griffin2D");
+                FillHistDetector2DGammaGammaNR(hist2D, fGriffinDetector, "griffin_crystal_arraysup_edep_matrix_nr","0RES_Griffin2D");
+            }
+
+            FillHistDetector1DGamma(hist1D, fGriffinArray, "griffin_crystal_sup_edep_sum", "Griffin1D");
+            FillHistDetector1DGammaNR(hist1D, fGriffinArray, "griffin_crystal_sup_edep_sum_nr", "0RES_Griffin1D");
+
+            if(fGriffinBgo->size() == 0 && fGriffinBgoBack->size() == 0 ) {
+                FillHistDetector1DGamma(hist1D, fGriffinArray, "griffin_crystal_arraysup_edep_sum", "Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinArray, "griffin_crystal_arraysup_edep_sum_nr", "0RES_Griffin1D");
+            }
+
+            // CLEAR GRIFFIN //
+            fGriffinDetector->clear();
+            fGriffinNeighbour->clear();
+            fGriffinNeighbourVector->clear();
+            fGriffinArray->clear();
+
+            // SUPPRESSED GRIFFIN with Ancillary Detectors too
+            // now suppress and AddbackGriffin again
+            SupressGriffin();
+            SupressGriffinByNeighbouringAncillaryBgos();
+            AddbackGriffin();
+
+
+            FillHistDetector1DGamma(hist1D, fGriffinCrystal, "griffin_crystal_ancillaryneighsup_edep_cry", "Griffin1D");
+            FillHistDetector1DGammaNR(hist1D, fGriffinCrystal, "griffin_crystal_ancillaryneighsup_edep_cry_nr", "0RES_Griffin1D");
+
+            FillHistDetector1DGamma(hist1D, fGriffinDetector, "griffin_crystal_ancillaryneighsup_edep", "Griffin1D");
+            FillHistDetector1DGammaNR(hist1D, fGriffinDetector, "griffin_crystal_ancillaryneighsup_edep_nr", "0RES_Griffin1D");
+
+            // CLEAR GRIFFIN //
+            fGriffinDetector->clear();
+            fGriffinNeighbour->clear();
+            fGriffinNeighbourVector->clear();
+            fGriffinArray->clear();
+
+            // SUPPRESSED GRIFFIN with SCEPTAR too
+            // now suppress and AddbackGriffin again
+            SupressGriffin();
+            SupressGriffinBySceptar();
+            AddbackGriffin();
+
+            FillHistDetector1DGamma(hist1D, fGriffinCrystal, "griffin_crystal_sceptarsup_edep_cry", "Griffin1D");
+            FillHistDetector1DGammaNR(hist1D, fGriffinCrystal, "griffin_crystal_sceptarsup_edep_cry_nr", "0RES_Griffin1D");
+
+            FillHistDetector1DGamma(hist1D, fGriffinDetector, "griffin_crystal_sceptarsup_edep", "Griffin1D");
+            FillHistDetector1DGammaNR(hist1D, fGriffinDetector, "griffin_crystal_sceptarsup_edep_nr", "0RES_Griffin1D");
+
+            // LaBr3
+            // Unsuppressed
+            FillHistDetector1DGamma(hist1D, fLaBrDetector, "labr_crystal_unsup_edep", "LaBr1D");
+            FillHistDetector1DGammaNR(hist1D, fLaBrDetector, "labr_crystal_unsup_edep_nr", "0RES_LaBr1D");
+
+            AddbackLaBr();
+
+            FillHistDetector1DGamma(hist1D, fLaBrArray, "labr_crystal_unsup_edep_sum", "LaBr1D");
+            FillHistDetector1DGammaNR(hist1D, fLaBrArray, "labr_crystal_unsup_edep_sum_nr", "0RES_LaBr1D");
+
+            AddbackAncillaryBgo();
+            SupressLaBr();
+
+            FillHistDetector1DGamma(hist1D, fLaBrDetector, "labr_crystal_sup_edep", "LaBr1D");
+            FillHistDetector1DGammaNR(hist1D, fLaBrDetector, "labr_crystal_sup_edep_nr", "0RES_LaBr1D");
+
+            if(fAncillaryBgoCrystal->size() == 0) {
+                FillHistDetector1DGamma(hist1D, fLaBrArray, "labr_crystal_sup_edep_sum", "LaBr1D");
+                FillHistDetector1DGammaNR(hist1D, fLaBrArray, "labr_crystal_sup_edep_sum_nr", "0RES_LaBr1D");
+            }
+
+            SupressLaBrByNeighbouringGriffinShields();
+
+            FillHistDetector1DGamma(hist1D, fLaBrDetector, "labr_crystal_griffinneighsup_edep", "LaBr1D");
+            FillHistDetector1DGammaNR(hist1D, fLaBrDetector, "labr_crystal_griffinneighsup_edep_nr", "0RES_LaBr1D");
+
+            if(fAncillaryBgoCrystal->size() == 0) {
+                FillHistDetector1DGamma(hist1D, fLaBrArray, "labr_crystal_griffinneighsup_edep_sum", "LaBr1D");
+                FillHistDetector1DGammaNR(hist1D, fLaBrArray, "labr_crystal_griffinneighsup_edep_sum_nr", "0RES_LaBr1D");
+            }
+
+            if(fGriffinBgo->size() == 0 ) {
+                FillHistDetector1DGamma(hist1D, fLaBrDetector, "labr_crystal_griffinanysup_edep", "LaBr1D");
+                FillHistDetector1DGammaNR(hist1D, fLaBrDetector, "labr_crystal_anygriffinsup_edep_nr", "0RES_LaBr1D");
+                if(fAncillaryBgoCrystal->size() == 0 ) {
+                    FillHistDetector1DGamma(hist1D, fLaBrArray, "labr_crystal_griffinanysup_edep_sum", "LaBr1D");
+                    FillHistDetector1DGammaNR(hist1D, fLaBrArray, "labr_crystal_anygriffinsup_edep_sum_nr", "0RES_LaBr1D");
+                }
+            }
+
+
+            // EightPi3
+            // Unsuppressed
+            FillHistDetector1DGamma(hist1D, fEightPiDetector, "EightPi_crystal_unsup_edep", "EightPi1D");
+            FillHistDetector1DGammaNR(hist1D, fEightPiDetector, "EightPi_crystal_unsup_edep_nr", "0RES_EightPi1D");
+
+            AddbackEightPi();
+
+            FillHistDetector1DGamma(hist1D, fEightPiArray, "EightPi_crystal_unsup_edep_sum", "EightPi1D");
+            FillHistDetector1DGammaNR(hist1D, fEightPiArray, "EightPi_crystal_unsup_edep_sum_nr", "0RES_EightPi1D");
+
+            SupressEightPi();
+
+            FillHistDetector1DGamma(hist1D, fEightPiDetector, "EightPi_crystal_sup_edep", "EightPi1D");
+            FillHistDetector1DGammaNR(hist1D, fEightPiDetector, "EightPi_crystal_sup_edep_nr", "0RES_EightPi1D");
+
+
+            // SCEPTAR
+            FillHistDetector1DGamma(hist1D, fSceptarDetector, "sceptar_crystal_unsup_edep", "Sceptar1D");
+            FillHistDetector1DGammaNR(hist1D, fSceptarDetector, "sceptar_crystal_unsup_edep_nr", "0RES_Sceptar1D");
+
+            AddbackSceptar();
+
+            FillHistDetector1DGamma(hist1D, fSceptarArray, "sceptar_crystal_unsup_edep_sum", "Sceptar1D");
+            FillHistDetector1DGammaNR(hist1D, fSceptarArray, "sceptar_crystal_unsup_edep_sum_nr", "0RES_Sceptar1D");
+
+
+            // DESCANT
+            FillHistDetector1DGamma(hist1D, fDescantBlueDetector, "descant_blue_scin_unsup_edep", "Descant1D");
+            FillHistDetector1DGammaNR(hist1D, fDescantBlueDetector, "descant_blue_scin_unsup_edep_nr", "0RES_Descant1D");
+            FillHistDetector1DGamma(hist1D, fDescantGreenDetector, "descant_green_scin_unsup_edep", "Descant1D");
+            FillHistDetector1DGammaNR(hist1D, fDescantGreenDetector, "descant_green_scin_unsup_edep_nr", "0RES_Descant1D");
+            FillHistDetector1DGamma(hist1D, fDescantRedDetector, "descant_red_scin_unsup_edep", "Descant1D");
+            FillHistDetector1DGammaNR(hist1D, fDescantRedDetector, "descant_red_scin_unsup_edep_nr", "0RES_Descant1D");
+            FillHistDetector1DGamma(hist1D, fDescantWhiteDetector, "descant_white_scin_unsup_edep", "Descant1D");
+            FillHistDetector1DGammaNR(hist1D, fDescantWhiteDetector, "descant_white_scin_unsup_edep_nr", "0RES_Descant1D");
+            FillHistDetector1DGamma(hist1D, fDescantYellowDetector, "descant_yellow_scin_unsup_edep", "Descant1D");
+            FillHistDetector1DGammaNR(hist1D, fDescantYellowDetector, "descant_yellow_scin_unsup_edep_nr", "0RES_Descant1D");
+
+            AddbackDescant();
+
+            FillHistDetector1DGamma(hist1D, fDescantArray, "descant_array_scin_unsup_edep_sum", "Descant1D");
+            FillHistDetector1DGammaNR(hist1D, fDescantArray, "descant_array_scin_unsup_edep_sum_nr", "0RES_Descant1D");
+
+
+
+
+            fGriffinCrystal->clear();
+            fGriffinDetector->clear();
+            fGriffinNeighbour->clear();
+            fGriffinNeighbourVector->clear();
+            fGriffinArray->clear();
+            fGriffinBgo->clear();
+            fGriffinBgoBack->clear();
+
+            fLaBrDetector->clear();
+            fLaBrArray->clear();
+
+            fAncillaryBgoCrystal->clear();
+            fAncillaryBgoDetector->clear();
+            fAncillaryBgoArray->clear();
+
+            fEightPiDetector->clear();
+            fEightPiBgoDetector->clear();
+            fEightPiArray->clear();
+
+            fSceptarDetector->clear();
+            fSceptarArray->clear();
+
+            fDescantArray->clear();
+            fDescantBlueDetector->clear();
+            fDescantGreenDetector->clear();
+            fDescantRedDetector->clear();
+            fDescantWhiteDetector->clear();
+            fDescantYellowDetector->clear();
+
+            eventNumber = fEventNumber;
+            belowThreshold.clear();
+
+            fSceptarHit = false;
+
         }
-      }
-
-      // Neighbours
-      FillHistDetector1DGamma(hist1D, fGriffinNeighbour, "griffin_crystal_unsup_edep_neigh", "Griffin1D");
-      FillHistDetector1DGammaNR(hist1D, fGriffinNeighbour, "griffin_crystal_unsup_edep_neigh_nr", "0RES_Griffin1D");
-
-      if(fSceptarHit) {
-        FillHistDetector1DGamma(hist1D, fGriffinNeighbour, "griffin_crystal_unsup_sceptar_coin_edep_neigh", "Griffin1D");
-        FillHistDetector1DGammaNR(hist1D, fGriffinNeighbour, "griffin_crystal_unsup_sceptar_coin_edep_neigh_nr", "0RES_Griffin1D");
-      } else {
-        FillHistDetector1DGamma(hist1D, fGriffinNeighbour, "griffin_crystal_unsup_sceptar_anticoin_edep_neigh", "Griffin1D");
-        FillHistDetector1DGammaNR(hist1D, fGriffinNeighbour, "griffin_crystal_unsup_sceptar_anticoin_edep_neigh_nr", "0RES_Griffin1D");
-      }
-
-      // Neighbours Vectors
-      FillHistDetector1DGamma(hist1D, fGriffinNeighbourVector, "griffin_crystal_unsup_edep_neighvec", "Griffin1D");
-      FillHistDetector1DGammaNR(hist1D, fGriffinNeighbourVector, "griffin_crystal_unsup_edep_neighvec_nr", "0RES_Griffin1D");
-
-      if(fSceptarHit) {
-        FillHistDetector1DGamma(hist1D, fGriffinNeighbourVector, "griffin_crystal_unsup_sceptar_coin_edep_neighvec", "Griffin1D");
-        FillHistDetector1DGammaNR(hist1D, fGriffinNeighbourVector, "griffin_crystal_unsup_sceptar_coin_edep_neighvec_nr", "0RES_Griffin1D");
-      } else {
-        FillHistDetector1DGamma(hist1D, fGriffinNeighbourVector, "griffin_crystal_unsup_sceptar_anticoin_edep_neighvec", "Griffin1D");
-        FillHistDetector1DGammaNR(hist1D, fGriffinNeighbourVector, "griffin_crystal_unsup_sceptar_anticoin_edep_neighvec_nr", "0RES_Griffin1D");
-      }
-
-      FillHistDetector1DGamma(hist1D, fGriffinArray, "griffin_crystal_unsup_edep_sum", "Griffin1D");
-      FillHistDetector1DGammaNR(hist1D, fGriffinArray, "griffin_crystal_unsup_edep_sum_nr", "0RES_Griffin1D");
-
-      // CLEAR GRIFFIN //
-      fGriffinDetector->clear();
-      fGriffinNeighbour->clear();
-      fGriffinNeighbourVector->clear();
-      fGriffinArray->clear();
-
-      //---------------------------------------------------------------------
-      // Suppressed GRIFFIN
-      //---------------------------------------------------------------------
-      SupressGriffin();
-      AddbackGriffin();
-      if(fSettings->WriteGriffinAddbackVector())
-        AddbackGriffinNeighbourVector();
-
-      if(fSettings->WriteTree())
-        fTree.Fill(); // Tree contains suppressed data
-
-      //-------------------- crystal histograms
-      //multiplicity histogram
-      hist1D = Get1DHistogram("GriffinCrystalMultiplicitySup","Statistics");
-      hist1D->Fill(fGriffinCrystal->size());
-      hist1D = Get1DHistogram("GriffinBgoMultiplicitySup","Statistics");
-      hist1D->Fill(fGriffinBgo->size());
-      hist1D = Get1DHistogram("GriffinDetectorMultiplicitySup","Statistics");
-      hist1D->Fill(fGriffinDetector->size());
-
-      // GRIFFIN Crystal
-      FillHistDetector1DGamma(hist1D, fGriffinCrystal, "griffin_crystal_sup_edep_cry", "Griffin1D");
-      FillHistDetector1DGammaNR(hist1D, fGriffinCrystal, "griffin_crystal_sup_edep_cry_nr", "0RES_Griffin1D");
-
-      FillHistDetector2DGammaGamma(hist2D, fGriffinCrystal, "griffin_crystal_sup_edep_cry_matrix", "Griffin2D");
-      FillHistDetector2DGammaGammaNR(hist2D, fGriffinCrystal, "griffin_crystal_sup_edep_cry_matrix_nr", "0RES_Griffin2D");
-
-      if(fGriffinBgo->size() == 0 && fGriffinBgoBack->size() == 0) {
-        FillHistDetector1DGamma(hist1D, fGriffinCrystal, "griffin_crystal_arraysup_edep_cry", "Griffin1D");
-        FillHistDetector1DGammaNR(hist1D, fGriffinCrystal, "griffin_crystal_arraysup_edep_cry_nr", "0RES_Griffin1D");
-
-        FillHistDetector2DGammaGamma(hist2D, fGriffinCrystal, "griffin_crystal_arraysup_edep_cry_matrix","Griffin2D");
-        FillHistDetector2DGammaGammaNR(hist2D, fGriffinCrystal, "griffin_crystal_arraysup_edep_cry_matrix_nr","0RES_Griffin2D");
-      }
-
-      // GRIFFIN Detector / Clover
-      FillHistDetector1DGamma(hist1D, fGriffinDetector, "griffin_crystal_sup_edep", "Griffin1D");
-      FillHistDetector1DGammaNR(hist1D, fGriffinDetector, "griffin_crystal_sup_edep_nr", "0RES_Griffin1D");
-
-      if(fSceptarHit) {
-        FillHistDetector1DGamma(hist1D, fGriffinDetector, "griffin_crystal_sup_sceptar_coin_edep", "Griffin1D");
-        FillHistDetector1DGammaNR(hist1D, fGriffinDetector, "griffin_crystal_sup_sceptar_coin_edep_nr", "0RES_Griffin1D");
-        if(fSettings->Write2DSGGHist())
-          FillHistDetector2DGammaGamma(hist2D, fGriffinDetector, "griffin_crystal_sup_sceptar_coin_edep_matrix","Griffin2D");
-      } else {
-        FillHistDetector1DGamma(hist1D, fGriffinDetector, "griffin_crystal_sup_sceptar_anticoin_edep", "Griffin1D");
-        FillHistDetector1DGammaNR(hist1D, fGriffinDetector, "griffin_crystal_sup_sceptar_anticoin_edep_nr", "0RES_Griffin1D");
-        if(fSettings->Write2DSGGHist())
-          FillHistDetector2DGammaGamma(hist2D, fGriffinDetector, "griffin_crystal_sup_sceptar_anticoin_edep_matrix","Griffin2D");
-      }
-
-      FillHistDetector2DGammaGamma(hist2D, fGriffinDetector, "griffin_crystal_sup_edep_matrix","Griffin2D");
-      FillHistDetector2DGammaGammaNR(hist2D, fGriffinDetector, "griffin_crystal_sup_edep_matrix_nr","0RES_Griffin2D");
 
 
-      // Neighbours
-      FillHistDetector1DGamma(hist1D, fGriffinNeighbour, "griffin_crystal_sup_edep_neigh", "Griffin1D");
-      FillHistDetector1DGammaNR(hist1D, fGriffinNeighbour, "griffin_crystal_sup_edep_neigh_nr", "0RES_Griffin1D");
-
-      if(fSceptarHit) {
-        FillHistDetector1DGamma(hist1D, fGriffinNeighbour, "griffin_crystal_sup_sceptar_coin_edep_neigh", "Griffin1D");
-        FillHistDetector1DGammaNR(hist1D, fGriffinNeighbour, "griffin_crystal_sup_sceptar_coin_edep_neigh_nr", "0RES_Griffin1D");
-      } else {
-        FillHistDetector1DGamma(hist1D, fGriffinNeighbour, "griffin_crystal_sup_sceptar_anticoin_edep_neigh", "Griffin1D");
-        FillHistDetector1DGammaNR(hist1D, fGriffinNeighbour, "griffin_crystal_sup_sceptar_anticoin_edep_neigh_nr", "0RES_Griffin1D");
-      }
-
-      // Neighbours Vectors
-      FillHistDetector1DGamma(hist1D, fGriffinNeighbourVector, "griffin_crystal_sup_edep_neighvec", "Griffin1D");
-      FillHistDetector1DGammaNR(hist1D, fGriffinNeighbourVector, "griffin_crystal_sup_edep_neighvec_nr", "0RES_Griffin1D");
-
-      if(fSceptarHit) {
-        FillHistDetector1DGamma(hist1D, fGriffinNeighbourVector, "griffin_crystal_sup_sceptar_coin_edep_neighvec", "Griffin1D");
-        FillHistDetector1DGammaNR(hist1D, fGriffinNeighbourVector, "griffin_crystal_sup_sceptar_coin_edep_neighvec_nr", "0RES_Griffin1D");
-      } else {
-        FillHistDetector1DGamma(hist1D, fGriffinNeighbourVector, "griffin_crystal_sup_sceptar_anticoin_edep_neighvec", "Griffin1D");
-        FillHistDetector1DGammaNR(hist1D, fGriffinNeighbourVector, "griffin_crystal_sup_sceptar_anticoin_edep_neighvec_nr", "0RES_Griffin1D");
-      }
-
-      // GRIFFIN Detector / Clover
-      if(fGriffinBgo->size() == 0 && fGriffinBgoBack->size() == 0) {
-        FillHistDetector1DGamma(hist1D, fGriffinDetector, "griffin_crystal_arraysup_edep", "Griffin1D");
-        FillHistDetector1DGammaNR(hist1D, fGriffinDetector, "griffin_crystal_arraysup_edep_nr", "0RES_Griffin1D");
-
-        FillHistDetector2DGammaGamma(hist2D, fGriffinDetector, "griffin_crystal_arraysup_edep_matrix","Griffin2D");
-        FillHistDetector2DGammaGammaNR(hist2D, fGriffinDetector, "griffin_crystal_arraysup_edep_matrix_nr","0RES_Griffin2D");
-      }
-
-      FillHistDetector1DGamma(hist1D, fGriffinArray, "griffin_crystal_sup_edep_sum", "Griffin1D");
-      FillHistDetector1DGammaNR(hist1D, fGriffinArray, "griffin_crystal_sup_edep_sum_nr", "0RES_Griffin1D");
-
-      if(fGriffinBgo->size() == 0 && fGriffinBgoBack->size() == 0 ) {
-        FillHistDetector1DGamma(hist1D, fGriffinArray, "griffin_crystal_arraysup_edep_sum", "Griffin1D");
-        FillHistDetector1DGammaNR(hist1D, fGriffinArray, "griffin_crystal_arraysup_edep_sum_nr", "0RES_Griffin1D");
-      }
-
-      // CLEAR GRIFFIN //
-      fGriffinDetector->clear();
-      fGriffinNeighbour->clear();
-      fGriffinNeighbourVector->clear();
-      fGriffinArray->clear();
-
-      // SUPPRESSED GRIFFIN with Ancillary Detectors too
-      // now suppress and AddbackGriffin again
-      SupressGriffin();
-      SupressGriffinByNeighbouringAncillaryBgos();
-      AddbackGriffin();
-
-
-      FillHistDetector1DGamma(hist1D, fGriffinCrystal, "griffin_crystal_ancillaryneighsup_edep_cry", "Griffin1D");
-      FillHistDetector1DGammaNR(hist1D, fGriffinCrystal, "griffin_crystal_ancillaryneighsup_edep_cry_nr", "0RES_Griffin1D");
-
-      FillHistDetector1DGamma(hist1D, fGriffinDetector, "griffin_crystal_ancillaryneighsup_edep", "Griffin1D");
-      FillHistDetector1DGammaNR(hist1D, fGriffinDetector, "griffin_crystal_ancillaryneighsup_edep_nr", "0RES_Griffin1D");
-
-      // CLEAR GRIFFIN //
-      fGriffinDetector->clear();
-      fGriffinNeighbour->clear();
-      fGriffinNeighbourVector->clear();
-      fGriffinArray->clear();
-
-      // SUPPRESSED GRIFFIN with SCEPTAR too
-      // now suppress and AddbackGriffin again
-      SupressGriffin();
-      SupressGriffinBySceptar();
-      AddbackGriffin();
-
-      FillHistDetector1DGamma(hist1D, fGriffinCrystal, "griffin_crystal_sceptarsup_edep_cry", "Griffin1D");
-      FillHistDetector1DGammaNR(hist1D, fGriffinCrystal, "griffin_crystal_sceptarsup_edep_cry_nr", "0RES_Griffin1D");
-
-      FillHistDetector1DGamma(hist1D, fGriffinDetector, "griffin_crystal_sceptarsup_edep", "Griffin1D");
-      FillHistDetector1DGammaNR(hist1D, fGriffinDetector, "griffin_crystal_sceptarsup_edep_nr", "0RES_Griffin1D");
-
-      // LaBr3
-      // Unsuppressed
-      FillHistDetector1DGamma(hist1D, fLaBrDetector, "labr_crystal_unsup_edep", "LaBr1D");
-      FillHistDetector1DGammaNR(hist1D, fLaBrDetector, "labr_crystal_unsup_edep_nr", "0RES_LaBr1D");
-
-      AddbackLaBr();
-
-      FillHistDetector1DGamma(hist1D, fLaBrArray, "labr_crystal_unsup_edep_sum", "LaBr1D");
-      FillHistDetector1DGammaNR(hist1D, fLaBrArray, "labr_crystal_unsup_edep_sum_nr", "0RES_LaBr1D");
-
-      AddbackAncillaryBgo();
-      SupressLaBr();
-
-      FillHistDetector1DGamma(hist1D, fLaBrDetector, "labr_crystal_sup_edep", "LaBr1D");
-      FillHistDetector1DGammaNR(hist1D, fLaBrDetector, "labr_crystal_sup_edep_nr", "0RES_LaBr1D");
-
-      if(fAncillaryBgoCrystal->size() == 0) {
-        FillHistDetector1DGamma(hist1D, fLaBrArray, "labr_crystal_sup_edep_sum", "LaBr1D");
-        FillHistDetector1DGammaNR(hist1D, fLaBrArray, "labr_crystal_sup_edep_sum_nr", "0RES_LaBr1D");
-      }
-
-      SupressLaBrByNeighbouringGriffinShields();
-
-      FillHistDetector1DGamma(hist1D, fLaBrDetector, "labr_crystal_griffinneighsup_edep", "LaBr1D");
-      FillHistDetector1DGammaNR(hist1D, fLaBrDetector, "labr_crystal_griffinneighsup_edep_nr", "0RES_LaBr1D");
-
-      if(fAncillaryBgoCrystal->size() == 0) {
-        FillHistDetector1DGamma(hist1D, fLaBrArray, "labr_crystal_griffinneighsup_edep_sum", "LaBr1D");
-        FillHistDetector1DGammaNR(hist1D, fLaBrArray, "labr_crystal_griffinneighsup_edep_sum_nr", "0RES_LaBr1D");
-      }
-
-      if(fGriffinBgo->size() == 0 ) {
-        FillHistDetector1DGamma(hist1D, fLaBrDetector, "labr_crystal_griffinanysup_edep", "LaBr1D");
-        FillHistDetector1DGammaNR(hist1D, fLaBrDetector, "labr_crystal_anygriffinsup_edep_nr", "0RES_LaBr1D");
-        if(fAncillaryBgoCrystal->size() == 0 ) {
-          FillHistDetector1DGamma(hist1D, fLaBrArray, "labr_crystal_griffinanysup_edep_sum", "LaBr1D");
-          FillHistDetector1DGammaNR(hist1D, fLaBrArray, "labr_crystal_anygriffinsup_edep_sum_nr", "0RES_LaBr1D");
+        // if fSystemID is NOT GRIFFIN, then set fCryNumber to zero
+        // This is a quick fix to solve resolution and threshold values from Settings.cc
+        if(fSystemID >= 2000) {
+            fCryNumber = 0;
         }
-      }
+        //create energy-resolution smeared energy
+        smearedEnergy = fRandom.Gaus(fDepEnergy,fSettings->Resolution(fSystemID,fDetNumber,fCryNumber,fDepEnergy));
 
+        if((fSettings->SortNumberOfEvents()==0)||(fSettings->SortNumberOfEvents()>=fEventNumber) ) {
+            //if the hit is above the threshold, we add it to the vector
+            if(AboveThreshold(smearedEnergy, fSystemID)) {
+                switch(fSystemID) {
+                case 1000:
+                    fGriffinCrystal->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                    break;
+                case 1010:
+                case 1020:
+                case 1030:
+                case 1040:
+                    fGriffinBgo->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                    break;
+                case 1050:
+                    fGriffinBgoBack->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                    break;
+                case 2000:
+                    fLaBrDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                    break;
+                case 3000:
+                    fAncillaryBgoCrystal->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                    break;
+                case 5000:
+                    fSceptarDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                    fSceptarHit = true;
+                    break;
+                case 6000:
+                    fEightPiDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                    break;
+                case 6010:
+                case 6020:
+                case 6030:
+                    fEightPiBgoDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                    break;
+                case 8010:
+                    fDescantBlueDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                    break;
+                case 8020:
+                    fDescantGreenDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                    break;
+                case 8030:
+                    fDescantRedDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                    break;
+                case 8040:
+                    fDescantWhiteDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                    break;
+                case 8050:
+                    fDescantYellowDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                    break;
+                default:
+                    std::cerr<<"Unknown detector system ID "<<fSystemID<<std::endl;
+                    break;
+                }
+            } else {
+                ++belowThreshold[fSystemID];
+            }
+        }
 
-      // EightPi3
-      // Unsuppressed
-      FillHistDetector1DGamma(hist1D, fEightPiDetector, "EightPi_crystal_unsup_edep", "EightPi1D");
-      FillHistDetector1DGammaNR(hist1D, fEightPiDetector, "EightPi_crystal_unsup_edep_nr", "0RES_EightPi1D");
-
-      AddbackEightPi();
-
-      FillHistDetector1DGamma(hist1D, fEightPiArray, "EightPi_crystal_unsup_edep_sum", "EightPi1D");
-      FillHistDetector1DGammaNR(hist1D, fEightPiArray, "EightPi_crystal_unsup_edep_sum_nr", "0RES_EightPi1D");
-
-      SupressEightPi();
-
-      FillHistDetector1DGamma(hist1D, fEightPiDetector, "EightPi_crystal_sup_edep", "EightPi1D");
-      FillHistDetector1DGammaNR(hist1D, fEightPiDetector, "EightPi_crystal_sup_edep_nr", "0RES_EightPi1D");
-
-
-      // SCEPTAR
-      FillHistDetector1DGamma(hist1D, fSceptarDetector, "sceptar_crystal_unsup_edep", "Sceptar1D");
-      FillHistDetector1DGammaNR(hist1D, fSceptarDetector, "sceptar_crystal_unsup_edep_nr", "0RES_Sceptar1D");
-
-      AddbackSceptar();
-
-      FillHistDetector1DGamma(hist1D, fSceptarArray, "sceptar_crystal_unsup_edep_sum", "Sceptar1D");
-      FillHistDetector1DGammaNR(hist1D, fSceptarArray, "sceptar_crystal_unsup_edep_sum_nr", "0RES_Sceptar1D");
-
-
-      // DESCANT
-      FillHistDetector1DGamma(hist1D, fDescantBlueDetector, "descant_blue_scin_unsup_edep", "Descant1D");
-      FillHistDetector1DGammaNR(hist1D, fDescantBlueDetector, "descant_blue_scin_unsup_edep_nr", "0RES_Descant1D");
-      FillHistDetector1DGamma(hist1D, fDescantGreenDetector, "descant_green_scin_unsup_edep", "Descant1D");
-      FillHistDetector1DGammaNR(hist1D, fDescantGreenDetector, "descant_green_scin_unsup_edep_nr", "0RES_Descant1D");
-      FillHistDetector1DGamma(hist1D, fDescantRedDetector, "descant_red_scin_unsup_edep", "Descant1D");
-      FillHistDetector1DGammaNR(hist1D, fDescantRedDetector, "descant_red_scin_unsup_edep_nr", "0RES_Descant1D");
-      FillHistDetector1DGamma(hist1D, fDescantWhiteDetector, "descant_white_scin_unsup_edep", "Descant1D");
-      FillHistDetector1DGammaNR(hist1D, fDescantWhiteDetector, "descant_white_scin_unsup_edep_nr", "0RES_Descant1D");
-      FillHistDetector1DGamma(hist1D, fDescantYellowDetector, "descant_yellow_scin_unsup_edep", "Descant1D");
-      FillHistDetector1DGammaNR(hist1D, fDescantYellowDetector, "descant_yellow_scin_unsup_edep_nr", "0RES_Descant1D");
-
-      AddbackDescant();
-
-      FillHistDetector1DGamma(hist1D, fDescantArray, "descant_scin_unsup_edep_sum", "Descant1D");
-      FillHistDetector1DGammaNR(hist1D, fDescantArray, "descant_scin_unsup_edep_sum_nr", "0RES_Descant1D");
-
-
-
-
-      fGriffinCrystal->clear();
-      fGriffinDetector->clear();
-      fGriffinNeighbour->clear();
-      fGriffinNeighbourVector->clear();
-      fGriffinArray->clear();
-      fGriffinBgo->clear();
-      fGriffinBgoBack->clear();
-
-      fLaBrDetector->clear();
-      fLaBrArray->clear();
-
-      fAncillaryBgoCrystal->clear();
-      fAncillaryBgoDetector->clear();
-      fAncillaryBgoArray->clear();
-
-      fEightPiDetector->clear();
-      fEightPiBgoDetector->clear();
-      fEightPiArray->clear();
-
-      fSceptarDetector->clear();
-      fSceptarArray->clear();
-
-      fDescantArray->clear();
-      fDescantBlueDetector->clear();
-      fDescantGreenDetector->clear();
-      fDescantRedDetector->clear();
-      fDescantWhiteDetector->clear();
-      fDescantYellowDetector->clear();
-
-      eventNumber = fEventNumber;
-      belowThreshold.clear();
-
-      fSceptarHit = false;
-
-    }
-
-
-    // if fSystemID is NOT GRIFFIN, then set fCryNumber to zero
-    // This is a quick fix to solve resolution and threshold values from Settings.cc
-    if(fSystemID >= 2000) {
-        fCryNumber = 0;
-    }
-    //create energy-resolution smeared energy
-    smearedEnergy = fRandom.Gaus(fDepEnergy,fSettings->Resolution(fSystemID,fDetNumber,fCryNumber,fDepEnergy));
-
-    if((fSettings->SortNumberOfEvents()==0)||(fSettings->SortNumberOfEvents()>=fEventNumber) ) {
-        //if the hit is above the threshold, we add it to the vector
-        if(AboveThreshold(smearedEnergy, fSystemID)) {
-          switch(fSystemID) {
-          case 1000:
-            fGriffinCrystal->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-            break;
-          case 1010:
-          case 1020:
-          case 1030:
-          case 1040:
-            fGriffinBgo->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-            break;
-          case 1050:
-            fGriffinBgoBack->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-            break;
-          case 2000:
-            fLaBrDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-            break;
-          case 3000:
-            fAncillaryBgoCrystal->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-            break;
-          case 5000:
-            fSceptarDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-            fSceptarHit = true;
-            break;
-          case 6000:
-            fEightPiDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-            break;
-          case 6010:
-          case 6020:
-          case 6030:
-            fEightPiBgoDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-            break;
-          case 8010:
-            fDescantBlueDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-            break;
-          case 8020:
-            fDescantGreenDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-            break;
-          case 8030:
-            fDescantRedDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-            break;
-          case 8040:
-            fDescantWhiteDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-            break;
-          case 8050:
-            fDescantYellowDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-            break;
-          default:
-            std::cerr<<"Unknown detector system ID "<<fSystemID<<std::endl;
-            break;
-          }
-        } else {
-          ++belowThreshold[fSystemID];
+        if(i%1000 == 0 && fSettings->VerbosityLevel() > 0) {
+            std::cout<<std::setw(3)<<100*i/nEntries<<"% done\r"<<std::flush;
         }
     }
 
-    if(i%1000 == 0 && fSettings->VerbosityLevel() > 0) {
-      std::cout<<std::setw(3)<<100*i/nEntries<<"% done\r"<<std::flush;
+    if(fSettings->VerbosityLevel() > 0) {
+        std::cout<<"100% done"<<std::endl;
+
+        if(fSettings->VerbosityLevel() > 1) {
+            PrintStatistics();
+        }
     }
-  }
 
-  if(fSettings->VerbosityLevel() > 0) {
-    std::cout<<"100% done"<<std::endl;
-
-    if(fSettings->VerbosityLevel() > 1) {
-      PrintStatistics();
-    }
-  }  
-
-  return true;
+    return true;
 }
 
 bool Converter::AboveThreshold(double energy, int systemID) {
-  if(systemID == 5000) {
-    // apply hard threshold of 50 keV on Sceptar
-    // SCEPTAR in reality saturates at an efficiency of about 80%. In simulation we get an efficiency of 90%
-    // 0.9 * 1.11111111 = 100%, 0.8*1.1111111 = 0.888888888
-    if(energy > 50.0 && (fRandom.Uniform(0.,1.) < 0.88888888 )) {
-      return true;
+    if(systemID == 5000) {
+        // apply hard threshold of 50 keV on Sceptar
+        // SCEPTAR in reality saturates at an efficiency of about 80%. In simulation we get an efficiency of 90%
+        // 0.9 * 1.11111111 = 100%, 0.8*1.1111111 = 0.888888888
+        if(energy > 50.0 && (fRandom.Uniform(0.,1.) < 0.88888888 )) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
-    else {
-      return false;
+    else if(energy > fSettings->Threshold(fSystemID,fDetNumber,fCryNumber)+10*fSettings->ThresholdWidth(fSystemID,fDetNumber,fCryNumber)) {
+        return true;
     }
-  }
-  else if(energy > fSettings->Threshold(fSystemID,fDetNumber,fCryNumber)+10*fSettings->ThresholdWidth(fSystemID,fDetNumber,fCryNumber)) {
-    return true;
-  }
 
-  if(fRandom.Uniform(0.,1.) < 0.5*(TMath::Erf((energy-fSettings->Threshold(fSystemID,fDetNumber,fCryNumber))/fSettings->ThresholdWidth(fSystemID,fDetNumber,fCryNumber))+1)) {
-    return true;
-  }
+    if(fRandom.Uniform(0.,1.) < 0.5*(TMath::Erf((energy-fSettings->Threshold(fSystemID,fDetNumber,fCryNumber))/fSettings->ThresholdWidth(fSystemID,fDetNumber,fCryNumber))+1)) {
+        return true;
+    }
 
-  return false;  
+    return false;
 }
 
 void Converter::SupressGriffin() {
-  //loop over all bgo's and remove all matching germaniums
-  for(auto bgo = fGriffinBgo->begin(); bgo != fGriffinBgo->end(); ++bgo) {
-    for(auto ge = fGriffinCrystal->begin(); ge != fGriffinCrystal->end();) {
-      if(bgo->DetectorId() == ge->DetectorId()) {
-        ge = fGriffinCrystal->erase(ge);
-      } else {
-        ++ge;
-      }
+    //loop over all bgo's and remove all matching germaniums
+    for(auto bgo = fGriffinBgo->begin(); bgo != fGriffinBgo->end(); ++bgo) {
+        for(auto ge = fGriffinCrystal->begin(); ge != fGriffinCrystal->end();) {
+            if(bgo->DetectorId() == ge->DetectorId()) {
+                ge = fGriffinCrystal->erase(ge);
+            } else {
+                ++ge;
+            }
+        }
     }
-  }
-  // Now Back Suppressors
-  for(auto bgo = fGriffinBgoBack->begin(); bgo != fGriffinBgoBack->end(); ++bgo) {
-    for(auto ge = fGriffinCrystal->begin(); ge != fGriffinCrystal->end();) {
-      if(bgo->DetectorId() == ge->DetectorId()) {
-        ge = fGriffinCrystal->erase(ge);
-      } else {
-        ++ge;
-      }
+    // Now Back Suppressors
+    for(auto bgo = fGriffinBgoBack->begin(); bgo != fGriffinBgoBack->end(); ++bgo) {
+        for(auto ge = fGriffinCrystal->begin(); ge != fGriffinCrystal->end();) {
+            if(bgo->DetectorId() == ge->DetectorId()) {
+                ge = fGriffinCrystal->erase(ge);
+            } else {
+                ++ge;
+            }
+        }
     }
-  }
 }
 
 void Converter::SupressGriffinByNeighbouringAncillaryBgos() {
     //loop over all bgo's and remove all matching germaniums
     for(auto bgo = fAncillaryBgoCrystal->begin(); bgo != fAncillaryBgoCrystal->end(); ++bgo) {
-      for(auto ge = fGriffinCrystal->begin(); ge != fGriffinCrystal->end();) {
-        if(GriffinAncillaryBgoNeighbours_det[ge->DetectorId()][0] == bgo->DetectorId() && GriffinAncillaryBgoNeighbours_cry[ge->DetectorId()][0] == bgo->CrystalId() ) {
-          ge = fGriffinCrystal->erase(ge);
+        for(auto ge = fGriffinCrystal->begin(); ge != fGriffinCrystal->end();) {
+            if(GriffinAncillaryBgoNeighbours_det[ge->DetectorId()][0] == bgo->DetectorId() && GriffinAncillaryBgoNeighbours_cry[ge->DetectorId()][0] == bgo->CrystalId() ) {
+                ge = fGriffinCrystal->erase(ge);
+            }
+            else if(GriffinAncillaryBgoNeighbours_det[ge->DetectorId()][1] == bgo->DetectorId() && GriffinAncillaryBgoNeighbours_cry[ge->DetectorId()][1] == bgo->CrystalId() ) {
+                ge = fGriffinCrystal->erase(ge);
+            }
+            else {
+                ++ge;
+            }
         }
-        else if(GriffinAncillaryBgoNeighbours_det[ge->DetectorId()][1] == bgo->DetectorId() && GriffinAncillaryBgoNeighbours_cry[ge->DetectorId()][1] == bgo->CrystalId() ) {
-          ge = fGriffinCrystal->erase(ge);
-        }
-        else {
-          ++ge;
-        }
-      }
     }
 }
 
@@ -1389,482 +1387,481 @@ void Converter::SupressGriffinBySceptar() {
     //loop over all bgo's and remove all matching germaniums
     for(auto bgo = fSceptarDetector->begin(); bgo != fSceptarDetector->end(); ++bgo) {
 
-      for(auto ge = fGriffinCrystal->begin(); ge != fGriffinCrystal->end();) {
+        for(auto ge = fGriffinCrystal->begin(); ge != fGriffinCrystal->end();) {
 
-        if(GriffinSceptarSuppressors_det[ge->DetectorId()][0] == bgo->DetectorId() ) {
-          ge = fGriffinCrystal->erase(ge);
+            if(GriffinSceptarSuppressors_det[ge->DetectorId()][0] == bgo->DetectorId() ) {
+                ge = fGriffinCrystal->erase(ge);
+            }
+            else if(GriffinSceptarSuppressors_det[ge->DetectorId()][1] == bgo->DetectorId() ) {
+                ge = fGriffinCrystal->erase(ge);
+            }
+            else if(GriffinSceptarSuppressors_det[ge->DetectorId()][2] == bgo->DetectorId() ) {
+                ge = fGriffinCrystal->erase(ge);
+            }
+            else if(GriffinSceptarSuppressors_det[ge->DetectorId()][3] == bgo->DetectorId() ) {
+                ge = fGriffinCrystal->erase(ge);
+            }
+            else {
+                ++ge;
+            }
         }
-        else if(GriffinSceptarSuppressors_det[ge->DetectorId()][1] == bgo->DetectorId() ) {
-          ge = fGriffinCrystal->erase(ge);
-        }
-        else if(GriffinSceptarSuppressors_det[ge->DetectorId()][2] == bgo->DetectorId() ) {
-          ge = fGriffinCrystal->erase(ge);
-        }
-        else if(GriffinSceptarSuppressors_det[ge->DetectorId()][3] == bgo->DetectorId() ) {
-          ge = fGriffinCrystal->erase(ge);
-        }
-        else {
-          ++ge;
-        }
-      }
     }
 }
 
 void Converter::AddbackGriffin() {
-  std::vector<Detector>::iterator detector;
-  for(auto crystal = fGriffinCrystal->begin(); crystal != fGriffinCrystal->end(); ++crystal) {
-    //try and find a matching detector to add this crystals energy to
-    for(detector = fGriffinDetector->begin(); detector != fGriffinDetector->end(); ++detector) {
-      if(crystal->DetectorId() == detector->DetectorId()) {
-         detector->AddEnergy(crystal->SimulationEnergy(),crystal->Energy());
-         break;
-      }
+    std::vector<Detector>::iterator detector;
+    for(auto crystal = fGriffinCrystal->begin(); crystal != fGriffinCrystal->end(); ++crystal) {
+        //try and find a matching detector to add this crystals energy to
+        for(detector = fGriffinDetector->begin(); detector != fGriffinDetector->end(); ++detector) {
+            if(crystal->DetectorId() == detector->DetectorId()) {
+                detector->AddEnergy(crystal->SimulationEnergy(),crystal->Energy());
+                break;
+            }
+        }
+        //if the above loop ended w/o finding a matching detector, we create a new one
+        if(detector == fGriffinDetector->end()) {
+            fGriffinDetector->push_back(*crystal);
+        }
+        if(fGriffinArray->size() == 0) {
+            fGriffinArray->push_back(*crystal);
+        }
+        else {
+            fGriffinArray->at(0).AddEnergy(crystal->SimulationEnergy(),crystal->Energy());
+        }
     }
-    //if the above loop ended w/o finding a matching detector, we create a new one
-    if(detector == fGriffinDetector->end()) {
-      fGriffinDetector->push_back(*crystal);
-    }
-    if(fGriffinArray->size() == 0) {
-      fGriffinArray->push_back(*crystal);
-    }
-    else {
-      fGriffinArray->at(0).AddEnergy(crystal->SimulationEnergy(),crystal->Energy());
-    }
-  }
 
-  // Do the neighbour add-back;
-  AddbackGriffinNeighbour();
+    // Do the neighbour add-back;
+    AddbackGriffinNeighbour();
 }
 
 void Converter::AddbackGriffinNeighbour() {
-  // This is the idealized neighbour addback method, as we know the order of the Geant4 output.
-  // Any scattering should be in order in the output. We could do other things here.
-  // For example, we could order the energies from high to low and group them that way.
-  std::vector<Detector>::iterator neighbour;
-  for(auto crystal = fGriffinCrystal->begin(); crystal != fGriffinCrystal->end(); ++crystal) {
-    for(neighbour= fGriffinNeighbour->begin(); neighbour != fGriffinNeighbour->end(); ++neighbour) {
-      if(crystal->DetectorId() == neighbour->DetectorId() || GriffinNeighbours_det[neighbour->DetectorId()][0] == crystal->DetectorId() || GriffinNeighbours_det[neighbour->DetectorId()][1] == crystal->DetectorId() || GriffinNeighbours_det[neighbour->DetectorId()][2] == crystal->DetectorId() || GriffinNeighbours_det[neighbour->DetectorId()][3] == crystal->DetectorId() || GriffinNeighbours_det[crystal->DetectorId()][0] == neighbour->DetectorId() || GriffinNeighbours_det[crystal->DetectorId()][1] == neighbour->DetectorId() || GriffinNeighbours_det[crystal->DetectorId()][2] == neighbour->DetectorId() || GriffinNeighbours_det[crystal->DetectorId()][3] == neighbour->DetectorId() ) {
-        neighbour->AddEnergy(crystal->SimulationEnergy(),crystal->Energy());
-        break;
-      }
+    // This is the idealized neighbour addback method, as we know the order of the Geant4 output.
+    // Any scattering should be in order in the output. We could do other things here.
+    // For example, we could order the energies from high to low and group them that way.
+    std::vector<Detector>::iterator neighbour;
+    for(auto crystal = fGriffinCrystal->begin(); crystal != fGriffinCrystal->end(); ++crystal) {
+        for(neighbour= fGriffinNeighbour->begin(); neighbour != fGriffinNeighbour->end(); ++neighbour) {
+            if(crystal->DetectorId() == neighbour->DetectorId() || GriffinNeighbours_det[neighbour->DetectorId()][0] == crystal->DetectorId() || GriffinNeighbours_det[neighbour->DetectorId()][1] == crystal->DetectorId() || GriffinNeighbours_det[neighbour->DetectorId()][2] == crystal->DetectorId() || GriffinNeighbours_det[neighbour->DetectorId()][3] == crystal->DetectorId() || GriffinNeighbours_det[crystal->DetectorId()][0] == neighbour->DetectorId() || GriffinNeighbours_det[crystal->DetectorId()][1] == neighbour->DetectorId() || GriffinNeighbours_det[crystal->DetectorId()][2] == neighbour->DetectorId() || GriffinNeighbours_det[crystal->DetectorId()][3] == neighbour->DetectorId() ) {
+                neighbour->AddEnergy(crystal->SimulationEnergy(),crystal->Energy());
+                break;
+            }
+        }
+        //if the above loop ended w/o finding a matching detector, we create a new one
+        if(neighbour== fGriffinNeighbour->end()) {
+            fGriffinNeighbour->push_back(*crystal);
+        }
     }
-    //if the above loop ended w/o finding a matching detector, we create a new one
-    if(neighbour== fGriffinNeighbour->end()) {
-      fGriffinNeighbour->push_back(*crystal);
-    }
-  }
 }
 
 void Converter::AddbackGriffinNeighbourVector() {
-  std::vector<Detector>::iterator neighbour;
+    std::vector<Detector>::iterator neighbour;
 
-  double energy_ascend[64] = {0};
-  double energy_descend[64] = {0};
-  int index;
-  bool goodenergy;
+    double energy_ascend[64] = {0};
+    double energy_descend[64] = {0};
+    int index;
+    bool goodenergy;
 
-  for(auto crystal = fGriffinCrystal->begin(); crystal != fGriffinCrystal->end(); ++crystal) {
-    index = crystal->CrystalId() + (crystal->DetectorId() * 4);
-    energy_ascend[index] = crystal->SimulationEnergy();
-  }
-
-  // Sort energies descending
-  int elements = sizeof(energy_ascend) / sizeof(energy_ascend[0]);
-  std::sort(energy_ascend, energy_ascend + elements);
-  for (int i = 0; i < elements; ++i)
-    energy_descend[i] = energy_ascend[elements-1-i];
-
-  // Now we fill the neighbour vector array according to this list of descending energies
-  for(auto crystal1 = fGriffinCrystal->begin(); crystal1 != fGriffinCrystal->end(); ++crystal1) {
-    for (int i = 0; i < 64; ++i) {
-      if(energy_descend[i] == 0)
-        break;
-
-      if(crystal1->SimulationEnergy() == energy_descend[i]) { // found crystal with energy energy_descend[i]
-        //cout << "new energy = " << crystal1->SimulationEnergy() << " cry = " << crystal1->CrystalId() << " det = " << crystal1->DetectorId() << endl;
-        fGriffinNeighbourVector->push_back(*crystal1);
-        for(auto crystal2 = fGriffinCrystal->begin(); crystal2 != fGriffinCrystal->end(); ++crystal2) { // loop over crystals again
-
-          if(crystal1 != crystal2 ) { // make sure we don't add the same crystals together!
-            goodenergy = false;
-            // does energy exist in energy_descend?
-            for (int j = i + 1; j < 64; ++j) {
-              if(energy_descend[j] == crystal2->SimulationEnergy()) {
-                goodenergy = true;
-                index = j;
-                break;
-              }
-              if(energy_descend[j] == 0)
-                break;
-            }
-
-            if(goodenergy && AreGriffinCrystalCenterPositionsWithinVectorLength(crystal1->CrystalId(), crystal1->DetectorId(), crystal2->CrystalId(), crystal2->DetectorId())) {
-              for(neighbour= fGriffinNeighbourVector->begin(); neighbour != fGriffinNeighbourVector->end(); ++neighbour) { // loop over existing neighbours
-                if(crystal1->DetectorId() == neighbour->DetectorId() && crystal1->CrystalId() == neighbour->CrystalId()) {
-                  neighbour->AddEnergy(crystal2->SimulationEnergy(),crystal2->Energy());
-                  //cout << "neighbour energy = " << neighbour->SimulationEnergy() << " cry = " << neighbour->CrystalId() << " det = " << neighbour->DetectorId() << endl;
-
-                  // now that we have used this crystal2 energy in the neighbour sum, remove it from the list
-                  if(energy_descend[index] == crystal2->SimulationEnergy()) {
-                    for (int k = index; k < 64-1; ++k) {
-                      energy_descend[k] = energy_descend[k+1];
-                      if(energy_descend[k+1] == 0)
-                        break;
-                    }
-                  }
-                  else {
-                    cout << " Something is wrong here! index was not found correctly?" << endl;
-                  }
-                  break;
-                }
-              }
-            }
-          }
-        }
-
-        // now that we have used this crystal1 energy in the neighbour sum, remove it from the list
-        if(energy_descend[i] == crystal1->SimulationEnergy()) {
-          for (int k = i; k < 64-1; ++k) {
-            energy_descend[k] = energy_descend[k+1];
-            if(energy_descend[k+1] == 0)
-              break;
-          }
-        }
-        else {
-          cout << " Something is wrong here! index was not found correctly?" << endl;
-        }
-      }
+    for(auto crystal = fGriffinCrystal->begin(); crystal != fGriffinCrystal->end(); ++crystal) {
+        index = crystal->CrystalId() + (crystal->DetectorId() * 4);
+        energy_ascend[index] = crystal->SimulationEnergy();
     }
-  }
+
+    // Sort energies descending
+    int elements = sizeof(energy_ascend) / sizeof(energy_ascend[0]);
+    std::sort(energy_ascend, energy_ascend + elements);
+    for (int i = 0; i < elements; ++i)
+        energy_descend[i] = energy_ascend[elements-1-i];
+
+    for (int i = 0; i < 64; ++i) {
+        if(energy_descend[i] == 0)
+            break;
+        // Now we fill the neighbour vector array according to this list of descending energies
+        for(auto crystal1 = fGriffinCrystal->begin(); crystal1 != fGriffinCrystal->end(); ++crystal1) {
+            if(crystal1->SimulationEnergy() == energy_descend[i]) { // found crystal with energy energy_descend[i]
+                //cout << "new energy = " << crystal1->SimulationEnergy() << " cry = " << crystal1->CrystalId() << " det = " << crystal1->DetectorId() << endl;
+                fGriffinNeighbourVector->push_back(*crystal1);
+                for(auto crystal2 = fGriffinCrystal->begin(); crystal2 != fGriffinCrystal->end(); ++crystal2) { // loop over crystals again
+
+                    if(crystal1 != crystal2 ) { // make sure we don't add the same crystals together!
+                        goodenergy = false;
+                        // does energy exist in energy_descend?
+                        for (int j = i + 1; j < 64; ++j) {
+                            if(energy_descend[j] == crystal2->SimulationEnergy()) {
+                                goodenergy = true;
+                                index = j;
+                                break;
+                            }
+                            if(energy_descend[j] == 0)
+                                break;
+                        }
+
+                        if(goodenergy && AreGriffinCrystalCenterPositionsWithinVectorLength(crystal1->CrystalId(), crystal1->DetectorId(), crystal2->CrystalId(), crystal2->DetectorId())) {
+                            for(neighbour= fGriffinNeighbourVector->begin(); neighbour != fGriffinNeighbourVector->end(); ++neighbour) { // loop over existing neighbours
+                                if(crystal1->DetectorId() == neighbour->DetectorId() && crystal1->CrystalId() == neighbour->CrystalId()) {
+                                    neighbour->AddEnergy(crystal2->SimulationEnergy(),crystal2->Energy());
+                                    //cout << "neighbour energy = " << neighbour->SimulationEnergy() << " cry = " << neighbour->CrystalId() << " det = " << neighbour->DetectorId() << endl;
+
+                                    // now that we have used this crystal2 energy in the neighbour sum, remove it from the list
+                                    if(energy_descend[index] == crystal2->SimulationEnergy()) {
+                                        for (int k = index; k < 64-1; ++k) {
+                                            energy_descend[k] = energy_descend[k+1];
+                                            if(energy_descend[k+1] == 0)
+                                                break;
+                                        }
+                                    }
+                                    else {
+                                        cout << " Something is wrong here! index was not found correctly?" << endl;
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // now that we have used this crystal1 energy in the neighbour sum, remove it from the list
+                if(energy_descend[i] == crystal1->SimulationEnergy()) {
+                    for (int k = i; k < 64-1; ++k) {
+                        energy_descend[k] = energy_descend[k+1];
+                        if(energy_descend[k+1] == 0)
+                            break;
+                    }
+                }
+                else {
+                    cout << " Something is wrong here! index was not found correctly?" << endl;
+                }
+            }
+        }
+    }
 
 }
 
 void Converter::SupressLaBr() {
-  //loop over all bgo's and remove all matching germaniums
-  for(auto bgo = fAncillaryBgoDetector->begin(); bgo != fAncillaryBgoDetector->end(); ++bgo) {
-    for(auto ge = fLaBrDetector->begin(); ge != fLaBrDetector->end();) {
-      if(bgo->DetectorId() == ge->DetectorId()) {
-        ge = fLaBrDetector->erase(ge);
-      } else {
-        ++ge;
-      }
+    //loop over all bgo's and remove all matching germaniums
+    for(auto bgo = fAncillaryBgoDetector->begin(); bgo != fAncillaryBgoDetector->end(); ++bgo) {
+        for(auto ge = fLaBrDetector->begin(); ge != fLaBrDetector->end();) {
+            if(bgo->DetectorId() == ge->DetectorId()) {
+                ge = fLaBrDetector->erase(ge);
+            } else {
+                ++ge;
+            }
+        }
     }
-  }
 }
 
 void Converter::SupressEightPi() {
-  //loop over all bgo's and remove all matching germaniums
-  for(auto bgo = fEightPiBgoDetector->begin(); bgo != fEightPiBgoDetector->end(); ++bgo) {
-    for(auto ge = fEightPiDetector->begin(); ge != fEightPiDetector->end();) {
-      if(bgo->DetectorId() == ge->DetectorId()) {
-        ge = fEightPiDetector->erase(ge);
-      } else {
-        ++ge;
-      }
+    //loop over all bgo's and remove all matching germaniums
+    for(auto bgo = fEightPiBgoDetector->begin(); bgo != fEightPiBgoDetector->end(); ++bgo) {
+        for(auto ge = fEightPiDetector->begin(); ge != fEightPiDetector->end();) {
+            if(bgo->DetectorId() == ge->DetectorId()) {
+                ge = fEightPiDetector->erase(ge);
+            } else {
+                ++ge;
+            }
+        }
     }
-  }
 }
 
 void Converter::SupressLaBrByNeighbouringGriffinShields() {
     //loop over all bgo's and remove all matching germaniums
     for(auto bgo = fGriffinBgo->begin(); bgo != fGriffinBgo->end(); ++bgo) {
-      for(auto ge = fLaBrDetector->begin(); ge != fLaBrDetector->end();) {
-        if(LaBrGriffinNeighbours_det[ge->DetectorId()][0] == bgo->DetectorId() && LaBrGriffinNeighbours_cry[ge->DetectorId()][0] == bgo->CrystalId() ) {
-          ge = fLaBrDetector->erase(ge);
+        for(auto ge = fLaBrDetector->begin(); ge != fLaBrDetector->end();) {
+            if(LaBrGriffinNeighbours_det[ge->DetectorId()][0] == bgo->DetectorId() && LaBrGriffinNeighbours_cry[ge->DetectorId()][0] == bgo->CrystalId() ) {
+                ge = fLaBrDetector->erase(ge);
+            }
+            else if(LaBrGriffinNeighbours_det[ge->DetectorId()][1] == bgo->DetectorId() && LaBrGriffinNeighbours_cry[ge->DetectorId()][1] == bgo->CrystalId() ) {
+                ge = fLaBrDetector->erase(ge);
+            }
+            else if(LaBrGriffinNeighbours_det[ge->DetectorId()][2] == bgo->DetectorId() && LaBrGriffinNeighbours_cry[ge->DetectorId()][2] == bgo->CrystalId() ) {
+                ge = fLaBrDetector->erase(ge);
+            }
+            else {
+                ++ge;
+            }
         }
-        else if(LaBrGriffinNeighbours_det[ge->DetectorId()][1] == bgo->DetectorId() && LaBrGriffinNeighbours_cry[ge->DetectorId()][1] == bgo->CrystalId() ) {
-          ge = fLaBrDetector->erase(ge);
-        }
-        else if(LaBrGriffinNeighbours_det[ge->DetectorId()][2] == bgo->DetectorId() && LaBrGriffinNeighbours_cry[ge->DetectorId()][2] == bgo->CrystalId() ) {
-          ge = fLaBrDetector->erase(ge);
-        }
-        else {
-          ++ge;
-        }
-      }
     }
 }
 
 void Converter::AddbackLaBr() {
-  for(auto detector = fLaBrDetector->begin(); detector != fLaBrDetector->end(); ++detector) {
-    if(fLaBrArray->size() == 0) {
-      fLaBrArray->push_back(*detector);
-    } else {
-      fLaBrArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
+    for(auto detector = fLaBrDetector->begin(); detector != fLaBrDetector->end(); ++detector) {
+        if(fLaBrArray->size() == 0) {
+            fLaBrArray->push_back(*detector);
+        } else {
+            fLaBrArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
+        }
     }
-  }
 }
 
 void Converter::AddbackEightPi() {
     for(auto detector = fEightPiDetector->begin(); detector != fEightPiDetector->end(); ++detector) {
-      if(fEightPiArray->size() == 0) {
-        fEightPiArray->push_back(*detector);
-      } else {
-        fEightPiArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
+        if(fEightPiArray->size() == 0) {
+            fEightPiArray->push_back(*detector);
+        } else {
+            fEightPiArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
+        }
     }
-  }
 }
 
 void Converter::AddbackAncillaryBgo() {
-  std::vector<Detector>::iterator detector;
-  for(auto crystal = fAncillaryBgoCrystal->begin(); crystal != fAncillaryBgoCrystal->end(); ++crystal) {
-    //try and find a matching detector to add this crystals energy to
-    for(detector = fAncillaryBgoDetector->begin(); detector != fAncillaryBgoDetector->end(); ++detector) {
-      if(crystal->DetectorId() == detector->DetectorId()) {
-    detector->AddEnergy(crystal->SimulationEnergy(),crystal->Energy());
-    break;
-      }
+    std::vector<Detector>::iterator detector;
+    for(auto crystal = fAncillaryBgoCrystal->begin(); crystal != fAncillaryBgoCrystal->end(); ++crystal) {
+        //try and find a matching detector to add this crystals energy to
+        for(detector = fAncillaryBgoDetector->begin(); detector != fAncillaryBgoDetector->end(); ++detector) {
+            if(crystal->DetectorId() == detector->DetectorId()) {
+                detector->AddEnergy(crystal->SimulationEnergy(),crystal->Energy());
+                break;
+            }
+        }
+        //if the above loop ended w/o finding a matching detector, we create a new one
+        if(detector == fAncillaryBgoDetector->end()) {
+            fAncillaryBgoDetector->push_back(*crystal);
+        }
+        if(fAncillaryBgoArray->size() == 0 ) {
+            fAncillaryBgoArray->push_back(*crystal);
+        } else {
+            fAncillaryBgoArray->at(0).AddEnergy(crystal->SimulationEnergy(),crystal->Energy());
+        }
     }
-    //if the above loop ended w/o finding a matching detector, we create a new one
-    if(detector == fAncillaryBgoDetector->end()) {
-      fAncillaryBgoDetector->push_back(*crystal);
-    }
-    if(fAncillaryBgoArray->size() == 0 ) {
-      fAncillaryBgoArray->push_back(*crystal);
-    } else {
-      fAncillaryBgoArray->at(0).AddEnergy(crystal->SimulationEnergy(),crystal->Energy());
-    }
-  }
 }
 
 void Converter::AddbackSceptar() {
-  for(auto detector = fSceptarDetector->begin(); detector != fSceptarDetector->end(); ++detector) {
-    if(fSceptarArray->size() == 0) {
-      fSceptarArray->push_back(*detector);
-    } else {
-      fSceptarArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
+    for(auto detector = fSceptarDetector->begin(); detector != fSceptarDetector->end(); ++detector) {
+        if(fSceptarArray->size() == 0) {
+            fSceptarArray->push_back(*detector);
+        } else {
+            fSceptarArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
+        }
     }
-  }
 }
 
 void Converter::AddbackDescant() {
-  for(auto detector = fDescantBlueDetector->begin(); detector != fDescantBlueDetector->end(); ++detector) {
-    if(fDescantArray->size() == 0) {
-      fDescantArray->push_back(*detector);
-    } else {
-      fDescantArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
+    for(auto detector = fDescantBlueDetector->begin(); detector != fDescantBlueDetector->end(); ++detector) {
+        if(fDescantArray->size() == 0) {
+            fDescantArray->push_back(*detector);
+        } else {
+            fDescantArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
+        }
     }
-  }
-  for(auto detector = fDescantGreenDetector->begin(); detector != fDescantGreenDetector->end(); ++detector) {
-    if(fDescantArray->size() == 0) {
-      fDescantArray->push_back(*detector);
-    } else {
-      fDescantArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
+    for(auto detector = fDescantGreenDetector->begin(); detector != fDescantGreenDetector->end(); ++detector) {
+        if(fDescantArray->size() == 0) {
+            fDescantArray->push_back(*detector);
+        } else {
+            fDescantArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
+        }
     }
-  }
-  for(auto detector = fDescantRedDetector->begin(); detector != fDescantRedDetector->end(); ++detector) {
-    if(fDescantArray->size() == 0) {
-      fDescantArray->push_back(*detector);
-    } else {
-      fDescantArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
+    for(auto detector = fDescantRedDetector->begin(); detector != fDescantRedDetector->end(); ++detector) {
+        if(fDescantArray->size() == 0) {
+            fDescantArray->push_back(*detector);
+        } else {
+            fDescantArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
+        }
     }
-  }
-  for(auto detector = fDescantWhiteDetector->begin(); detector != fDescantWhiteDetector->end(); ++detector) {
-    if(fDescantArray->size() == 0) {
-      fDescantArray->push_back(*detector);
-    } else {
-      fDescantArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
+    for(auto detector = fDescantWhiteDetector->begin(); detector != fDescantWhiteDetector->end(); ++detector) {
+        if(fDescantArray->size() == 0) {
+            fDescantArray->push_back(*detector);
+        } else {
+            fDescantArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
+        }
     }
-  }
-  for(auto detector = fDescantYellowDetector->begin(); detector != fDescantYellowDetector->end(); ++detector) {
-    if(fDescantArray->size() == 0) {
-      fDescantArray->push_back(*detector);
-    } else {
-      fDescantArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
+    for(auto detector = fDescantYellowDetector->begin(); detector != fDescantYellowDetector->end(); ++detector) {
+        if(fDescantArray->size() == 0) {
+            fDescantArray->push_back(*detector);
+        } else {
+            fDescantArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
+        }
     }
-  }
 }
 
 void Converter::PrintStatistics() {
 }
 
 TH1F* Converter::Get1DHistogram(std::string histogramName, std::string directoryName) {
-  //try and find this histogram
-  TH1F* hist = (TH1F*) gDirectory->FindObjectAny(histogramName.c_str());
+    //try and find this histogram
+    TH1F* hist = (TH1F*) gDirectory->FindObjectAny(histogramName.c_str());
 
-  if(hist == nullptr){
-    //if the histogram doesn't exist, we create it and add it to the histogram list
-    hist = new TH1F(histogramName.c_str(),histogramName.c_str(),fSettings->NofBins(directoryName),fSettings->RangeLow(directoryName),fSettings->RangeHigh(directoryName));
-    if(fHistograms.find(directoryName) == fHistograms.end()) {
-      fHistograms[directoryName] = new TList;
+    if(hist == nullptr){
+        //if the histogram doesn't exist, we create it and add it to the histogram list
+        hist = new TH1F(histogramName.c_str(),histogramName.c_str(),fSettings->NofBins(directoryName),fSettings->RangeLow(directoryName),fSettings->RangeHigh(directoryName));
+        if(fHistograms.find(directoryName) == fHistograms.end()) {
+            fHistograms[directoryName] = new TList;
+        }
+        fHistograms[directoryName]->Add((TObject*) hist);
     }
-    fHistograms[directoryName]->Add((TObject*) hist);
-  }
-  return hist;
+    return hist;
 }
 
 TH2F* Converter::Get2DHistogram(std::string histogramName, std::string directoryName) {
-  //try and find this histogram
-  TH2F* hist = (TH2F*) gDirectory->FindObjectAny(histogramName.c_str());
-  if(hist == nullptr){
-    //if the histogram doesn't exist, we create it and add it to the histogram list
-    hist = new TH2F(histogramName.c_str(),histogramName.c_str(),
-		    fSettings->NofBins(directoryName),fSettings->RangeLow(directoryName),fSettings->RangeHigh(directoryName),
-		    fSettings->NofBins(directoryName),fSettings->RangeLow(directoryName),fSettings->RangeHigh(directoryName));
-    if(fHistograms.find(directoryName) == fHistograms.end()) {
-      fHistograms[directoryName] = new TList;
+    //try and find this histogram
+    TH2F* hist = (TH2F*) gDirectory->FindObjectAny(histogramName.c_str());
+    if(hist == nullptr){
+        //if the histogram doesn't exist, we create it and add it to the histogram list
+        hist = new TH2F(histogramName.c_str(),histogramName.c_str(),
+                        fSettings->NofBins(directoryName),fSettings->RangeLow(directoryName),fSettings->RangeHigh(directoryName),
+                        fSettings->NofBins(directoryName),fSettings->RangeLow(directoryName),fSettings->RangeHigh(directoryName));
+        if(fHistograms.find(directoryName) == fHistograms.end()) {
+            fHistograms[directoryName] = new TList;
+        }
+        fHistograms[directoryName]->Add((TObject*) hist);
     }
-    fHistograms[directoryName]->Add((TObject*) hist);
-  }
-  return hist;
+    return hist;
 }
 
 TH3I* Converter::Get3DHistogram(std::string histogramName, std::string directoryName) {
-  //try and find this histogram
-  TH3I* hist = (TH3I*) gDirectory->FindObjectAny(histogramName.c_str());
-  if(hist == nullptr){
-    //if the histogram doesn't exist, we create it and add it to the histogram list
-    hist = new TH3I(histogramName.c_str(),histogramName.c_str(),
-            fSettings->NofBins(directoryName),fSettings->RangeLow(directoryName),fSettings->RangeHigh(directoryName),
-            fSettings->NofBins(directoryName),fSettings->RangeLow(directoryName),fSettings->RangeHigh(directoryName),
-            52,0,52);
-    if(fHistograms.find(directoryName) == fHistograms.end()) {
-      fHistograms[directoryName] = new TList;
+    //try and find this histogram
+    TH3I* hist = (TH3I*) gDirectory->FindObjectAny(histogramName.c_str());
+    if(hist == nullptr){
+        //if the histogram doesn't exist, we create it and add it to the histogram list
+        hist = new TH3I(histogramName.c_str(),histogramName.c_str(),
+                        fSettings->NofBins(directoryName),fSettings->RangeLow(directoryName),fSettings->RangeHigh(directoryName),
+                        fSettings->NofBins(directoryName),fSettings->RangeLow(directoryName),fSettings->RangeHigh(directoryName),
+                        52,0,52);
+        if(fHistograms.find(directoryName) == fHistograms.end()) {
+            fHistograms[directoryName] = new TList;
+        }
+        fHistograms[directoryName]->Add((TObject*) hist);
     }
-    fHistograms[directoryName]->Add((TObject*) hist);
-  }
-  return hist;
+    return hist;
 }
 
 void Converter::FillHistDetector1DGamma(TH1F* hist1D, std::vector<Detector>* detector, std::string hist_name, std::string hist_dir) {
-  for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
-    hist1D = Get1DHistogram(hist_name,hist_dir);
-    hist1D->Fill(detector->at(firstDet).Energy());
-  }
+    for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
+        hist1D = Get1DHistogram(hist_name,hist_dir);
+        hist1D->Fill(detector->at(firstDet).Energy());
+    }
 }
 
 void Converter::FillHistDetector2DGammaGamma(TH2F* hist2D, std::vector<Detector>* detector, std::string hist_name, std::string hist_dir) {
-  if(fSettings->Write2DHist()) {
-    for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
-      for(size_t secondDet = firstDet+1; secondDet < detector->size(); ++secondDet) {
-        hist2D = Get2DHistogram(hist_name,hist_dir);
-        // symmetrize!
-        hist2D->Fill(detector->at(firstDet).Energy(),detector->at(secondDet).Energy());
-        hist2D->Fill(detector->at(secondDet).Energy(),detector->at(firstDet).Energy());
-      }
+    if(fSettings->Write2DHist()) {
+        for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
+            for(size_t secondDet = firstDet+1; secondDet < detector->size(); ++secondDet) {
+                hist2D = Get2DHistogram(hist_name,hist_dir);
+                // symmetrize!
+                hist2D->Fill(detector->at(firstDet).Energy(),detector->at(secondDet).Energy());
+                hist2D->Fill(detector->at(secondDet).Energy(),detector->at(firstDet).Energy());
+            }
+        }
     }
-  }
 }
 
 void Converter::FillHistDetector1DGammaNR(TH1F* hist1D, std::vector<Detector>* detector, std::string hist_name, std::string hist_dir) {
-  for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
-    hist1D = Get1DHistogram(hist_name,hist_dir); //
-    hist1D->Fill(detector->at(firstDet).SimulationEnergy());
-  }
+    for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
+        hist1D = Get1DHistogram(hist_name,hist_dir); //
+        hist1D->Fill(detector->at(firstDet).SimulationEnergy());
+    }
 }
 
 void Converter::FillHistDetector2DGammaGammaNR(TH2F* hist2D, std::vector<Detector>* detector, std::string hist_name, std::string hist_dir) {
-  if(fSettings->Write2DHist()) {
-    for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
-      for(size_t secondDet = firstDet+1; secondDet < detector->size(); ++secondDet) {
-        hist2D = Get2DHistogram(hist_name,hist_dir);
-        // symmetrize!
-        hist2D->Fill(detector->at(firstDet).SimulationEnergy(),detector->at(secondDet).SimulationEnergy());
-        hist2D->Fill(detector->at(secondDet).SimulationEnergy(),detector->at(firstDet).SimulationEnergy());
-      }
+    if(fSettings->Write2DHist()) {
+        for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
+            for(size_t secondDet = firstDet+1; secondDet < detector->size(); ++secondDet) {
+                hist2D = Get2DHistogram(hist_name,hist_dir);
+                // symmetrize!
+                hist2D->Fill(detector->at(firstDet).SimulationEnergy(),detector->at(secondDet).SimulationEnergy());
+                hist2D->Fill(detector->at(secondDet).SimulationEnergy(),detector->at(firstDet).SimulationEnergy());
+            }
+        }
     }
-  }
 }
 
 void Converter::FillHist2DGriffinSceptarHitPattern(TH2F* hist2D, std::vector<Detector>* detector1, std::vector<Detector>* detector2, std::string hist_name, std::string hist_dir) {
-  if(fSettings->Write2DHist()) {
-    for(size_t firstDet = 0; firstDet < detector1->size(); ++firstDet) {
-      for(size_t secondDet = 0; secondDet < detector2->size(); ++secondDet) {
-        hist2D = Get2DHistogram(hist_name,hist_dir);
-        hist2D->Fill(detector2->at(secondDet).DetectorId(),(4*detector1->at(firstDet).DetectorId()+detector1->at(firstDet).CrystalId()));
-      }
+    if(fSettings->Write2DHist()) {
+        for(size_t firstDet = 0; firstDet < detector1->size(); ++firstDet) {
+            for(size_t secondDet = 0; secondDet < detector2->size(); ++secondDet) {
+                hist2D = Get2DHistogram(hist_name,hist_dir);
+                hist2D->Fill(detector2->at(secondDet).DetectorId(),(4*detector1->at(firstDet).DetectorId()+detector1->at(firstDet).CrystalId()));
+            }
+        }
     }
-  }
 }
 
 void Converter::FillHist2DGriffinHitPattern(TH2F* hist2D, std::vector<Detector>* detector, std::string hist_name, std::string hist_dir) {
-  if(fSettings->Write2DHist()) {
-    for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
-      hist2D = Get2DHistogram(hist_name,hist_dir);
-      hist2D->Fill((4*detector->at(firstDet).DetectorId()+detector->at(firstDet).CrystalId()),(4*detector->at(firstDet).DetectorId()+detector->at(firstDet).CrystalId()));
-      for(size_t secondDet = firstDet+1; secondDet < detector->size(); ++secondDet) {
-        hist2D->Fill((4*detector->at(firstDet).DetectorId()+detector->at(firstDet).CrystalId()),(4*detector->at(secondDet).DetectorId()+detector->at(secondDet).CrystalId()));
-      }
+    if(fSettings->Write2DHist()) {
+        for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
+            hist2D = Get2DHistogram(hist_name,hist_dir);
+            hist2D->Fill((4*detector->at(firstDet).DetectorId()+detector->at(firstDet).CrystalId()),(4*detector->at(firstDet).DetectorId()+detector->at(firstDet).CrystalId()));
+            for(size_t secondDet = firstDet+1; secondDet < detector->size(); ++secondDet) {
+                hist2D->Fill((4*detector->at(firstDet).DetectorId()+detector->at(firstDet).CrystalId()),(4*detector->at(secondDet).DetectorId()+detector->at(secondDet).CrystalId()));
+            }
+        }
     }
-  }
 }
 
 
 TVector3 Converter::GriffinCrystalCenterPosition(int cry, int det) {
 
-  double theta   = GriffinDetCoords[det][0]*(M_PI/180);
-  double phi     = GriffinDetCoords[det][1]*(M_PI/180);
+    double theta   = GriffinDetCoords[det][0]*(M_PI/180);
+    double phi     = GriffinDetCoords[det][1]*(M_PI/180);
 
-  double germanium_width                 = 56.5; // mm
-  double germanium_separation            = 0.6; // mm
-  double germanium_length                = 90.0; // mm
-  double germanium_dist_from_can_face 	 = 5.5; // mm
-  double can_face_thickness              = 1.5; //mm
-  double distance_to_can_face            = fSettings->GriffinAddbackVectorCrystalFaceDistancemm(); // mm
-  double germanium_shift                 = 1.05; // mm
-  double germanium_bent_length           = 36.2; // mm
-  double bent_end_angle                  = 22.5*M_PI/180.0; // rad
-  // germanium_shift comment from GRIFFIN Geant4 code:
-  // this can't be more than 2.75mm. It is the amount by which
-  // one side is cut closer to the center than the other
-  // the ending length of the cones
+    double germanium_width                 = 56.5; // mm
+    double germanium_separation            = 0.6; // mm
+    double germanium_length                = 90.0; // mm
+    double germanium_dist_from_can_face 	 = 5.5; // mm
+    double can_face_thickness              = 1.5; //mm
+    double distance_to_can_face            = fSettings->GriffinAddbackVectorCrystalFaceDistancemm(); // mm
+    double germanium_shift                 = 1.05; // mm
+    double germanium_bent_length           = 36.2; // mm
+    double bent_end_angle                  = 22.5*M_PI/180.0; // rad
+    // germanium_shift comment from GRIFFIN Geant4 code:
+    // this can't be more than 2.75mm. It is the amount by which
+    // one side is cut closer to the center than the other
+    // the ending length of the cones
 
-  double  depth   = fSettings->GriffinAddbackVectorDepthmm();
-  double  offset  = germanium_bent_length*tan(bent_end_angle)/2.0;
-  // this offset is to push the center of the crystal face towards the
-  // center of the clover. We do this because the outter edges of the crystal
-  // are tappered. We'll take half this value, which is about 7.5 mm.
+    double  depth   = fSettings->GriffinAddbackVectorDepthmm();
+    double  offset  = germanium_bent_length*tan(bent_end_angle)/2.0;
+    // this offset is to push the center of the crystal face towards the
+    // center of the clover. We do this because the outter edges of the crystal
+    // are tappered. We'll take half this value, which is about 7.5 mm.
 
-//  double x0 = (germanium_width + germanium_separation)/2.0 - germanium_shift - offset;
-//  double y0 = (germanium_width + germanium_separation)/2.0 - germanium_shift - offset;
-  // We push the x and y directions towards the center of the clover by
-  // germanium_shift. This is keeping things symmetric along the diagonal,
-  // but in reality this doesn`t need to be the case if the core contact is
-  // anti-symmetric.
+    // double x0 = (germanium_width + germanium_separation)/2.0 - germanium_shift - offset;
+    // double y0 = (germanium_width + germanium_separation)/2.0 - germanium_shift - offset;
+    // We push the x and y directions towards the center of the clover by
+    // germanium_shift. This is keeping things symmetric along the diagonal,
+    // but in reality this doesn`t need to be the case if the core contact is
+    // anti-symmetric.
 
-  // From Andrews work, he says the center is x = y = 26 mm.
-  double x0 = 26.0; // mm
-  double y0 = 26.0; // mm
+    // From Andrews work, he says the center is x = y = 26 mm.
+    double x0 = 26.0; // mm
+    double y0 = 26.0; // mm
 
-  double z0 = distance_to_can_face + can_face_thickness + germanium_dist_from_can_face + depth;
+    double z0 = distance_to_can_face + can_face_thickness + germanium_dist_from_can_face + depth;
 
-  double i = (double)(cry);
-  double x = -1*((x0*(pow((-1),(floor((i+1.0)/2.0))))));
-  double y = -1*((y0*(pow((-1),(floor((i+2.0)/2.0))))));
-  double z = z0;
+    double i = (double)(cry);
+    double x = -1*((x0*(pow((-1),(floor((i+1.0)/2.0))))));
+    double y = -1*((y0*(pow((-1),(floor((i+2.0)/2.0))))));
+    double z = z0;
 
-  TVector3 vec(transX(x,y,z,theta,phi),transY(x,y,z,theta,phi),transZ(x,y,z,theta,phi));
-  return vec;
+    TVector3 vec(transX(x,y,z,theta,phi),transY(x,y,z,theta,phi),transZ(x,y,z,theta,phi));
+    return vec;
 }
 
 bool Converter::AreGriffinCrystalCenterPositionsWithinVectorLength(int cry1, int det1, int cry2, int det2){
-  TVector3 vec1 = GriffinCrystalCenterPosition(cry1,det1);
-  TVector3 vec2 = GriffinCrystalCenterPosition(cry2,det2);
+    TVector3 vec1 = GriffinCrystalCenterPosition(cry1,det1);
+    TVector3 vec2 = GriffinCrystalCenterPosition(cry2,det2);
 
-  double x1 = vec1.X();
-  double y1 = vec1.Y();
-  double z1 = vec1.Z();
-  double x2 = vec2.X();
-  double y2 = vec2.Y();
-  double z2 = vec2.Z();
+    double x1 = vec1.X();
+    double y1 = vec1.Y();
+    double z1 = vec1.Z();
+    double x2 = vec2.X();
+    double y2 = vec2.Y();
+    double z2 = vec2.Z();
 
-  bool result = false;
+    bool result = false;
 
-  if( ((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (z1-z2)*(z1-z2)) <= fSettings->GriffinAddbackVectorLengthmm()*fSettings->GriffinAddbackVectorLengthmm() ) {
-    result = true;
-  }
+    if( ((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (z1-z2)*(z1-z2)) <= fSettings->GriffinAddbackVectorLengthmm()*fSettings->GriffinAddbackVectorLengthmm() ) {
+        result = true;
+    }
 
-  return result;
+    return result;
 }
 
 double Converter::transX(double x, double y, double z, double theta, double phi){
-  return (x*cos(theta)+z*sin(theta))*cos(phi)-y*sin(phi);
+    return (x*cos(theta)+z*sin(theta))*cos(phi)-y*sin(phi);
 }
 
 double Converter::transY(double x, double y, double z, double theta, double phi){
-  return (x*cos(theta)+z*sin(theta))*sin(phi)+y*cos(phi);
+    return (x*cos(theta)+z*sin(theta))*sin(phi)+y*cos(phi);
 }
 
 double Converter::transZ(double x, double y, double z, double theta, double phi){
-  return -x*sin(theta)+z*cos(theta);
+    return -x*sin(theta)+z*cos(theta);
 }

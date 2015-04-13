@@ -12,43 +12,43 @@
 #include "Converter.hh"
 
 int main(int argc, char** argv) {
-  //parse all command line options
-  CommandLineInterface interface;
-  string settingsFileName;
-  interface.Add("-sf","settings file (required)",&settingsFileName);
-  vector<string> inputFileNames;
-  interface.Add("-if","input file(s) (required)",&inputFileNames);
-  string outputFileName = "Converted.root";
-  interface.Add("-of","output file (default = 'Converted.root')",&outputFileName);
-  int verbosityLevel = 0;
-  interface.Add("-vl","verbosity level (default = 0)",&verbosityLevel);
+    //parse all command line options
+    CommandLineInterface interface;
+    string settingsFileName;
+    interface.Add("-sf","settings file (required)",&settingsFileName);
+    vector<string> inputFileNames;
+    interface.Add("-if","input file(s) (required)",&inputFileNames);
+    string outputFileName = "Converted.root";
+    interface.Add("-of","output file (default = 'Converted.root')",&outputFileName);
+    int verbosityLevel = 0;
+    interface.Add("-vl","verbosity level (default = 0)",&verbosityLevel);
 
-  //-------------------- check flags and arguments --------------------
-  interface.CheckFlags(argc, argv);
+    //-------------------- check flags and arguments --------------------
+    interface.CheckFlags(argc, argv);
 
-  bool missingFlags = false;
-  if(settingsFileName.empty()) {
-    std::cerr<<"Missing a settings file name!"<<std::endl;
-    missingFlags = true;
-  }
-  if(inputFileNames.size() == 0) {
-    std::cerr<<"Missing input file name(s)!"<<std::endl;
-    missingFlags = true;
-  }
+    bool missingFlags = false;
+    if(settingsFileName.empty()) {
+        std::cerr<<"Missing a settings file name!"<<std::endl;
+        missingFlags = true;
+    }
+    if(inputFileNames.size() == 0) {
+        std::cerr<<"Missing input file name(s)!"<<std::endl;
+        missingFlags = true;
+    }
 
-  if(missingFlags) {
-    return 1;
-  }
+    if(missingFlags) {
+        return 1;
+    }
 
-  //read settings
-  Settings settings(settingsFileName, verbosityLevel);
+    //read settings
+    Settings settings(settingsFileName, verbosityLevel);
 
-  //create converter and run
-  Converter converter(inputFileNames, outputFileName, &settings);
-  if(!converter.Run()) {
-    std::cerr<<"processing ended abnormally!"<<std::endl;
-    return 1;
-  }
-  
-  return 0;
+    //create converter and run
+    Converter converter(inputFileNames, outputFileName, &settings);
+    if(!converter.Run()) {
+        std::cerr<<"processing ended abnormally!"<<std::endl;
+        return 1;
+    }
+
+    return 0;
 }
