@@ -24,6 +24,9 @@ public:
         fPosition = pos;
         fTime = time;
     }
+    void SetTime(double time) {
+        fTime = time;
+    }
     void Clear() {
         fEventNumber = -1;
         fDetectorId = 0;

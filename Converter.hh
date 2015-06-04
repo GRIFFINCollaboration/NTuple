@@ -25,7 +25,10 @@ public:
 
 private:
     bool AboveThreshold(double, int);
+    bool InsideTimeWindow();
+
     // GRIFFIN
+    void CheckGriffinCrystalAddback();
     void SupressGriffin();
     void SupressGriffinByNeighbouringAncillaryBgos();
     void SupressGriffinBySceptar();
@@ -33,18 +36,26 @@ private:
     void AddbackGriffinNeighbour();
     void AddbackGriffinNeighbourVector();
     // LaBr
+    void CheckLaBrDetectorAddback();
     void SupressLaBr();
     void SupressLaBrByNeighbouringGriffinShields();
     void AddbackLaBr();
     // EightPi
+    void CheckEightPiDetectorAddback();
     void SupressEightPi();
     void AddbackEightPi();
     // Ancillary BGO
+    void CheckAncillaryBgoCrystalAddback();
     void AddbackAncillaryBgo();
     // SCEPTAR
+    void CheckSceptarDetectorAddback();
     void AddbackSceptar();
     // DESCANT
+    void CheckDescantDetectorAddback();
     void AddbackDescant();
+    // Paces
+    void CheckPacesDetectorAddback();
+    void AddbackPaces();
 
     void PrintStatistics();
 
@@ -149,6 +160,10 @@ private:
     std::vector<Detector>* fDescantRedDetector;
     std::vector<Detector>* fDescantWhiteDetector;
     std::vector<Detector>* fDescantYellowDetector;
+
+    // Paces
+    std::vector<Detector>* fPacesArray;
+    std::vector<Detector>* fPacesDetector;
 
     //histograms
     std::map<std::string,TList*> fHistograms;
