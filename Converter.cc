@@ -16,9 +16,12 @@ Converter::Converter(std::vector<std::string>& inputFileNames, const std::string
             continue;
         }
         //add sub-directory and tree name to file name
-        fileName->append("/ntuple/ntuple");
+        fileName->append(fSettings->NtupleName());
         fChain.Add(fileName->c_str());
     }
+
+
+    // isn't f->GetListOfKeys()->Contains("graph") what you are looking for?
 
     //----------------------------------------------------------------------------------------------------
     // The follwoing assumes detector 1 is placed is position 1, and detector 2 is placed in position 2, etc.
@@ -629,6 +632,12 @@ Converter::Converter(std::vector<std::string>& inputFileNames, const std::string
     fTree.Branch("DescantRedDetector",&fDescantRedDetector, fSettings->BufferSize());
     fTree.Branch("DescantWhiteDetector",&fDescantWhiteDetector, fSettings->BufferSize());
     fTree.Branch("DescantYellowDetector",&fDescantYellowDetector, fSettings->BufferSize());
+
+    // PACES
+    fPacesArray         = new std::vector<Detector>;
+    fPacesDetector      = new std::vector<Detector>;
+    fTree.Branch("PacesArray",&fPacesArray, fSettings->BufferSize());
+    fTree.Branch("PacesDetector",&fPacesDetector, fSettings->BufferSize());
 }
 
 Converter::~Converter() {
@@ -660,11 +669,13 @@ bool Converter::Run() {
     double angle = 0;
     double norm = 0;
 
-    double buffer1 = 0;
-    double buffer2 = 0;
+//    double buffer1 = 0;
+//    double buffer2 = 0;
 
     double smearedEnergy;
     std::map<int,int> belowThreshold;
+    std::map<int,int> outsideTimeWindow;
+
     TH1F* hist1D;
     TH2F* hist2D;
     TH3I* hist3D;
@@ -688,6 +699,20 @@ bool Converter::Run() {
 
         //if this entry is from the next event, we fill the tree with everything we've collected so far (after SupressGriffinion) and reset the vector(s)
         if((fEventNumber != eventNumber) && ((fSettings->SortNumberOfEvents()==0)||(fSettings->SortNumberOfEvents()>=eventNumber))) {
+
+            // This method checks that all the "crystal" hits are unique, that is, they have different crystal and detector IDs.
+            // If they have the same crystal and detector IDs, then we sum the energies together.
+            // Normally the Geant4 simulation would sum energy deposits on the same volume, but if we ran the code in "step mode",
+            // or if we merged two ntuples together, this would not be true. This method checks and will do what "hit mode" in Geant4 normally does for us!
+            // This could slow things down, if that's the case we can put a flag in the settings such that these checks are not done everytime.
+            CheckGriffinCrystalAddback();
+            CheckLaBrDetectorAddback();
+            CheckEightPiDetectorAddback();
+            CheckAncillaryBgoCrystalAddback();
+            CheckSceptarDetectorAddback();
+            CheckDescantDetectorAddback();
+            CheckPacesDetectorAddback();
+
 
             for(int j = 0; j < 16; j++) {
                 GriffinNeighbours_counted[j] = 0;
@@ -718,6 +743,38 @@ bool Converter::Run() {
             hist1D = Get1DHistogram("SceptarDetectorHitPattern","Statistics");
             for(size_t firstDet = 0; firstDet < fSceptarDetector->size(); ++firstDet) {
                 hist1D->Fill((fSceptarDetector->at(firstDet).DetectorId()));
+            }
+            hist1D = Get1DHistogram("DescantArrayMultiplicity","Statistics");
+            hist1D->Fill(fDescantBlueDetector->size()+fDescantGreenDetector->size()+fDescantRedDetector->size()+fDescantWhiteDetector->size()+fDescantYellowDetector->size());
+            hist1D = Get1DHistogram("DescantBlueMultiplicity","Statistics");
+            hist1D->Fill(fDescantBlueDetector->size());
+            hist1D = Get1DHistogram("DescantGreenMultiplicity","Statistics");
+            hist1D->Fill(fDescantGreenDetector->size());
+            hist1D = Get1DHistogram("DescantRedMultiplicity","Statistics");
+            hist1D->Fill(fDescantRedDetector->size());
+            hist1D = Get1DHistogram("DescantWhiteMultiplicity","Statistics");
+            hist1D->Fill(fDescantWhiteDetector->size());
+            hist1D = Get1DHistogram("DescantYellowMultiplicity","Statistics");
+            hist1D->Fill(fDescantYellowDetector->size());
+            hist1D = Get1DHistogram("DescantBlueHitPattern","Statistics");
+            for(size_t firstDet = 0; firstDet < fDescantBlueDetector->size(); ++firstDet) {
+                hist1D->Fill((fDescantBlueDetector->at(firstDet).DetectorId()));
+            }
+            hist1D = Get1DHistogram("DescantGreenHitPattern","Statistics");
+            for(size_t firstDet = 0; firstDet < fDescantGreenDetector->size(); ++firstDet) {
+                hist1D->Fill((fDescantGreenDetector->at(firstDet).DetectorId()));
+            }
+            hist1D = Get1DHistogram("DescantRedHitPattern","Statistics");
+            for(size_t firstDet = 0; firstDet < fDescantRedDetector->size(); ++firstDet) {
+                hist1D->Fill((fDescantRedDetector->at(firstDet).DetectorId()));
+            }
+            hist1D = Get1DHistogram("DescantWhiteHitPattern","Statistics");
+            for(size_t firstDet = 0; firstDet < fDescantWhiteDetector->size(); ++firstDet) {
+                hist1D->Fill((fDescantWhiteDetector->at(firstDet).DetectorId()));
+            }
+            hist1D = Get1DHistogram("DescantYellowHitPattern","Statistics");
+            for(size_t firstDet = 0; firstDet < fDescantYellowDetector->size(); ++firstDet) {
+                hist1D->Fill((fDescantYellowDetector->at(firstDet).DetectorId()));
             }
 
             // GRIFFIN Crystal
@@ -1199,6 +1256,14 @@ bool Converter::Run() {
             FillHistDetector1DGammaNR(hist1D, fDescantArray, "descant_array_scin_unsup_edep_sum_nr", "0RES_Descant1D");
 
 
+            // Paces
+            FillHistDetector1DGamma(hist1D, fPacesDetector, "paces_crystal_unsup_edep", "Paces1D");
+            FillHistDetector1DGammaNR(hist1D, fPacesDetector, "paces_crystal_unsup_edep_nr", "0RES_Paces1D");
+
+            AddbackPaces();
+
+            FillHistDetector1DGamma(hist1D, fPacesArray, "paces_crystal_unsup_edep_sum", "Paces1D");
+            FillHistDetector1DGammaNR(hist1D, fPacesArray, "paces_crystal_unsup_edep_sum_nr", "0RES_Paces1D");
 
 
             fGriffinCrystal->clear();
@@ -1230,8 +1295,12 @@ bool Converter::Run() {
             fDescantWhiteDetector->clear();
             fDescantYellowDetector->clear();
 
+            fPacesDetector->clear();
+            fPacesArray->clear();
+
             eventNumber = fEventNumber;
             belowThreshold.clear();
+            outsideTimeWindow.clear();
 
             fSceptarHit = false;
 
@@ -1249,55 +1318,63 @@ bool Converter::Run() {
         if((fSettings->SortNumberOfEvents()==0)||(fSettings->SortNumberOfEvents()>=fEventNumber) ) {
             //if the hit is above the threshold, we add it to the vector
             if(AboveThreshold(smearedEnergy, fSystemID)) {
-                switch(fSystemID) {
-                case 1000:
-                    fGriffinCrystal->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-                    break;
-                case 1010:
-                case 1020:
-                case 1030:
-                case 1040:
-                    fGriffinBgo->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-                    break;
-                case 1050:
-                    fGriffinBgoBack->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-                    break;
-                case 2000:
-                    fLaBrDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-                    break;
-                case 3000:
-                    fAncillaryBgoCrystal->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-                    break;
-                case 5000:
-                    fSceptarDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-                    fSceptarHit = true;
-                    break;
-                case 6000:
-                    fEightPiDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-                    break;
-                case 6010:
-                case 6020:
-                case 6030:
-                    fEightPiBgoDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-                    break;
-                case 8010:
-                    fDescantBlueDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-                    break;
-                case 8020:
-                    fDescantGreenDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-                    break;
-                case 8030:
-                    fDescantRedDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-                    break;
-                case 8040:
-                    fDescantWhiteDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-                    break;
-                case 8050:
-                    fDescantYellowDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-                    break;
-                default:
-                    std::cerr<<"Unknown detector system ID "<<fSystemID<<std::endl;
-                    break;
+                if(InsideTimeWindow() ) {
+                    switch(fSystemID) {
+                    case 1000:
+                        fGriffinCrystal->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                        break;
+                    case 1010:
+                    case 1020:
+                    case 1030:
+                    case 1040:
+                        fGriffinBgo->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                        break;
+                    case 1050:
+                        fGriffinBgoBack->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                        break;
+                    case 2000:
+                        fLaBrDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                        break;
+                    case 3000:
+                        fAncillaryBgoCrystal->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                        break;
+                    case 5000:
+                        fSceptarDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                        fSceptarHit = true;
+                        break;
+                    case 6000:
+                        fEightPiDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                        break;
+                    case 6010:
+                    case 6020:
+                    case 6030:
+                        fEightPiBgoDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                        break;
+                    case 8010:
+                        fDescantBlueDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                        break;
+                    case 8020:
+                        fDescantGreenDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                        break;
+                    case 8030:
+                        fDescantRedDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                        break;
+                    case 8040:
+                        fDescantWhiteDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                        break;
+                    case 8050:
+                        fDescantYellowDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                        break;
+                    case 9000:
+                        fPacesDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                        break;
+
+                    default:
+                        std::cerr<<"Unknown detector system ID "<<fSystemID<<std::endl;
+                        break;
+                    }
+                } else {
+                    ++outsideTimeWindow[fSystemID];
                 }
             } else {
                 ++belowThreshold[fSystemID];
@@ -1341,6 +1418,34 @@ bool Converter::AboveThreshold(double energy, int systemID) {
     }
 
     return false;
+}
+
+bool Converter::InsideTimeWindow() {
+    if(fSettings->TimeWindow(fSystemID,fDetNumber,fCryNumber) == 0) {
+        return true;
+    }
+    if(fTime < fSettings->TimeWindow(fSystemID,fDetNumber,fCryNumber)) {
+        return true;
+    }
+    return false;
+}
+
+void Converter::CheckGriffinCrystalAddback() {
+// This method checks that all the "crystal" hits are unique, that is, they have different crystal and detector IDs.
+// If they have the same crystal and detector IDs, then we sum the energies together.
+// Normally the Geant4 simulation would sum energy deposits on the same volume, but if we ran the code in "step mode",
+// or if we merged two ntuples together, this would not be true. This method checks and will do what "hit mode" in Geant4 normally does for us!
+    for(auto firstDet = fGriffinCrystal->begin(); firstDet != fGriffinCrystal->end(); ++firstDet) {
+        for(auto secondDet = firstDet+1; secondDet != fGriffinCrystal->end();) {
+            if((firstDet->DetectorId() == secondDet->DetectorId()) && (firstDet->CrystalId() == secondDet->CrystalId())) {
+                firstDet->AddEnergy(secondDet->SimulationEnergy(),secondDet->Energy());
+                secondDet = fGriffinCrystal->erase(secondDet);
+            }
+            else {
+                ++secondDet;
+            }
+        }
+    }
 }
 
 void Converter::SupressGriffin() {
@@ -1536,6 +1641,24 @@ void Converter::AddbackGriffinNeighbourVector() {
 
 }
 
+void Converter::CheckLaBrDetectorAddback() {
+// This method checks that all the "detector" hits are unique, that is, they have different detector IDs.
+// If they have the same detector IDs, then we sum the energies together.
+// Normally the Geant4 simulation would sum energy deposits on the same volume, but if we ran the code in "step mode",
+// or if we merged two ntuples together, this would not be true. This method checks and will do what "hit mode" in Geant4 normally does for us!
+    for(auto firstDet = fLaBrDetector->begin(); firstDet != fLaBrDetector->end(); ++firstDet) {
+        for(auto secondDet = firstDet+1; secondDet != fLaBrDetector->end();) {
+            if((firstDet->DetectorId() == secondDet->DetectorId())) {
+                firstDet->AddEnergy(secondDet->SimulationEnergy(),secondDet->Energy());
+                secondDet = fLaBrDetector->erase(secondDet);
+            }
+            else {
+                ++secondDet;
+            }
+        }
+    }
+}
+
 void Converter::SupressLaBr() {
     //loop over all bgo's and remove all matching germaniums
     for(auto bgo = fAncillaryBgoDetector->begin(); bgo != fAncillaryBgoDetector->end(); ++bgo) {
@@ -1544,6 +1667,24 @@ void Converter::SupressLaBr() {
                 ge = fLaBrDetector->erase(ge);
             } else {
                 ++ge;
+            }
+        }
+    }
+}
+
+void Converter::CheckEightPiDetectorAddback() {
+// This method checks that all the "detector" hits are unique, that is, they have different detector IDs.
+// If they have the same detector IDs, then we sum the energies together.
+// Normally the Geant4 simulation would sum energy deposits on the same volume, but if we ran the code in "step mode",
+// or if we merged two ntuples together, this would not be true. This method checks and will do what "hit mode" in Geant4 normally does for us!
+    for(auto firstDet = fEightPiDetector->begin(); firstDet != fEightPiDetector->end(); ++firstDet) {
+        for(auto secondDet = firstDet+1; secondDet != fEightPiDetector->end();) {
+            if((firstDet->DetectorId() == secondDet->DetectorId())) {
+                firstDet->AddEnergy(secondDet->SimulationEnergy(),secondDet->Energy());
+                secondDet = fEightPiDetector->erase(secondDet);
+            }
+            else {
+                ++secondDet;
             }
         }
     }
@@ -1602,6 +1743,24 @@ void Converter::AddbackEightPi() {
     }
 }
 
+void Converter::CheckAncillaryBgoCrystalAddback() {
+// This method checks that all the "crystal" hits are unique, that is, they have different crystal and detector IDs.
+// If they have the same crystal and detector IDs, then we sum the energies together.
+// Normally the Geant4 simulation would sum energy deposits on the same volume, but if we ran the code in "step mode",
+// or if we merged two ntuples together, this would not be true. This method checks and will do what "hit mode" in Geant4 normally does for us!
+    for(auto firstDet = fAncillaryBgoCrystal->begin(); firstDet != fAncillaryBgoCrystal->end(); ++firstDet) {
+        for(auto secondDet = firstDet+1; secondDet != fAncillaryBgoCrystal->end();) {
+            if((firstDet->DetectorId() == secondDet->DetectorId()) && (firstDet->CrystalId() == secondDet->CrystalId())) {
+                firstDet->AddEnergy(secondDet->SimulationEnergy(),secondDet->Energy());
+                secondDet = fAncillaryBgoCrystal->erase(secondDet);
+            }
+            else {
+                ++secondDet;
+            }
+        }
+    }
+}
+
 void Converter::AddbackAncillaryBgo() {
     std::vector<Detector>::iterator detector;
     for(auto crystal = fAncillaryBgoCrystal->begin(); crystal != fAncillaryBgoCrystal->end(); ++crystal) {
@@ -1624,6 +1783,24 @@ void Converter::AddbackAncillaryBgo() {
     }
 }
 
+void Converter::CheckSceptarDetectorAddback() {
+// This method checks that all the "detector" hits are unique, that is, they have different detector IDs.
+// If they have the same detector IDs, then we sum the energies together.
+// Normally the Geant4 simulation would sum energy deposits on the same volume, but if we ran the code in "step mode",
+// or if we merged two ntuples together, this would not be true. This method checks and will do what "hit mode" in Geant4 normally does for us!
+    for(auto firstDet = fSceptarDetector->begin(); firstDet != fSceptarDetector->end(); ++firstDet) {
+        for(auto secondDet = firstDet+1; secondDet != fSceptarDetector->end();) {
+            if((firstDet->DetectorId() == secondDet->DetectorId())) {
+                firstDet->AddEnergy(secondDet->SimulationEnergy(),secondDet->Energy());
+                secondDet = fSceptarDetector->erase(secondDet);
+            }
+            else {
+                ++secondDet;
+            }
+        }
+    }
+}
+
 void Converter::AddbackSceptar() {
     for(auto detector = fSceptarDetector->begin(); detector != fSceptarDetector->end(); ++detector) {
         if(fSceptarArray->size() == 0) {
@@ -1634,12 +1811,77 @@ void Converter::AddbackSceptar() {
     }
 }
 
+void Converter::CheckDescantDetectorAddback() {
+// This method checks that all the "detector" hits are unique, that is, they have different detector IDs.
+// If they have the same detector IDs, then we sum the energies together.
+// Normally the Geant4 simulation would sum energy deposits on the same volume, but if we ran the code in "step mode",
+// or if we merged two ntuples together, this would not be true. This method checks and will do what "hit mode" in Geant4 normally does for us!
+    for(auto firstDet = fDescantBlueDetector->begin(); firstDet != fDescantBlueDetector->end(); ++firstDet) {
+        for(auto secondDet = firstDet+1; secondDet != fDescantBlueDetector->end();) {
+            if((firstDet->DetectorId() == secondDet->DetectorId())) {
+                firstDet->AddEnergy(secondDet->SimulationEnergy(),secondDet->Energy());
+                secondDet = fDescantBlueDetector->erase(secondDet);
+            }
+            else {
+                ++secondDet;
+            }
+        }
+    }
+    for(auto firstDet = fDescantGreenDetector->begin(); firstDet != fDescantGreenDetector->end(); ++firstDet) {
+        for(auto secondDet = firstDet+1; secondDet != fDescantGreenDetector->end();) {
+            if((firstDet->DetectorId() == secondDet->DetectorId())) {
+                firstDet->AddEnergy(secondDet->SimulationEnergy(),secondDet->Energy());
+                secondDet = fDescantGreenDetector->erase(secondDet);
+            }
+            else {
+                ++secondDet;
+            }
+        }
+    }
+    for(auto firstDet = fDescantRedDetector->begin(); firstDet != fDescantRedDetector->end(); ++firstDet) {
+        for(auto secondDet = firstDet+1; secondDet != fDescantRedDetector->end();) {
+            if((firstDet->DetectorId() == secondDet->DetectorId())) {
+                firstDet->AddEnergy(secondDet->SimulationEnergy(),secondDet->Energy());
+                secondDet = fDescantRedDetector->erase(secondDet);
+            }
+            else {
+                ++secondDet;
+            }
+        }
+    }
+    for(auto firstDet = fDescantWhiteDetector->begin(); firstDet != fDescantWhiteDetector->end(); ++firstDet) {
+        for(auto secondDet = firstDet+1; secondDet != fDescantWhiteDetector->end();) {
+            if((firstDet->DetectorId() == secondDet->DetectorId())) {
+                firstDet->AddEnergy(secondDet->SimulationEnergy(),secondDet->Energy());
+                secondDet = fDescantWhiteDetector->erase(secondDet);
+            }
+            else {
+                ++secondDet;
+            }
+        }
+    }
+    for(auto firstDet = fDescantYellowDetector->begin(); firstDet != fDescantYellowDetector->end(); ++firstDet) {
+        for(auto secondDet = firstDet+1; secondDet != fDescantYellowDetector->end();) {
+            if((firstDet->DetectorId() == secondDet->DetectorId())) {
+                firstDet->AddEnergy(secondDet->SimulationEnergy(),secondDet->Energy());
+                secondDet = fDescantYellowDetector->erase(secondDet);
+            }
+            else {
+                ++secondDet;
+            }
+        }
+    }
+}
+
 void Converter::AddbackDescant() {
     for(auto detector = fDescantBlueDetector->begin(); detector != fDescantBlueDetector->end(); ++detector) {
         if(fDescantArray->size() == 0) {
             fDescantArray->push_back(*detector);
         } else {
             fDescantArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
+            if(fDescantArray->at(0).Time() < detector->Time()) { // If added energy has a later time, set array time to this
+                fDescantArray->at(0).SetTime(detector->Time());
+            }
         }
     }
     for(auto detector = fDescantGreenDetector->begin(); detector != fDescantGreenDetector->end(); ++detector) {
@@ -1647,6 +1889,9 @@ void Converter::AddbackDescant() {
             fDescantArray->push_back(*detector);
         } else {
             fDescantArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
+            if(fDescantArray->at(0).Time() < detector->Time()) { // If added energy has a later time, set array time to this
+                fDescantArray->at(0).SetTime(detector->Time());
+            }
         }
     }
     for(auto detector = fDescantRedDetector->begin(); detector != fDescantRedDetector->end(); ++detector) {
@@ -1654,6 +1899,9 @@ void Converter::AddbackDescant() {
             fDescantArray->push_back(*detector);
         } else {
             fDescantArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
+            if(fDescantArray->at(0).Time() < detector->Time()) { // If added energy has a later time, set array time to this
+                fDescantArray->at(0).SetTime(detector->Time());
+            }
         }
     }
     for(auto detector = fDescantWhiteDetector->begin(); detector != fDescantWhiteDetector->end(); ++detector) {
@@ -1661,6 +1909,9 @@ void Converter::AddbackDescant() {
             fDescantArray->push_back(*detector);
         } else {
             fDescantArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
+            if(fDescantArray->at(0).Time() < detector->Time()) { // If added energy has a later time, set array time to this
+                fDescantArray->at(0).SetTime(detector->Time());
+            }
         }
     }
     for(auto detector = fDescantYellowDetector->begin(); detector != fDescantYellowDetector->end(); ++detector) {
@@ -1668,6 +1919,38 @@ void Converter::AddbackDescant() {
             fDescantArray->push_back(*detector);
         } else {
             fDescantArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
+            if(fDescantArray->at(0).Time() < detector->Time()) { // If added energy has a later time, set array time to this
+                fDescantArray->at(0).SetTime(detector->Time());
+            }
+        }
+    }
+}
+
+
+void Converter::CheckPacesDetectorAddback() {
+// This method checks that all the "detector" hits are unique, that is, they have different detector IDs.
+// If they have the same detector IDs, then we sum the energies together.
+// Normally the Geant4 simulation would sum energy deposits on the same volume, but if we ran the code in "step mode",
+// or if we merged two ntuples together, this would not be true. This method checks and will do what "hit mode" in Geant4 normally does for us!
+    for(auto firstDet = fPacesDetector->begin(); firstDet != fPacesDetector->end(); ++firstDet) {
+        for(auto secondDet = firstDet+1; secondDet != fPacesDetector->end();) {
+            if((firstDet->DetectorId() == secondDet->DetectorId())) {
+                firstDet->AddEnergy(secondDet->SimulationEnergy(),secondDet->Energy());
+                secondDet = fPacesDetector->erase(secondDet);
+            }
+            else {
+                ++secondDet;
+            }
+        }
+    }
+}
+
+void Converter::AddbackPaces() {
+    for(auto detector = fPacesDetector->begin(); detector != fPacesDetector->end(); ++detector) {
+        if(fPacesArray->size() == 0) {
+            fPacesArray->push_back(*detector);
+        } else {
+            fPacesArray->at(0).AddEnergy(detector->SimulationEnergy(),detector->Energy());
         }
     }
 }
@@ -1792,22 +2075,22 @@ TVector3 Converter::GriffinCrystalCenterPosition(int cry, int det) {
     double theta   = GriffinDetCoords[det][0]*(M_PI/180);
     double phi     = GriffinDetCoords[det][1]*(M_PI/180);
 
-    double germanium_width                 = 56.5; // mm
-    double germanium_separation            = 0.6; // mm
-    double germanium_length                = 90.0; // mm
+//    double germanium_width                 = 56.5; // mm
+//    double germanium_separation            = 0.6; // mm
+//    double germanium_length                = 90.0; // mm
     double germanium_dist_from_can_face 	 = 5.5; // mm
     double can_face_thickness              = 1.5; //mm
     double distance_to_can_face            = fSettings->GriffinAddbackVectorCrystalFaceDistancemm(); // mm
-    double germanium_shift                 = 1.05; // mm
-    double germanium_bent_length           = 36.2; // mm
-    double bent_end_angle                  = 22.5*M_PI/180.0; // rad
+//    double germanium_shift                 = 1.05; // mm
+//    double germanium_bent_length           = 36.2; // mm
+//    double bent_end_angle                  = 22.5*M_PI/180.0; // rad
     // germanium_shift comment from GRIFFIN Geant4 code:
     // this can't be more than 2.75mm. It is the amount by which
     // one side is cut closer to the center than the other
     // the ending length of the cones
 
     double  depth   = fSettings->GriffinAddbackVectorDepthmm();
-    double  offset  = germanium_bent_length*tan(bent_end_angle)/2.0;
+//    double  offset  = germanium_bent_length*tan(bent_end_angle)/2.0;
     // this offset is to push the center of the crystal face towards the
     // center of the clover. We do this because the outter edges of the crystal
     // are tappered. We'll take half this value, which is about 7.5 mm.

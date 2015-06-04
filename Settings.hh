@@ -12,6 +12,10 @@ public:
     Settings(std::string, int);
     ~Settings(){};
 
+    std::string NtupleName() {
+        return fNtupleName;
+    }
+
     int VerbosityLevel() {
         return fVerbosityLevel;
     }
@@ -74,6 +78,12 @@ public:
         }
         return 0.;
     }
+    double TimeWindow(int systemID, int detectorID, int crystalID) {
+        if(fTimeWindow.find(systemID) != fTimeWindow.end()) {
+            return fTimeWindow[systemID].at(detectorID).at(crystalID);
+        }
+        return 0.;
+    }
 
     int NofBins(std::string directoryName) {
         if(fNofBins.find(directoryName) != fNofBins.end()) {
@@ -95,6 +105,8 @@ public:
     }
 
 private:
+    std::string fNtupleName;
+
     int fVerbosityLevel;
     int fBufferSize;
     int fSortNumberOfEvents;
@@ -112,6 +124,7 @@ private:
     std::map<int,std::vector<std::vector<TF1> > > fResolution;
     std::map<int,std::vector<std::vector<double> > > fThreshold;
     std::map<int,std::vector<std::vector<double> > > fThresholdWidth;
+    std::map<int,std::vector<std::vector<double> > > fTimeWindow;
 
     std::map<std::string,int> fNofBins;
     std::map<std::string,double> fRangeLow;
