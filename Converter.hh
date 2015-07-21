@@ -26,6 +26,7 @@ public:
 private:
     bool AboveThreshold(double, int);
     bool InsideTimeWindow();
+    bool DescantNeutronDiscrimination();
 
     // GRIFFIN
     void CheckGriffinCrystalAddback();
