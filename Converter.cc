@@ -669,6 +669,13 @@ bool Converter::Run() {
     double angle = 0;
     double norm = 0;
 
+    int descantArrayHits;
+    int descantBlueHits;
+    int descantGreenHits;
+    int descantRedHits;
+    int descantWhiteHits;
+    int descantYellowHits;
+
 //    double buffer1 = 0;
 //    double buffer2 = 0;
 
@@ -717,6 +724,14 @@ bool Converter::Run() {
             for(int j = 0; j < 16; j++) {
                 GriffinNeighbours_counted[j] = 0;
             }
+
+            // number of descant hits
+            descantBlueHits = fDescantBlueDetector->size();
+            descantGreenHits = fDescantGreenDetector->size();
+            descantRedHits = fDescantRedDetector->size();
+            descantWhiteHits = fDescantWhiteDetector->size();
+            descantYellowHits = fDescantYellowDetector->size();
+            descantArrayHits = descantBlueHits + descantGreenHits + descantRedHits + descantWhiteHits + descantYellowHits;
 
             //---------------------------------------------------------------------
             // Unsuppressed GRIFFIN
@@ -793,13 +808,27 @@ bool Converter::Run() {
 
                 FillHistDetector1DGamma(hist1D, fGriffinDetector, "griffin_crystal_unsup_sceptar_coin_edep", "Griffin1D");
                 FillHistDetector1DGammaNR(hist1D, fGriffinDetector, "griffin_crystal_unsup_sceptar_coin_edep_nr", "0RES_Griffin1D");
-                if(fSettings->Write2DSGGHist())
+                FillHistDetector1DGamma(hist1D, fGriffinCrystal, "griffin_crystal_unsup_sceptar_coin_edep_cry", "Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinCrystal, "griffin_crystal_unsup_sceptar_coin_edep_cry_nr", "0RES_Griffin1D");
+
+                if(fSettings->Write2DSGGHist()) {
                     FillHistDetector2DGammaGamma(hist2D, fGriffinDetector, "griffin_crystal_unsup_sceptar_coin_edep_matrix","Griffin2D");
+                    FillHistDetector2DGammaGammaNR(hist2D, fGriffinDetector, "griffin_crystal_unsup_sceptar_coin_edep_matrix_nr","0RES_Griffin2D");
+                    FillHistDetector2DGammaGamma(hist2D, fGriffinCrystal, "griffin_crystal_unsup_sceptar_coin_edep_cry_matrix","Griffin2D");
+                    FillHistDetector2DGammaGammaNR(hist2D, fGriffinCrystal, "griffin_crystal_unsup_sceptar_coin_edep_cry_matrix_nr","0RES_Griffin2D");
+                }
+
             } else {
                 FillHistDetector1DGamma(hist1D, fGriffinDetector, "griffin_crystal_unsup_sceptar_anticoin_edep", "Griffin1D");
                 FillHistDetector1DGammaNR(hist1D, fGriffinDetector, "griffin_crystal_unsup_sceptar_anticoin_edep_nr", "0RES_Griffin1D");
-                if(fSettings->Write2DSGGHist())
+                FillHistDetector1DGamma(hist1D, fGriffinCrystal, "griffin_crystal_unsup_sceptar_anticoin_edep_cry", "Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinCrystal, "griffin_crystal_unsup_sceptar_anticoin_edep_cry_nr", "0RES_Griffin1D");
+                if(fSettings->Write2DSGGHist()) {
                     FillHistDetector2DGammaGamma(hist2D, fGriffinDetector, "griffin_crystal_unsup_sceptar_anticoin_edep_matrix","Griffin2D");
+                    FillHistDetector2DGammaGammaNR(hist2D, fGriffinDetector, "griffin_crystal_unsup_sceptar_anticoin_edep_matrix_nr","0RES_Griffin2D");
+                    FillHistDetector2DGammaGamma(hist2D, fGriffinCrystal, "griffin_crystal_unsup_sceptar_anticoin_edep_cry_matrix","Griffin2D");
+                    FillHistDetector2DGammaGammaNR(hist2D, fGriffinCrystal, "griffin_crystal_unsup_sceptar_anticoin_edep_cry_matrix_nr","0RES_Griffin2D");
+                }
             }
 
             FillHist2DGriffinHitPattern(hist2D, fGriffinDetector, "griffin_crystal_hit_pattern","Griffin2D");
@@ -1032,6 +1061,54 @@ bool Converter::Run() {
             FillHistDetector1DGamma(hist1D, fGriffinArray, "griffin_crystal_unsup_edep_sum", "Griffin1D");
             FillHistDetector1DGammaNR(hist1D, fGriffinArray, "griffin_crystal_unsup_edep_sum_nr", "0RES_Griffin1D");
 
+            // descant coin hits
+            if(descantArrayHits == 0) {
+                FillHistDetector1DGamma(hist1D, fGriffinCrystal, "griffin_crystal_unsup_descanthit0_coin_edep_cry", "Griffin1D");
+                FillHistDetector1DGamma(hist1D, fGriffinDetector, "griffin_crystal_unsup_descanthit0_coin_edep", "Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinCrystal, "griffin_crystal_unsup_descanthit0_coin_edep_cry_nr", "0RES_Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinDetector, "griffin_crystal_unsup_descanthit0_coin_edep_nr", "0RES_Griffin1D");
+
+                FillHistDetector2DGammaGamma(hist2D, fGriffinCrystal, "griffin_crystal_unsup_descanthit0_edep_cry_matrix", "Griffin2D");
+                FillHistDetector2DGammaGamma(hist2D, fGriffinDetector, "griffin_crystal_unsup_descanthit0_edep_matrix", "Griffin2D");
+                FillHistDetector2DGammaGammaNR(hist2D, fGriffinCrystal, "griffin_crystal_unsup_descanthit0_edep_cry_matrix_nr", "0RES_Griffin2D");
+                FillHistDetector2DGammaGammaNR(hist2D, fGriffinDetector, "griffin_crystal_unsup_descanthit0_edep_matrix_nr", "0RES_Griffin2D");
+
+            }
+            else if(descantArrayHits == 1) {
+                FillHistDetector1DGamma(hist1D, fGriffinCrystal, "griffin_crystal_unsup_descanthit1_coin_edep_cry", "Griffin1D");
+                FillHistDetector1DGamma(hist1D, fGriffinDetector, "griffin_crystal_unsup_descanthit1_coin_edep", "Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinCrystal, "griffin_crystal_unsup_descanthit1_coin_edep_cry_nr", "0RES_Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinDetector, "griffin_crystal_unsup_descanthit1_coin_edep_nr", "0RES_Griffin1D");
+
+                FillHistDetector2DGammaGamma(hist2D, fGriffinCrystal, "griffin_crystal_unsup_descanthit1_edep_cry_matrix", "Griffin2D");
+                FillHistDetector2DGammaGamma(hist2D, fGriffinDetector, "griffin_crystal_unsup_descanthit1_edep_matrix", "Griffin2D");
+                FillHistDetector2DGammaGammaNR(hist2D, fGriffinCrystal, "griffin_crystal_unsup_descanthit1_edep_cry_matrix_nr", "0RES_Griffin2D");
+                FillHistDetector2DGammaGammaNR(hist2D, fGriffinDetector, "griffin_crystal_unsup_descanthit1_edep_matrix_nr", "0RES_Griffin2D");
+            }
+            else if(descantArrayHits == 2) {
+                FillHistDetector1DGamma(hist1D, fGriffinCrystal, "griffin_crystal_unsup_descanthit2_coin_edep_cry", "Griffin1D");
+                FillHistDetector1DGamma(hist1D, fGriffinDetector, "griffin_crystal_unsup_descanthit2_coin_edep", "Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinCrystal, "griffin_crystal_unsup_descanthit2_coin_edep_cry_nr", "0RES_Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinDetector, "griffin_crystal_unsup_descanthit2_coin_edep_nr", "0RES_Griffin1D");
+
+                FillHistDetector2DGammaGamma(hist2D, fGriffinCrystal, "griffin_crystal_unsup_descanthit2_edep_cry_matrix", "Griffin2D");
+                FillHistDetector2DGammaGamma(hist2D, fGriffinDetector, "griffin_crystal_unsup_descanthit2_edep_matrix", "Griffin2D");
+                FillHistDetector2DGammaGammaNR(hist2D, fGriffinCrystal, "griffin_crystal_unsup_descanthit2_edep_cry_matrix_nr", "0RES_Griffin2D");
+                FillHistDetector2DGammaGammaNR(hist2D, fGriffinDetector, "griffin_crystal_unsup_descanthit2_edep_matrix_nr", "0RES_Griffin2D");
+            }
+            else {
+                FillHistDetector1DGamma(hist1D, fGriffinCrystal, "griffin_crystal_unsup_descanthitn_coin_edep_cry", "Griffin1D");
+                FillHistDetector1DGamma(hist1D, fGriffinDetector, "griffin_crystal_unsup_descanthitn_coin_edep", "Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinCrystal, "griffin_crystal_unsup_descanthitn_coin_edep_cry_nr", "0RES_Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinDetector, "griffin_crystal_unsup_descanthitn_coin_edep_nr", "0RES_Griffin1D");
+
+                FillHistDetector2DGammaGamma(hist2D, fGriffinCrystal, "griffin_crystal_unsup_descanthitn_edep_cry_matrix", "Griffin2D");
+                FillHistDetector2DGammaGamma(hist2D, fGriffinDetector, "griffin_crystal_unsup_descanthitn_edep_matrix", "Griffin2D");
+                FillHistDetector2DGammaGammaNR(hist2D, fGriffinCrystal, "griffin_crystal_unsup_descanthitn_edep_cry_matrix_nr", "0RES_Griffin2D");
+                FillHistDetector2DGammaGammaNR(hist2D, fGriffinDetector, "griffin_crystal_unsup_descanthitn_edep_matrix_nr", "0RES_Griffin2D");
+            }
+
+
             // CLEAR GRIFFIN //
             fGriffinDetector->clear();
             fGriffinNeighbour->clear();
@@ -1080,13 +1157,26 @@ bool Converter::Run() {
             if(fSceptarHit) {
                 FillHistDetector1DGamma(hist1D, fGriffinDetector, "griffin_crystal_sup_sceptar_coin_edep", "Griffin1D");
                 FillHistDetector1DGammaNR(hist1D, fGriffinDetector, "griffin_crystal_sup_sceptar_coin_edep_nr", "0RES_Griffin1D");
-                if(fSettings->Write2DSGGHist())
+                FillHistDetector1DGamma(hist1D, fGriffinCrystal, "griffin_crystal_sup_sceptar_coin_edep_cry", "Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinCrystal, "griffin_crystal_sup_sceptar_coin_edep_cry_nr", "0RES_Griffin1D");
+                if(fSettings->Write2DSGGHist()) {
                     FillHistDetector2DGammaGamma(hist2D, fGriffinDetector, "griffin_crystal_sup_sceptar_coin_edep_matrix","Griffin2D");
+                    FillHistDetector2DGammaGammaNR(hist2D, fGriffinDetector, "griffin_crystal_sup_sceptar_coin_edep_matrix_nr","0RES_Griffin2D");
+                    FillHistDetector2DGammaGamma(hist2D, fGriffinCrystal, "griffin_crystal_sup_sceptar_coin_edep_cry_matrix","Griffin2D");
+                    FillHistDetector2DGammaGammaNR(hist2D, fGriffinCrystal, "griffin_crystal_sup_sceptar_coin_edep_cry_matrix_nr","0RES_Griffin2D");
+                }
             } else {
                 FillHistDetector1DGamma(hist1D, fGriffinDetector, "griffin_crystal_sup_sceptar_anticoin_edep", "Griffin1D");
                 FillHistDetector1DGammaNR(hist1D, fGriffinDetector, "griffin_crystal_sup_sceptar_anticoin_edep_nr", "0RES_Griffin1D");
-                if(fSettings->Write2DSGGHist())
+                FillHistDetector1DGamma(hist1D, fGriffinCrystal, "griffin_crystal_sup_sceptar_anticoin_edep_cry", "Griffin1D");
+                FillHistDetector1DGammaNR(hist1D, fGriffinCrystal, "griffin_crystal_sup_sceptar_anticoin_edep_cry_nr", "0RES_Griffin1D");
+                if(fSettings->Write2DSGGHist()) {
                     FillHistDetector2DGammaGamma(hist2D, fGriffinDetector, "griffin_crystal_sup_sceptar_anticoin_edep_matrix","Griffin2D");
+                    FillHistDetector2DGammaGammaNR(hist2D, fGriffinDetector, "griffin_crystal_sup_sceptar_anticoin_edep_matrix_nr","0RES_Griffin2D");
+                    FillHistDetector2DGammaGamma(hist2D, fGriffinCrystal, "griffin_crystal_sup_sceptar_anticoin_edep_cry_matrix","Griffin2D");
+                    FillHistDetector2DGammaGammaNR(hist2D, fGriffinCrystal, "griffin_crystal_sup_sceptar_anticoin_edep_cry_matrix_nr","0RES_Griffin2D");
+
+                }
             }
 
             FillHistDetector2DGammaGamma(hist2D, fGriffinDetector, "griffin_crystal_sup_edep_matrix","Griffin2D");
@@ -1133,6 +1223,7 @@ bool Converter::Run() {
                 FillHistDetector1DGamma(hist1D, fGriffinArray, "griffin_crystal_arraysup_edep_sum", "Griffin1D");
                 FillHistDetector1DGammaNR(hist1D, fGriffinArray, "griffin_crystal_arraysup_edep_sum_nr", "0RES_Griffin1D");
             }
+
 
             // CLEAR GRIFFIN //
             fGriffinDetector->clear();
@@ -1351,20 +1442,30 @@ bool Converter::Run() {
                         fEightPiBgoDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
                         break;
                     case 8010:
-                        fDescantBlueDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-                        break;
+                        if(DescantNeutronDiscrimination() ) {
+                            fDescantBlueDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                            break;
+                        }
                     case 8020:
-                        fDescantGreenDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-                        break;
+                        if(DescantNeutronDiscrimination() ) {
+                            fDescantGreenDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                            break;
+                        }
                     case 8030:
-                        fDescantRedDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-                        break;
+                        if(DescantNeutronDiscrimination() ) {
+                            fDescantRedDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                            break;
+                        }
                     case 8040:
-                        fDescantWhiteDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-                        break;
+                        if(DescantNeutronDiscrimination() ) {
+                            fDescantWhiteDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                            break;
+                        }
                     case 8050:
-                        fDescantYellowDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-                        break;
+                        if(DescantNeutronDiscrimination() ) {
+                            fDescantYellowDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                            break;
+                        }
                     case 9000:
                         fPacesDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
                         break;
@@ -1429,6 +1530,15 @@ bool Converter::InsideTimeWindow() {
     }
     return false;
 }
+
+bool Converter::DescantNeutronDiscrimination() { // Assuming perfect gamma-neutron discrimination
+    if(fParticleType == 5) { // neutron
+        return true;
+    }
+    return false;
+}
+
+
 
 void Converter::CheckGriffinCrystalAddback() {
 // This method checks that all the "crystal" hits are unique, that is, they have different crystal and detector IDs.
