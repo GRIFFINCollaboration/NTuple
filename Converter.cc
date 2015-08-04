@@ -1442,30 +1442,20 @@ bool Converter::Run() {
                         fEightPiBgoDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
                         break;
                     case 8010:
-                        if(DescantNeutronDiscrimination() ) {
-                            fDescantBlueDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-                            break;
-                        }
+                        fDescantBlueDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                         break;
                     case 8020:
-                        if(DescantNeutronDiscrimination() ) {
-                            fDescantGreenDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-                            break;
-                        }
+                        fDescantGreenDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                        break;
                     case 8030:
-                        if(DescantNeutronDiscrimination() ) {
-                            fDescantRedDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-                            break;
-                        }
+                        fDescantRedDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                        break;
                     case 8040:
-                        if(DescantNeutronDiscrimination() ) {
-                            fDescantWhiteDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-                            break;
-                        }
+                        fDescantWhiteDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                        break;
                     case 8050:
-                        if(DescantNeutronDiscrimination() ) {
-                            fDescantYellowDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
-                            break;
-                        }
+                        fDescantYellowDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
+                        break;
                     case 9000:
                         fPacesDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
                         break;
