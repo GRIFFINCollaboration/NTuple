@@ -685,7 +685,8 @@ bool Converter::Run() {
 
     TH1F* hist1D;
     TH2F* hist2D;
-    TH3I* hist3D;
+    //TH3I* hist3D;
+    THnSparseF* histND;
     long int nEntries = fChain.GetEntries();
 
 
@@ -839,11 +840,12 @@ bool Converter::Run() {
 
             // 3D gamma-gamma corr - Crystal Method
             for(size_t firstDet = 0; firstDet < fGriffinCrystal->size(); ++firstDet) {
-                if(fSettings->Write3DHist()) {
+                if(fSettings->WriteNDHist()) {
                     // add-back 0 deg hits
                     if(fGriffinCrystal->size()==1) {
-                        hist3D = Get3DHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_cry","Griffin3D");
-                        hist3D->Fill(fGriffinCrystal->at(0).Energy(),fGriffinCrystal->at(0).Energy(),0.0,1.0); //1.0/64);
+                        Double_t fillval[3] = {fGriffinCrystal->at(0).Energy(), fGriffinCrystal->at(0).Energy(),0.0};
+                        histND = GetNDHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_cry_sparse","GriffinND");
+                        histND->Fill(fillval); //1.0/64);
                     }
                     for(size_t secondDet = firstDet+1; secondDet < fGriffinCrystal->size(); ++secondDet) {
                         cry1energy  = fGriffinCrystal->at(firstDet).Energy();
@@ -865,10 +867,11 @@ bool Converter::Run() {
                             cout << "norm = " << norm << endl;
                             cout << "angle = " << angle << endl;
                         }
-                        //cout << "angle = " << angle << endl;
-                        hist3D = Get3DHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_cry","Griffin3D");
-                        hist3D->Fill(fGriffinCrystal->at(firstDet).Energy(),fGriffinCrystal->at(secondDet).Energy(),(double)index,1.0); //angle,1.0); //1.0/norm);
-                        hist3D->Fill(fGriffinCrystal->at(secondDet).Energy(),fGriffinCrystal->at(firstDet).Energy(),(double)index,1.0); //angle,1.0); //1.0/norm);
+                        Double_t fillval2[3] = {fGriffinCrystal->at(firstDet).Energy(), fGriffinCrystal->at(secondDet).Energy(),(double)index};
+                        Double_t fillval3[3] = {fGriffinCrystal->at(secondDet).Energy(), fGriffinCrystal->at(firstDet).Energy(),(double)index};
+                        histND = GetNDHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_cry_sparse","GriffinND");
+                        histND->Fill(fillval2); //1.0/64);
+                        histND->Fill(fillval3); //1.0/64);
                         cry1 = 0;
                         cry2 = 0;
                         cry1energy = 0;
@@ -882,11 +885,12 @@ bool Converter::Run() {
 
             // 3D gamma-gamma corr - Detector Method
             for(size_t firstDet = 0; firstDet < fGriffinDetector->size(); ++firstDet) {
-                if(fSettings->Write3DHist()) {
+                if(fSettings->WriteNDHist()) {
                     // add-back 0 deg hits
                     if(fGriffinDetector->size()==1) {
-                        hist3D = Get3DHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_det","Griffin3D");
-                        hist3D->Fill(fGriffinDetector->at(0).Energy(),fGriffinDetector->at(0).Energy(),0.0,1.0); //1.0/16);
+                        Double_t fillvalab[3] = {fGriffinDetector->at(0).Energy(), fGriffinDetector->at(0).Energy(),0.0};
+                        histND = GetNDHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_det_sparse","GriffinND");
+                        histND->Fill(fillvalab); //1.0/64);
                     }
                     for(size_t secondDet = firstDet+1; secondDet < fGriffinDetector->size(); ++secondDet) {
                         det1        = fGriffinDetector->at(firstDet).DetectorId();
@@ -910,10 +914,11 @@ bool Converter::Run() {
                             cout << "norm = " << norm << endl;
                             cout << "angle = " << angle << endl;
                         }
-                        //cout << "angle = " << angle << endl;
-                        hist3D = Get3DHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_det","Griffin3D");
-                        hist3D->Fill(fGriffinDetector->at(firstDet).Energy(),fGriffinDetector->at(secondDet).Energy(),(double)index,1.0); //angle,1.0); //1.0/norm);
-                        hist3D->Fill(fGriffinDetector->at(secondDet).Energy(),fGriffinDetector->at(firstDet).Energy(),(double)index,1.0); //angle,1.0); //1.0/norm);
+                        Double_t fillval2ab[3] = {fGriffinDetector->at(firstDet).Energy(), fGriffinDetector->at(secondDet).Energy(),(double)index};
+                        Double_t fillval3ab[3] = {fGriffinDetector->at(secondDet).Energy(), fGriffinDetector->at(firstDet).Energy(),(double)index};
+                        histND = GetNDHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_det_sparse","GriffinND");
+                        histND->Fill(fillval2ab); //1.0/64);
+                        histND->Fill(fillval3ab); //1.0/64);
                         det1 = 0;
                         det2 = 0;
                         det1energy = 0;
@@ -928,7 +933,7 @@ bool Converter::Run() {
 
             // 3D gamma-gamma corr - Add-back Method
             for(size_t firstDet = 0; firstDet < fGriffinDetector->size(); ++firstDet) {
-                if(fSettings->Write3DHist()) {
+                if(fSettings->WriteNDHist()) {
                     cry1 = 0;
                     cry2 = 0;
                     cry1energy = 0;
@@ -938,8 +943,9 @@ bool Converter::Run() {
                     // add-back 0 deg hits
                     if(fGriffinDetector->size()==1) {
                         if(fGriffinCrystal->size()==1) { // true 0 deg hits
-                            hist3D = Get3DHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_cry_addback","Griffin3D");
-                            hist3D->Fill(fGriffinCrystal->at(0).Energy(),fGriffinCrystal->at(0).Energy(),0.0,1.0); //,1.0/64);
+                            Double_t fillvalabn[3] = {fGriffinDetector->at(0).Energy(), fGriffinDetector->at(0).Energy(),0.0};
+                            histND = GetNDHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_cry_addback_sparse","GriffinND");
+                            histND->Fill(fillvalabn); //1.0/64);
                         }
                         else {
                             for(size_t thiscry = 0; thiscry < fGriffinCrystal->size(); ++thiscry) {
@@ -978,8 +984,11 @@ bool Converter::Run() {
                                     break;
                                 }
                             }
-                            hist3D = Get3DHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_cry_addback","Griffin3D");
-                            hist3D->Fill(fGriffinDetector->at(firstDet).Energy(),fGriffinDetector->at(firstDet).Energy(),(double)index,1.0); //angle,1.0); //1.0/norm);
+                         //   Double_t fillval2abn[3] = {fGriffinDetector->at(firstDet).Energy(), fGriffinDetector->at(secondDet).Energy(),(double)index};
+                         //   Double_t fillval3abn[3] = {fGriffinDetector->at(secondDet).Energy(), fGriffinDetector->at(firstDet).Energy(),(double)index};
+                         //   histND = GetNDHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_cry_addback_sparse","GriffinND");
+                         //   histND->Fill(fillval2abn); //1.0/64);
+                         //   histND->Fill(fillval3abn); //1.0/64);
                             cry1 = 0;
                             cry2 = 0;
                             cry1energy = 0;
@@ -1019,10 +1028,11 @@ bool Converter::Run() {
                                 cout << "norm = " << norm << endl;
                                 cout << "angle = " << angle << endl;
                             }
-                            //cout << "angle = " << angle << endl;
-                            hist3D = Get3DHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_cry_addback","Griffin3D");
-                            hist3D->Fill(fGriffinDetector->at(firstDet).Energy(),fGriffinDetector->at(secondDet).Energy(),(double)index,1.0); //angle,1.0); //1.0/norm);
-                            hist3D->Fill(fGriffinDetector->at(secondDet).Energy(),fGriffinDetector->at(firstDet).Energy(),(double)index,1.0); //angle,1.0); //1.0/norm);
+                            Double_t fillval2abn[3] = {fGriffinDetector->at(firstDet).Energy(), fGriffinDetector->at(secondDet).Energy(),(double)index};
+                            Double_t fillval3abn[3] = {fGriffinDetector->at(secondDet).Energy(), fGriffinDetector->at(firstDet).Energy(),(double)index};
+                            histND = GetNDHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_cry_addback_sparse","GriffinND");
+                            histND->Fill(fillval2abn); //1.0/64);
+                            histND->Fill(fillval3abn); //1.0/64);
                             cry1 = 0;
                             cry2 = 0;
                             cry1energy = 0;
@@ -2089,7 +2099,7 @@ TH2F* Converter::Get2DHistogram(std::string histogramName, std::string directory
     return hist;
 }
 
-TH3I* Converter::Get3DHistogram(std::string histogramName, std::string directoryName) {
+/*TH3I* Converter::Get3DHistogram(std::string histogramName, std::string directoryName) {
     //try and find this histogram
     TH3I* hist = (TH3I*) gDirectory->FindObjectAny(histogramName.c_str());
     if(hist == nullptr){
@@ -2103,6 +2113,28 @@ TH3I* Converter::Get3DHistogram(std::string histogramName, std::string directory
         }
         fHistograms[directoryName]->Add((TObject*) hist);
     }
+    return hist;
+}*/
+
+THnSparseF* Converter::GetNDHistogram(std::string histogramName, std::string directoryName) {
+    //try and find this histogram
+    //This method is different for THnSparse if implemented normally with the other method
+    //then the histogram would not set the address of fHistograms[directoryName]->FindObject(histogramName.c_str()) and a new histogram would be created for every event
+    THnSparseF* hist = nullptr;
+    if(fHistograms.find(directoryName) == fHistograms.end() || fHistograms[directoryName]->FindObject(histogramName.c_str()) == nullptr) {
+        //if the histogram doesn't exist, we create it and add it to the histogram list
+        Double_t min[3] = {fSettings->RangeLow(directoryName), fSettings->RangeLow(directoryName), 0};
+        Double_t max[3] = {fSettings->RangeHigh(directoryName), fSettings->RangeHigh(directoryName), 52};
+        Int_t Bins[3] = {fSettings->NofBins(directoryName), fSettings->NofBins(directoryName), 52};
+        hist = new THnSparseF(histogramName.c_str(),histogramName.c_str(),3, Bins,min,max);
+        if(fHistograms.find(directoryName) == fHistograms.end()) {
+            fHistograms[directoryName] = new TList;
+        }
+        fHistograms[directoryName]->Add((TObject*) hist);
+    } else {
+        hist = (THnSparseF*) fHistograms[directoryName]->FindObject(histogramName.c_str());
+    }
+    
     return hist;
 }
 
