@@ -20,7 +20,9 @@ Settings::Settings(std::string fileName, int verbosityLevel)
 
     fWrite2DHist = env.GetValue("Write2DHist",false);
 
-    fWrite3DHist = env.GetValue("Write3DHist",false);
+    //fWrite3DHist = env.GetValue("Write3DHist",false);
+        
+    fWriteNDHist = env.GetValue("WriteNDHist",false);
 
     fWrite2DSGGHist = env.GetValue("Write2DSGGHist",false);
 
@@ -354,9 +356,13 @@ Settings::Settings(std::string fileName, int verbosityLevel)
     fRangeLow["0RES_Griffin2D"] = env.GetValue("Histogram.2D.Griffin.RangeLow.keV",0.5);
     fRangeHigh["0RES_Griffin2D"] = env.GetValue("Histogram.2D.Griffin.RangeHigh.keV",4096.5);
 
-    fNofBins["Griffin3D"] = env.GetValue("Histogram.3D.Griffin.NofBins",500);
-    fRangeLow["Griffin3D"] = env.GetValue("Histogram.3D.Griffin.RangeLow.keV",0.5);
-    fRangeHigh["Griffin3D"] = env.GetValue("Histogram.3D.Griffin.RangeHigh.keV",500.5);
+    //fNofBins["Griffin3D"] = env.GetValue("Histogram.3D.Griffin.NofBins",500);
+    //fRangeLow["Griffin3D"] = env.GetValue("Histogram.3D.Griffin.RangeLow.keV",0.5);
+   // fRangeHigh["Griffin3D"] = env.GetValue("Histogram.3D.Griffin.RangeHigh.keV",500.5);
+        
+    fNofBins["GriffinND"] = env.GetValue("Histogram.ND.Griffin.NofBins",500);
+    fRangeLow["GriffinND"] = env.GetValue("Histogram.ND.Griffin.RangeLow.keV",0.5);
+    fRangeHigh["GriffinND"] = env.GetValue("Histogram.ND.Griffin.RangeHigh.keV",500.5);
 
     fNofBins["Descant1D"] = env.GetValue("Histogram.1D.Descant.NofBins",4096);
     fRangeLow["Descant1D"] = env.GetValue("Histogram.1D.Descant.RangeLow.keV",0.5);

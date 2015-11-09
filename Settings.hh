@@ -36,10 +36,14 @@ public:
         return fWrite2DHist;
     }
 
-    bool Write3DHist() {
-        return fWrite3DHist;
-    }
+    //bool Write3DHist() {
+    //    return fWrite3DHist;
+    //}
 
+    bool WriteNDHist() {
+        return fWriteNDHist;
+    }
+    
     bool Write2DSGGHist() {
         return fWrite2DSGGHist;
     }
@@ -113,7 +117,8 @@ private:
 
     bool fWriteTree;
     bool fWrite2DHist;
-    bool fWrite3DHist;
+    //bool fWrite3DHist;
+    bool fWriteNDHist;
     bool fWrite2DSGGHist;
     bool fWriteGriffinAddbackVector;
 
