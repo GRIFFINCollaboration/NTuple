@@ -16,7 +16,7 @@ BIN_DIR		= $(HOME)/bin
 ROOTLIBS     	:= $(shell root-config --libs)
 ROOTINC      	:= -I$(shell root-config --incdir)
 
-COMMON_DIR 	= ../CommandLineInterface
+COMMON_DIR 	= $(HOME)/Common
 
 INCLUDES        = -I$(COMMON_DIR) -I.
 
@@ -50,7 +50,7 @@ all:  $(NAME) lib$(NAME).so
 # -------------------- libraries --------------------
 
 lib$(NAME).so: $(LOADLIBES)
-	$(CXX) $(LDFLAGS) -shared -Wl,-soname,lib$(NAME).so -o lib$(NAME).so.1.0.1 $(LOADLIBES) -lc
+	$(CXX) $(LDFLAGS) -shared -Wl,-soname,lib$(NAME).so -o lib$(NAME).so $(LOADLIBES) -lc
 
 $(LIB_DIR)/libCommandLineInterface.so:
 	@cd $(COMMON_DIR); make $@
@@ -75,7 +75,7 @@ DEPENDENCIES = \
 	Griffin.hh \
 	RootLinkDef.h
 
-$(NAME)Dictionary.o: $(NAME)Dictionary.cc $(NAME)Dictionary.h
+$(NAME)Dictionary.o: $(NAME)Dictionary.cc
 	 $(CXX) -fPIC $(CXXFLAGS) $(CPPFLAGS) -c $<
 
 $(NAME)Dictionary.cc: $(DEPENDENCIES)
@@ -93,4 +93,4 @@ tar:
 # -------------------- clean --------------------
 
 clean:
-	rm  -f $(NAME) *.o
+	rm  -f $(NAME) lib$(NAME).so *.o $(NAME)Dictionary.cc $(NAME)Dictionary.h
