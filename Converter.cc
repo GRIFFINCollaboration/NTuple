@@ -540,7 +540,7 @@ Converter::Converter(std::vector<std::string>& inputFileNames, const std::string
         for(int i = 0; i < 4; i++) {
             for(int j = 0; j < 16; j++) {
                 GriffinCrystalCenterVectors[i+(j*4)] = GriffinCrystalCenterPosition(i,j);
-                //cout << "cry = " << i << " det = " << j << " : x = " << GriffinCrystalCenterVectors[i+(j*4)].X() << " mm - y = " << GriffinCrystalCenterVectors[i+(j*4)].Y() << " mm - z = " << GriffinCrystalCenterVectors[i+(j*4)].Z() << " mm" << endl;
+                //std::cout << "cry = " << i << " det = " << j << " : x = " << GriffinCrystalCenterVectors[i+(j*4)].X() << " mm - y = " << GriffinCrystalCenterVectors[i+(j*4)].Y() << " mm - z = " << GriffinCrystalCenterVectors[i+(j*4)].Z() << " mm" << std::endl;
             }
         }
     }
@@ -683,10 +683,10 @@ bool Converter::Run() {
     std::map<int,int> belowThreshold;
     std::map<int,int> outsideTimeWindow;
 
-    TH1F* hist1D;
-    TH2F* hist2D;
+    TH1F* hist1D = NULL;
+    TH2F* hist2D = NULL;
     //TH3I* hist3D;
-    THnSparseF* histND;
+    THnSparseF* histND = NULL;
     long int nEntries = fChain.GetEntries();
 
 
@@ -861,11 +861,11 @@ bool Converter::Run() {
                             }
                         }
                         if(cry1energy == 0 || cry2energy == 0 || norm == 0) {
-                            cout << "error, didn't find something" << endl;
-                            cout << "cry1energy = " << cry1energy << endl;
-                            cout << "cry2energy = " << cry2energy << endl;
-                            cout << "norm = " << norm << endl;
-                            cout << "angle = " << angle << endl;
+                            std::cout << "error, didn't find something" << std::endl;
+                            std::cout << "cry1energy = " << cry1energy << std::endl;
+                            std::cout << "cry2energy = " << cry2energy << std::endl;
+                            std::cout << "norm = " << norm << std::endl;
+                            std::cout << "angle = " << angle << std::endl;
                         }
                         Double_t fillval2[3] = {fGriffinCrystal->at(firstDet).Energy(), fGriffinCrystal->at(secondDet).Energy(),(double)index};
                         Double_t fillval3[3] = {fGriffinCrystal->at(secondDet).Energy(), fGriffinCrystal->at(firstDet).Energy(),(double)index};
@@ -906,13 +906,13 @@ bool Converter::Run() {
                             }
                         }
                         if(det1energy == 0 || det2energy == 0 || norm == 0) {
-                            cout << "error, didn't find something" << endl;
-                            cout << "det1energy = " << det1energy << endl;
-                            cout << "det2energy = " << det2energy << endl;
-                            cout << "det1 = " << det1 << endl;
-                            cout << "det2 = " << det2 << endl;
-                            cout << "norm = " << norm << endl;
-                            cout << "angle = " << angle << endl;
+                            std::cout << "error, didn't find something" << std::endl;
+                            std::cout << "det1energy = " << det1energy << std::endl;
+                            std::cout << "det2energy = " << det2energy << std::endl;
+                            std::cout << "det1 = " << det1 << std::endl;
+                            std::cout << "det2 = " << det2 << std::endl;
+                            std::cout << "norm = " << norm << std::endl;
+                            std::cout << "angle = " << angle << std::endl;
                         }
                         Double_t fillval2ab[3] = {fGriffinDetector->at(firstDet).Energy(), fGriffinDetector->at(secondDet).Energy(),(double)index};
                         Double_t fillval3ab[3] = {fGriffinDetector->at(secondDet).Energy(), fGriffinDetector->at(firstDet).Energy(),(double)index};
@@ -1022,11 +1022,11 @@ bool Converter::Run() {
                                 }
                             }
                             if(cry1energy == 0 || cry2energy == 0 || norm == 0) {
-                                cout << "error, didn't find something" << endl;
-                                cout << "cry1energy = " << cry1energy << endl;
-                                cout << "cry2energy = " << cry2energy << endl;
-                                cout << "norm = " << norm << endl;
-                                cout << "angle = " << angle << endl;
+										 std::cout << "error, didn't find something" << std::endl;
+										 std::cout << "cry1energy = " << cry1energy << std::endl;
+										 std::cout << "cry2energy = " << cry2energy << std::endl;
+										 std::cout << "norm = " << norm << std::endl;
+										 std::cout << "angle = " << angle << std::endl;
                             }
                             Double_t fillval2abn[3] = {fGriffinDetector->at(firstDet).Energy(), fGriffinDetector->at(secondDet).Energy(),(double)index};
                             Double_t fillval3abn[3] = {fGriffinDetector->at(secondDet).Energy(), fGriffinDetector->at(firstDet).Energy(),(double)index};
@@ -1725,7 +1725,7 @@ void Converter::AddbackGriffinNeighbourVector() {
                                         }
                                     }
                                     else {
-                                        cout << " Something is wrong here! index was not found correctly?" << endl;
+                                        std::cout << " Something is wrong here! index was not found correctly?" << std::endl;
                                     }
                                     break;
                                 }
@@ -1743,7 +1743,7 @@ void Converter::AddbackGriffinNeighbourVector() {
                     }
                 }
                 else {
-                    cout << " Something is wrong here! index was not found correctly?" << endl;
+                    std::cout << " Something is wrong here! index was not found correctly?" << std::endl;
                 }
             }
         }
