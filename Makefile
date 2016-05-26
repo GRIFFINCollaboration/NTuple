@@ -8,24 +8,23 @@
 
 SHELL 		= /bin/sh
 
-NAME		= NTuple
+NAME		   = NTuple
 
-LIB_DIR 	= $(HOME)/lib
-BIN_DIR		= $(HOME)/bin
+LIB_DIR 	   = $(HOME)/lib
 
-ROOTLIBS     	:= $(shell root-config --libs)
-ROOTINC      	:= -I$(shell root-config --incdir)
+ROOTLIBS    := $(shell root-config --libs)
+ROOTINC     := -I$(shell root-config --incdir)
 
-COMMON_DIR 	= $(HOME)/Common
+COMM_DIR 	= $(HOME)/CommandLineInterface
 
-INCLUDES        = -I$(COMMON_DIR) -I.
+INCLUDES    = -I$(COMM_DIR) -I.
 
-LIBRARIES	= CommandLineInterface Utilities # Spectrum pthread boost_iostreams
+LIBRARIES	= CommandLineInterface Utilities
 
-CC		= gcc
-CXX             = g++
+CC		      = gcc
+CXX         = g++
 CPPFLAGS 	= $(ROOTINC) $(INCLUDES) -fPIC
-CXXFLAGS	= -std=gnu++0x -pedantic -Wall -Wno-long-long -g -O3
+CXXFLAGS	   = -std=gnu++0x -pedantic -Wall -Wno-long-long -g -O3
 
 LDFLAGS		= -g -fPIC
 
@@ -44,19 +43,8 @@ LOADLIBES = \
 
 # -------------------- rules --------------------
 
-all:  $(NAME) lib$(NAME).so
+all:  $(NAME)
 	@echo Done
-
-# -------------------- libraries --------------------
-
-lib$(NAME).so: $(LOADLIBES)
-	$(CXX) $(LDFLAGS) -shared -Wl,-soname,lib$(NAME).so -o lib$(NAME).so $(LOADLIBES) -lc
-
-$(LIB_DIR)/libCommandLineInterface.so:
-	@cd $(COMMON_DIR); make $@
-
-$(LIB_DIR)/libMacros.so:
-	@cd $(MACRO_DIR); make $@
 
 # -------------------- pattern rules --------------------
 # this rule sets the name of the .cc file at the beginning of the line (easier to find)
