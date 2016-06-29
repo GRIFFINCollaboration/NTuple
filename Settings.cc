@@ -323,6 +323,14 @@ Settings::Settings(std::string fileName, int verbosityLevel)
         fTimeWindow[8050][detector][0] = env.GetValue(Form("Descant.Yellow.%d.TimeWindow.sec",detector),0.);
     }
 
+	 //testcan
+	 double fanoFactor = env.GetValue("Testcan.Resolution.FanoFactor",20.);
+	 fResolution[8500][0].push_back(TF1("Testcan.Resolution",Form("%f*TMath::Sqrt(x)",fanoFactor), 0., 100000.));
+	 fThreshold[8500][0][0] = env.GetValue("Testcan.Threshold.keV",0.);
+	 fThresholdWidth[8500][0][0] = env.GetValue("Testcan.ThresholdWidth.keV",0.);
+	 fTimeWindow[8500][0][0] = env.GetValue("Testcan.TimeWindow.sec",0.);
+
+
     // Paces
     for(int detector = 0; detector < 5; ++detector) {
         offset = env.GetValue(Form("Paces.%d.Resolution.Offset",detector),0.0);

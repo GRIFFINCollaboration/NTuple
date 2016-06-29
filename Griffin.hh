@@ -27,7 +27,7 @@ public:
     void SetTime(double time) {
         fTime = time;
     }
-    void Clear() {
+    void Clear(Option_t* opt = NULL) {
         fEventNumber = -1;
         fDetectorId = 0;
         fCrystalId = 0;

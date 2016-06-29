@@ -1,5 +1,7 @@
 #include <iostream>
 #include <iomanip>
+#include <vector>
+#include <string>
 
 #include "TFile.h"
 #include "TH1F.h"
@@ -14,11 +16,11 @@
 int main(int argc, char** argv) {
     //parse all command line options
     CommandLineInterface interface;
-    string settingsFileName;
+    std::string settingsFileName;
     interface.Add("-sf","settings file (required)",&settingsFileName);
-    vector<string> inputFileNames;
+    std::vector<std::string> inputFileNames;
     interface.Add("-if","input file(s) (required)",&inputFileNames);
-    string outputFileName = "Converted.root";
+    std::string outputFileName = "Converted.root";
     interface.Add("-of","output file (default = 'Converted.root')",&outputFileName);
     int verbosityLevel = 0;
     interface.Add("-vl","verbosity level (default = 0)",&verbosityLevel);
