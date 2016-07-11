@@ -125,7 +125,6 @@ private:
     Double_t fPosz;
     Double_t fTime;
 
-    double fSmearedEnergy;
     bool   fSceptarHit;
 
     //branches of output tree
