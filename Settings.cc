@@ -124,6 +124,12 @@ Settings::Settings(std::string fileName, int verbosityLevel)
     fThresholdWidth[8050].resize(10,std::vector<double>(1));
     fTimeWindow[8050].resize(10,std::vector<double>(1));
 
+	 //testcan
+    fResolution[8500].resize(1);
+    fThreshold[8500].resize(1,std::vector<double>(1));
+    fThresholdWidth[8500].resize(1,std::vector<double>(1));
+    fTimeWindow[8500].resize(1,std::vector<double>(1));
+
     // Paces
     fResolution[9000].resize(5);
     fThreshold[9000].resize(5,std::vector<double>(1));
