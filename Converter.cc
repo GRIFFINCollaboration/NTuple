@@ -940,74 +940,30 @@ bool Converter::Run() {
                     cry2energy = 0;
                     angle = 0;
                     norm = 0;
-                    // add-back 0 deg hits
+                    // add-back 0 deg hits - if there's only one detector, then all the interactions are added back to a zero-degree summed hit
                     if(fGriffinDetector->size()==1) {
-                        if(fGriffinCrystal->size()==1) { // true 0 deg hits
-                            Double_t fillvalabn[3] = {fGriffinDetector->at(0).Energy(), fGriffinDetector->at(0).Energy(),0.0};
-                            histND = GetNDHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_cry_addback_sparse","GriffinND");
-                            histND->Fill(fillvalabn); //1.0/64);
-                        }
-                        else {
-                            for(size_t thiscry = 0; thiscry < fGriffinCrystal->size(); ++thiscry) {
-                                if(cry1energy == 0){
-                                    cry1energy  = fGriffinCrystal->at(thiscry).Energy();
-                                    cry1        = fGriffinCrystal->at(thiscry).CrystalId();
-                                }
-                                else if(cry2energy == 0){
-                                    cry2energy  = fGriffinCrystal->at(thiscry).Energy();
-                                    cry2        = fGriffinCrystal->at(thiscry).CrystalId();
-                                }
-                                else{
-                                    if(cry1energy != 0 && cry2energy != 0 && cry1energy < fGriffinCrystal->at(thiscry).Energy()) {
-                                        if(cry1energy > cry2energy) {
-                                            cry2energy  = cry1energy;
-                                            cry2        = cry1;
-                                        }
-                                        cry1energy  = fGriffinCrystal->at(thiscry).Energy();
-                                        cry1        = fGriffinCrystal->at(thiscry).CrystalId();
-                                    }
-                                    else if(cry1energy != 0 && cry2energy != 0 && cry2energy < fGriffinCrystal->at(thiscry).Energy()) {
-                                        if(cry2energy > cry1energy) {
-                                            cry1energy  = cry2energy;
-                                            cry1        = cry2;
-                                        }
-                                        cry2energy  = fGriffinCrystal->at(thiscry).Energy();
-                                        cry2        = fGriffinCrystal->at(thiscry).CrystalId();
-                                    }
-                                }
-                            }
-                            angle = 0.; //Make sure all zero degree hits are actually 0. 
-			    for(int i = 0; i < 52; i++) {
-                                if(GriffinCryMapCombos[i][0] == angle) {
-                                    norm = (double)GriffinCryMapCombos[i][1];
-                                    index = i;
-                                    break;
-                                }
-                            }
-                         //   Double_t fillval2abn[3] = {fGriffinDetector->at(firstDet).Energy(), fGriffinDetector->at(secondDet).Energy(),(double)index};
-                         //   Double_t fillval3abn[3] = {fGriffinDetector->at(secondDet).Energy(), fGriffinDetector->at(firstDet).Energy(),(double)index};
-                         //   histND = GetNDHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_cry_addback_sparse","GriffinND");
-                         //   histND->Fill(fillval2abn); //1.0/64);
-                         //   histND->Fill(fillval3abn); //1.0/64);
-                            cry1 = 0;
-                            cry2 = 0;
-                            cry1energy = 0;
-                            cry2energy = 0;
-                            angle = 0;
-                            norm = 0;
-                        }
+                       Double_t fillvalabn[3] = {fGriffinDetector->at(0).Energy(), fGriffinDetector->at(0).Energy(),0.0};
+                       histND = GetNDHistogram("griffin_crystal_unsup_gamma_gamma_corr_edep_cry_addback_sparse","GriffinND");
+                       histND->Fill(fillvalabn); //1.0/64);
                     } // done 0 deg hits
-                    else {
+                    else { // we have interactions in multiple detectors!
+                        // iterate over summed detector energies
                         for(size_t secondDet = firstDet+1; secondDet < fGriffinDetector->size(); ++secondDet) {
-                            for(size_t thiscry = 0; thiscry < fGriffinCrystal->size(); ++thiscry) {
+                            for(size_t thiscry = 0; thiscry < fGriffinCrystal->size(); ++thiscry) { // iterate over all interactions
+                                 // if this interaction occurred in the first detector...
                                 if(fGriffinCrystal->at(thiscry).DetectorId() == fGriffinDetector->at(firstDet).DetectorId() ) {
+                                    //...then compare with cry1energy...
                                     if(fGriffinCrystal->at(thiscry).Energy() > cry1energy){
+                                       //...and if the new energy is larger, set the crystal 1 ID and the energy.
                                         cry1energy  = fGriffinCrystal->at(thiscry).Energy();
                                         cry1        = fGriffinCrystal->at(thiscry).CrystalId();
                                     }
                                 }
+                                 // if this interaction occurred in the second detector...
                                 if(fGriffinCrystal->at(thiscry).DetectorId() == fGriffinDetector->at(secondDet).DetectorId() ) {
+                                    //...then compare with cry2energy...
                                     if(fGriffinCrystal->at(thiscry).Energy() > cry2energy){
+                                       //...and if the new energy is larger, set the crystal 2 ID and the energy.
                                         cry2energy  = fGriffinCrystal->at(thiscry).Energy();
                                         cry2        = fGriffinCrystal->at(thiscry).CrystalId();
                                     }
