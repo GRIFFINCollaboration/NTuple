@@ -63,31 +63,88 @@ public:
     double GriffinAddbackVectorCrystalFaceDistancemm() {
         return fGriffinAddbackVectorCrystalFaceDistancemm;
     }
-
     double Resolution(int systemID, int detectorID, int crystalID, double en) {
         if(fResolution.find(systemID) != fResolution.end()) {
-            return fResolution[systemID].at(detectorID).at(crystalID).Eval(en);
+	//	std::cout<<"test"<<std::endl;
+		if (systemID >=8000  && systemID <= 8100)
+		return fResolution[systemID].at(detectorID-1).at(crystalID).Eval(en);
+		if (systemID ==8710)
+		return fResolution[systemID].at(detectorID).at(crystalID).Eval(en);
+		if (systemID ==8720)
+		return fResolution[systemID].at(detectorID-15).at(crystalID).Eval(en);
+		if (systemID ==8730)
+		return fResolution[systemID].at(detectorID-15-20).at(crystalID).Eval(en);
+		if (systemID ==8740)
+		return fResolution[systemID].at(detectorID-15-20-15).at(crystalID).Eval(en);
+		if (systemID ==8750)
+		return fResolution[systemID].at(detectorID-15-20-15-10).at(crystalID).Eval(en);
+		if (systemID >=1010  && systemID <= 1100)
+		return fResolution[systemID].at(detectorID).at(crystalID-1).Eval(en);
+		else return fResolution[systemID].at(detectorID).at(crystalID).Eval(en);
         }
         return 0.;
     }
     double Threshold(int systemID, int detectorID, int crystalID) {
         if(fThreshold.find(systemID) != fThreshold.end()) {
+		if (systemID >=8000  && systemID <= 8100)
+            return fThreshold[systemID].at(detectorID-1).at(crystalID);
+		if (systemID ==8710)
             return fThreshold[systemID].at(detectorID).at(crystalID);
+		if (systemID ==8720)
+            return fThreshold[systemID].at(detectorID-15).at(crystalID);
+		if (systemID ==8730)
+            return fThreshold[systemID].at(detectorID-15-20).at(crystalID);
+		if (systemID ==8740)
+            return fThreshold[systemID].at(detectorID-15-20-15).at(crystalID);
+		if (systemID ==8750)
+            return fThreshold[systemID].at(detectorID-15-20-15-10).at(crystalID);
+		if (systemID >=1010  && systemID <= 1100)
+            return fThreshold[systemID].at(detectorID).at(crystalID-1);
+		else return fThreshold[systemID].at(detectorID).at(crystalID);
         }
         return 0.001;
     }
     double ThresholdWidth(int systemID, int detectorID, int crystalID) {
         if(fThresholdWidth.find(systemID) != fThresholdWidth.end()) {
+		if (systemID >=8000  && systemID <= 8100)
+            return fThresholdWidth[systemID].at(detectorID-1).at(crystalID);
+		if (systemID == 8710)
             return fThresholdWidth[systemID].at(detectorID).at(crystalID);
+		if (systemID == 8720)
+            return fThresholdWidth[systemID].at(detectorID-15).at(crystalID);
+		if (systemID == 8730)
+            return fThresholdWidth[systemID].at(detectorID-15-20).at(crystalID);
+		if (systemID == 8740)
+            return fThresholdWidth[systemID].at(detectorID-15-20-15).at(crystalID);
+		if (systemID == 8750)
+            return fThresholdWidth[systemID].at(detectorID-15-20-15-10).at(crystalID);
+		if (systemID >=1010  && systemID <= 1100)
+            return fThresholdWidth[systemID].at(detectorID).at(crystalID-1);
+		else return fThresholdWidth[systemID].at(detectorID).at(crystalID);
         }
         return 0.;
     }
     double TimeWindow(int systemID, int detectorID, int crystalID) {
         if(fTimeWindow.find(systemID) != fTimeWindow.end()) {
+		if (systemID >=8000  && systemID <= 8100)
+            return fTimeWindow[systemID].at(detectorID-1).at(crystalID);
+		if (systemID ==8710)
             return fTimeWindow[systemID].at(detectorID).at(crystalID);
+		if (systemID ==8720)
+            return fTimeWindow[systemID].at(detectorID-15).at(crystalID);
+		if (systemID ==8730)
+            return fTimeWindow[systemID].at(detectorID-15-20).at(crystalID);
+		if (systemID ==8740)
+            return fTimeWindow[systemID].at(detectorID-15-20-15).at(crystalID);
+		if (systemID ==8750)
+            return fTimeWindow[systemID].at(detectorID-15-20-15-10).at(crystalID);
+		if (systemID >=1010  && systemID <= 1100)
+            return fTimeWindow[systemID].at(detectorID).at(crystalID-1);
+		else return fTimeWindow[systemID].at(detectorID).at(crystalID);
         }
         return 0.;
     }
+
 
     int NofBins(std::string directoryName) {
         if(fNofBins.find(directoryName) != fNofBins.end()) {
