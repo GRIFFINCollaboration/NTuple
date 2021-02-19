@@ -5,6 +5,8 @@
 
 #include "TMath.h"
 #include "TCanvas.h"
+//#include <TRandom.h>
+#include <TRandom3.h>
 
 #include "Utilities.hh"
 
@@ -895,8 +897,11 @@ bool Converter::Run() {
 			if (fDaemonBarsConfig == true) {
 			//Only for neutron only runs
 			FillHistDetector1DEnergyTOF(hist1D, fDaemonBarsArray, "daemon_bars_energy_tof", "Daemon1DEnergy");
+			FillHistDetector1DEvent(hist1D, fDaemonBarsArray, "event_entries", "Event1D");
+			FillHistDetector1DEnergyRand1(hist1D, fDaemonBarsArray, "daemon_bars_Rand_Result_1", "Daemon1DRand");
+			FillHistDetector1DEnergyRand2(hist1D, fDaemonBarsArray, "daemon_bars_Rand_Result_2", "Daemon1DRand");
 			//DaemonTOF Bars
-			FillHistDetector1DTOF(hist1D, fDaemonBarsArray, "daemon_bars_unsup_uncorr_tof", "Daemon1D");
+			FillHistDetector1DTOF(hist1D, fDaemonBarsArray, "daemon_bars_unsup_uncorr_tof", "Daemon1Dns");
 			FillHistDetector1DDeltaT(hist1D, fDaemonBarsArray, "daemon_bars_unsup_uncorr_delta_t_tof", "Daemon1DDelta");
 			FillHistDetector1DDeltaY(hist1D, fDaemonBarsArray, "daemon_bars_delta_Y", "Daemon1DDeltaPos");
 			//Daemon Extra Histograms Bars
@@ -984,6 +989,7 @@ bool Converter::Run() {
 				//TOF
 				FillHistDetector1DTOF(hist1D, fDaemonBarsArray, "daemon_bars_uncorr_zds_coin_tof", "Daemon1D");
 				FillHistDetector1DTOFZDS(hist1D, fDaemonBarsArray, fZDSDetector, "daemon_bars_corr_zds_coin_tof", "Daemon1Dns");
+				FillHistDetector1DTOFZDS(hist1D, fDaemonBarsArray, fZDSDetector, "daemon_bars_zds_coinc_timing", "Daemon1DCoin");
 				FillHistDetector2DPulseTOF(hist2D, fDaemonBarsArray, fZDSDetector, "daemon_bars_pulse_zds_coin", "Daemon2D");
 				FillHistDetector2DGammaDescantTOF(hist2D, fDescantBlueDetector, fGriffinDetector, fZDSDetector, "griffin_unsup_zds_coin_TOFedepDescant","Griffin2D");
 				FillHistDetector1DTOFDescantZDS(hist1D, fDescantBlueDetector, fZDSDetector, "descant_corr_zds_coin_tof", "Daemon1Dns");
@@ -1843,6 +1849,11 @@ bool Converter::Run() {
 							fDaemonYellowTiles->push_back(DetectorDaemon(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime, fParticleType, fProcessType, fCollectedTop1, fCollectedTop2, fCollectedTop3, fCollectedBottom1, fCollectedBottom2, fCollectedBottom3, fCollectedFrontTop1, fCollectedFrontTop2, fCollectedFrontMid1, fCollectedFrontMid2, fCollectedFrontBottom1, fCollectedFrontBottom2, fCFDTimeTop1, fCFDTimeTop2, fCFDTimeTop3, fCFDTimeBottom1, fCFDTimeBottom2, fCFDTimeBottom3, fCFDTimeFrontTop1, fCFDTimeFrontTop2, fCFDTimeFrontMid1, fCFDTimeFrontMid2, fCFDTimeFrontBottom1, fCFDTimeFrontBottom2, 8750));
 							fDaemonHit = true;
 							break;
+						case 8800:
+							fDaemonBarsArray->push_back(DetectorDaemon(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime, fParticleType, fProcessType, fCollectedTop1, fCollectedTop2, fCollectedTop3, fCollectedBottom1, fCollectedBottom2, fCollectedBottom3, fCollectedFrontTop1, fCollectedFrontTop2, fCollectedFrontMid1, fCollectedFrontMid2, fCollectedFrontBottom1, fCollectedFrontBottom2, fCFDTimeTop1, fCFDTimeTop2, fCFDTimeTop3, fCFDTimeBottom1, fCFDTimeBottom2, fCFDTimeBottom3, fCFDTimeFrontTop1, fCFDTimeFrontTop2, fCFDTimeFrontMid1, fCFDTimeFrontMid2, fCFDTimeFrontBottom1, fCFDTimeFrontBottom2, 8800));
+							fDaemonHit = true;
+
+							break;
 						case 9000:
 							fZDSDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
 							fZDSHit = true;
@@ -1902,7 +1913,7 @@ bool Converter::AboveThreshold(double energy, int systemID) {
 			return false;
 		}
 	}
-	else if(systemID >= 8700 && systemID <= 8750){
+	else if(systemID >= 8700 && systemID <= 8800){
 		//Daemon Bars
 		int threshold = 1 ;
 		//Top
@@ -2855,19 +2866,110 @@ void Converter::FillHistDetector1DTOFDescantZDS(TH1F* hist1D, std::vector<Detect
 void Converter::FillHistDetector1DEnergyTOF(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir) {
 	for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
 		int event = detector->at(firstDet).EventNumber();
+	//	std::cout << "Event: " << event  << std::endl;
 		double tof = detector->at(firstDet).TOF();
 		int pmt = detector->at(firstDet).PMT();
 			TRandom rand;
 			double fTimingUncertainty = 0.2/2.355; //.2/2.35
-			double timeZDS = rand.Gaus(0, fTimingUncertainty);
-			tof = rand.Gaus(tof, fTimingUncertainty);
+			//double timeZDS = rand.Gaus(0, fTimingUncertainty);
+			//tof = rand.Gaus(tof, fTimingUncertainty);
+			tof = fRandom.Gaus(tof, fTimingUncertainty);
 			//tof = rand.Gaus(tof, 0.6/2.355);
-			if(timeZDS<0) timeZDS=TMath::Abs(timeZDS);
-				if (pmt < 10 && tof > 0 && timeZDS >= 0){
+		//	if(timeZDS<0) timeZDS=TMath::Abs(timeZDS);
+				if (pmt < 10 && tof > 0){
 					//double Etof = detector->at(firstDet).EnergyTOF(tof-timeZDS);
+				//	std::cout << "Event: " << event  << std::endl;
+				//	std::cout << "tof: " << tof  << std::endl;
 					double Etof = detector->at(firstDet).EnergyTOF(tof);
+				//	std::cout << "Etof: " << Etof  << std::endl;
 					hist1D = Get1DHistogram(hist_name,hist_dir);
 					hist1D->Fill(Etof);
+				}
+	}
+
+}
+void Converter::FillHistDetector1DEnergyRand1(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir) {
+	for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
+		double tof = detector->at(firstDet).TOF();
+		int pmt = detector->at(firstDet).PMT();
+		std::vector<double> diff =  detector->at(firstDet).GetRand();
+
+		if (pmt < 10 && tof > 0){
+			hist1D = Get1DHistogram(hist_name,hist_dir);
+			hist1D->Fill(diff[0]);
+			hist1D->Fill(diff[1]);
+			if (pmt ==1) {
+				hist_name.append("1");
+				hist1D = Get1DHistogram(hist_name,hist_dir);
+				hist1D->Fill(diff[0]);
+				hist1D->Fill(diff[1]);		
+				hist_name.erase(hist_name.end()-1);
+			}
+			if (pmt ==2) {
+				hist_name.append("2");
+				hist1D = Get1DHistogram(hist_name,hist_dir);
+				hist1D->Fill(diff[0]);
+				hist1D->Fill(diff[1]);		
+				hist_name.erase(hist_name.end()-1);
+			}
+			if (pmt ==3) {
+				hist_name.append("3");
+				hist1D = Get1DHistogram(hist_name,hist_dir);
+				hist1D->Fill(diff[0]);
+				hist1D->Fill(diff[1]);		
+				hist_name.erase(hist_name.end()-1);
+			}
+			if (pmt ==4) {
+				hist_name.append("4");
+				hist1D = Get1DHistogram(hist_name,hist_dir);
+				hist1D->Fill(diff[0]);
+				hist1D->Fill(diff[1]);		
+				hist_name.erase(hist_name.end()-1);
+			}
+			if (pmt ==5) {
+				hist_name.append("5");
+				hist1D = Get1DHistogram(hist_name,hist_dir);
+				hist1D->Fill(diff[0]);
+				hist1D->Fill(diff[1]);		
+				hist_name.erase(hist_name.end()-1);
+			}
+			if (pmt ==6) {
+				hist_name.append("6");
+				hist1D = Get1DHistogram(hist_name,hist_dir);
+				hist1D->Fill(diff[0]);
+				hist1D->Fill(diff[1]);		
+				hist_name.erase(hist_name.end()-1);
+			}
+			if (pmt ==7) {
+				hist_name.append("7");
+				hist1D = Get1DHistogram(hist_name,hist_dir);
+				hist1D->Fill(diff[0]);
+				hist1D->Fill(diff[1]);		
+				hist_name.erase(hist_name.end()-1);
+			}
+			if (pmt ==8) {
+				hist_name.append("8");
+				hist1D = Get1DHistogram(hist_name,hist_dir);
+				hist1D->Fill(diff[0]);
+				hist1D->Fill(diff[1]);		
+				hist_name.erase(hist_name.end()-1);
+			}
+		}
+	}
+
+}
+void Converter::FillHistDetector1DEnergyRand2(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir) {
+	for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
+		double tof = detector->at(firstDet).TOF();
+		int pmt = detector->at(firstDet).PMT();
+			TRandom rand;
+			double fTimingUncertainty = 0.2/2.355; //.2/2.35
+			//tof = rand.Gaus(tof, fTimingUncertainty);
+			double tof1 = fRandom.Gaus(tof, fTimingUncertainty);
+			double diff = tof1-tof;
+				if (pmt < 10 && tof > 0){
+					hist1D = Get1DHistogram(hist_name,hist_dir);
+					hist1D->Fill(diff);
 				}
 	}
 
@@ -3245,6 +3347,7 @@ double Converter::CalculateCFD(TH1F * TimeHist){
 	}
 	//std::cout << "cfd: " << cfd << std::endl;
 	cfd = rand.Uniform(cfd - bin_width/2., cfd + bin_width/2.);
+	
 	//cfd = rand.Gaus(cfd, timingUncertainty);
 	return cfd;
 }
@@ -3260,13 +3363,8 @@ double Converter::GetTime(std::vector<double>*  fTime){
 	double time;
 	int dispersion = 10; //10 -> 0.1ns per bin	// Changing this from 10 to 1 seems to have stopped the int loop to neg num problem.  May need to convert everything to ns->s to fix?
 	int shift = 100;
+	TRandom rand;
 
-	//If only 1 entry
-	if (fTime->size() == 1) {
-		time = fTime->at(0);
-		//		std::cout << "1 entry CFD time: " << time << std::endl;
-		return time;
-	}
 
 	low = *std::min_element(fTime->begin(), fTime->end());
 	high = *std::max_element(fTime->begin(), fTime->end());
@@ -3276,6 +3374,10 @@ double Converter::GetTime(std::vector<double>*  fTime){
 	binRange2 = high + shift;
 	if (low < shift) binRange1 = 0;
 	if (binRange2 < binRange1) std::cout << "Negative Binning" << std::endl;
+	//Testing Neutron only runs
+//	binRange1 = 0;
+//	binRange2 = 1000;
+	
 	binNum1 = (binRange2 - binRange1)*dispersion; //0.1 ns per bin?
 	if (binNum1 <=0) {
 		std::cout << "BinNum1 == 0" << std::endl;
@@ -3294,10 +3396,21 @@ double Converter::GetTime(std::vector<double>*  fTime){
 		fTimeHistogram->Fill(fTime->at(k));
 	}
 
+	//If only 1 entry
+	if (fTime->size() == 1) {
+		time = fTime->at(0);
+		double bin_width = fTimeHistogram->GetXaxis()->GetBinWidth(1);
+		time = rand.Uniform(time - bin_width/2., time + bin_width/2.);
+		//		std::cout << "1 entry CFD time: " << time << std::endl;
+		delete fTimeHistogram;
+		return time;
+	}
 	//If maximum is 1
 	if (fTimeHistogram->GetMaximum() == 1) {
 		//time = fTimeHistogram->GetBinCenter(fTimeHistogram->FindFirstBinAbove(0));
 		time = low;
+		double bin_width = fTimeHistogram->GetXaxis()->GetBinWidth(1);
+		time = rand.Uniform(time - bin_width/2., time + bin_width/2.);
 		//		std::cout << "Maximum is 1 CFD time: " << time << std::endl;
 		delete fTimeHistogram;
 		return time;

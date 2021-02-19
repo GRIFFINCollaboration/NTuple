@@ -482,9 +482,9 @@ Settings::Settings(std::string fileName, int verbosityLevel)
     fRangeLow["Griffin1D"] = env.GetValue("Histogram.1D.Griffin.RangeLow.keV",0.5);
     fRangeHigh["Griffin1D"] = env.GetValue("Histogram.1D.Griffin.RangeHigh.keV",4096.5);
     
-    fNofBins["Event1D"] = env.GetValue("Histogram.1D.Event.NofBins",10000);
+    fNofBins["Event1D"] = env.GetValue("Histogram.1D.Event.NofBins",1000000);
     fRangeLow["Event1D"] = env.GetValue("Histogram.1D.Event.RangeLow.s",0);
-    fRangeHigh["Event1D"] = env.GetValue("Histogram.1D.Event.RangeHigh.s", 10000);
+    fRangeHigh["Event1D"] = env.GetValue("Histogram.1D.Event.RangeHigh.s", 1000000);
     
     fNofBins["Daemon1D"] = env.GetValue("Histogram.1D.Daemon.NofBins",50000);
     fRangeLow["Daemon1D"] = env.GetValue("Histogram.1D.Daemon.RangeLow.s",0);
@@ -498,9 +498,17 @@ Settings::Settings(std::string fileName, int verbosityLevel)
     fRangeLow["Daemon1DEnergy"] = env.GetValue("Histogram.1D.DaemonEnergy.RangeLow.keV",0);
     fRangeHigh["Daemon1DEnergy"] = env.GetValue("Histogram.1D.DaemonEnergy.RangeHigh.keV", 5000);
     
+    fNofBins["Daemon1DRand"] = env.GetValue("Histogram.1D.DaemonDelta.NofBins",10000);
+    fRangeLow["Daemon1DRand"] = env.GetValue("Histogram.1D.DaemonDelta.RangeLow.ns", -5);
+    fRangeHigh["Daemon1DRand"] = env.GetValue("Histogram.1D.DaemonDelta.RangeHigh.ns", 5);
+    
     fNofBins["Daemon1DDelta"] = env.GetValue("Histogram.1D.DaemonDelta.NofBins",1000);
     fRangeLow["Daemon1DDelta"] = env.GetValue("Histogram.1D.DaemonDelta.RangeLow.ns", -50);
     fRangeHigh["Daemon1DDelta"] = env.GetValue("Histogram.1D.DaemonDelta.RangeHigh.ns", 50);
+    
+    fNofBins["Daemon1DCoin"] = env.GetValue("Histogram.1D.DaemonDelta.NofBins",10000);
+    fRangeLow["Daemon1DCoin"] = env.GetValue("Histogram.1D.DaemonDelta.RangeLow.ns", -5);
+    fRangeHigh["Daemon1DCoin"] = env.GetValue("Histogram.1D.DaemonDelta.RangeHigh.ns", 5);
     
     fNofBins["Daemon1DDeltaPos"] = env.GetValue("Histogram.1D.DaemonDeltaPos.NofBins",100);
     fRangeLow["Daemon1DDeltaPos"] = env.GetValue("Histogram.1D.DaemonDeltaPos.RangeLow.cm.deg", -50);

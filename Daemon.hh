@@ -8,9 +8,11 @@
 
 class DetectorDaemon : public TObject {
 	public:
+		static TRandom rand;
 		DetectorDaemon(){};
 		DetectorDaemon(int evNumber, int detNumber, int cryNumber, double simEnergy, double energy, TVector3 pos, double time, int particleType, int processType, int numCollectedPhotonsTop1, int numCollectedPhotonsTop2, int numCollectedPhotonsTop3, int numCollectedPhotonsBottom1, int numCollectedPhotonsBottom2, int numCollectedPhotonsBottom3, int numCollectedPhotonsFrontTop1, int numCollectedPhotonsFrontTop2, int numCollectedPhotonsFrontMid1, int numCollectedPhotonsFrontMid2, int numCollectedPhotonsFrontBottom1, int numCollectedPhotonsFrontBottom2, double timetop1, double timetop2, double timetop3, double timebottom1, double timebottom2, double timebottom3, double timefronttop1, double timefronttop2, double timefrontmid1, double timefrontmid2, double timefrontbottom1, double timefrontbottom2, int systemID)
 			: fEventNumber(evNumber), fDetectorId(detNumber), fCrystalId(cryNumber), fSimulationEnergy(simEnergy), fEnergy(energy), fPosition(pos), fTime(time), fParticleType(particleType), fProcessType(processType), fCollectedTop1(numCollectedPhotonsTop1), fCollectedTop2(numCollectedPhotonsTop2), fCollectedTop3(numCollectedPhotonsTop3), fCollectedBottom1(numCollectedPhotonsBottom1), fCollectedBottom2(numCollectedPhotonsBottom2), fCollectedBottom3(numCollectedPhotonsBottom3), fCollectedFrontTop1(numCollectedPhotonsFrontTop1), fCollectedFrontTop2(numCollectedPhotonsFrontTop2), fCollectedFrontMid1(numCollectedPhotonsFrontMid1), fCollectedFrontMid2(numCollectedPhotonsFrontMid2), fCollectedFrontBottom1(numCollectedPhotonsFrontBottom1), fCollectedFrontBottom2(numCollectedPhotonsFrontBottom2), fCFDTimeTop1(timetop1), fCFDTimeTop2(timetop2), fCFDTimeTop3(timetop3), fCFDTimeBottom1(timebottom1), fCFDTimeBottom2(timebottom2), fCFDTimeBottom3(timebottom3), fCFDTimeFrontTop1(timefronttop1), fCFDTimeFrontTop2(timefronttop2),fCFDTimeFrontMid1(timefrontmid1), fCFDTimeFrontMid2(timefrontmid2), fCFDTimeFrontBottom1(timefrontbottom1), fCFDTimeFrontBottom2(timefrontbottom2), fSystemId(systemID){
+
 
 				//			std::cout << "Begin of fEvent: " << fEventNumber << " and detNum: " << fDetectorId << std::endl;
 				topHit = false;
@@ -27,6 +29,11 @@ class DetectorDaemon : public TObject {
 				fFrontTopMin = DBL_MAX;
 				fFrontMidMin = DBL_MAX;
 				fFrontBottomMin = DBL_MAX;
+				fTopMin1 = DBL_MAX;
+				fBottomMin1 = DBL_MAX;
+				fFrontTopMin1 = DBL_MAX;
+				fFrontMidMin1 = DBL_MAX;
+				fFrontBottomMin1 = DBL_MAX;
 				for(int i = 0 ; i<= detNum ; ++i){
 					MaxDeltaT[i] = MaxDeltaTTop[i]+MaxDeltaTBot[i]+MaxDeltaTMid[i];
 				}
@@ -38,8 +45,8 @@ class DetectorDaemon : public TObject {
 				//int DetConfiguration = 0;
 
 
+	//			TRandom rand;
 
-				TRandom rand;
 				fConversion2 = fConversion1 / (c*c);
 				fTimingUncertainty = fTimingUncertaintyFWHM/2.355; //.6/2.35
 
@@ -106,9 +113,14 @@ class DetectorDaemon : public TObject {
 					if (AcrossCounter == 0){
 						f2pmt = 20;
 						fTOF = -2;
-						fTOF = -200;
 						fC_effective = -2;
 						fYDelta = -200;
+						fThetaSim = -200; 
+						fPhiSim = -200;
+						fThetaCalc = -200;
+						fPhiCalc = -200;
+						fPhiDiff = -400;
+						fThetaDiff = -400;
 					}
 					double smallest=-2, secondSmallest = -2;
 					if (AcrossCounter == 1 && Across[0]>0){
@@ -172,20 +184,26 @@ class DetectorDaemon : public TObject {
 						//std::cout << "Case 1" << std::endl;
 						//std::cout << "Smallest and second and MaxDeltaT: " << fTopMin << " and " << fBottomMin << " and " << MaxDeltaT[fDetectorId] << std::endl;
 						f2pmt = 1;
-						fTopMin = rand.Gaus(fTopMin, fTimingUncertainty);
-						fBottomMin = rand.Gaus(fBottomMin, fTimingUncertainty);
-						fTOF = (fTopMin+fBottomMin)/2. - 0.5*MaxDeltaT[fDetectorId];
+						fTopMin1 = rand.Gaus(fTopMin, fTimingUncertainty);
+						fBottomMin1 = rand.Gaus(fBottomMin, fTimingUncertainty);
+						fTOF = (fTopMin1+fBottomMin1)/2. - 0.5*MaxDeltaT[fDetectorId];
 						fMaxTDiff = MaxDeltaT[fDetectorId];
-						/*		std::cout << "top1: " << topCFD[0] << std::endl;
+						fRand11 = fTopMin1 - fTopMin;
+						fRand12 = fBottomMin1 - fBottomMin;
+					/*	if(fEventNumber == 89 || fEventNumber == 434){
+								std::cout << "EventNumber: " << fEventNumber << std::endl;
+								std::cout << "detNum: " << fDetectorId << std::endl;
+								std::cout << "fTOF: " << fTOF << std::endl;
+								std::cout << "top1: " << topCFD[0] << std::endl;
 								std::cout << "top2: " << topCFD[1] << std::endl;
 								std::cout << "top3: " << topCFD[2] << std::endl;
 								std::cout << "bottom1: " << bottomCFD[0] << std::endl;
 								std::cout << "bottom2: " << bottomCFD[1] << std::endl;
 								std::cout << "bottom3: " << bottomCFD[2] << std::endl;
-								*/	
-						fC_effective = ArcLength[fDetectorId]/fMaxTDiff;
+						}	
+					*/	fC_effective = ArcLength[fDetectorId]/fMaxTDiff;
 						//arcLength = 0.5 * 100. * 1.e-9 * fC_effective * (fBottomMin - fTopMin);
-						arcLength = abs(0.5 * fC_effective * (fBottomMin - fTopMin));
+						arcLength = abs(0.5 * fC_effective * (fBottomMin1 - fTopMin1));
 						R = sqrt(fDistance*fDistance - XPos[fDetectorId]*XPos[fDetectorId]); // cm
 						theta = abs(arcLength / R);
 						//fYPos = R * sin(theta); // cm
@@ -210,19 +228,24 @@ class DetectorDaemon : public TObject {
 						//	std::cout << "eventNum: " << fEventNumber << std::endl;
 						//	std::cout << "Smallest and second and MaxDeltaT: " << fTopMin << " and " << fFrontTopMin << " and " << MaxDeltaTTop[fDetectorId] << std::endl;
 						f2pmt = 2;
-						fTopMin = rand.Gaus(fTopMin, fTimingUncertainty);
-						fFrontTopMin = rand.Gaus(fFrontTopMin, fTimingUncertainty);
-						fTOF = (fTopMin+fFrontTopMin)/2. - 0.5*MaxDeltaTTop[fDetectorId];
+						fTopMin1 = rand.Gaus(fTopMin, fTimingUncertainty);
+						fFrontTopMin1 = rand.Gaus(fFrontTopMin, fTimingUncertainty);
+						fTOF = (fTopMin1+fFrontTopMin1)/2. - 0.5*MaxDeltaTTop[fDetectorId];
 						fMaxTDiff = MaxDeltaTTop[fDetectorId];
-						//	std::cout << "detNum: " << fDetectorId << std::endl;
-						//	std::cout << "top1: " << topCFD[0] << std::endl;
-						//	std::cout << "top2: " << topCFD[1] << std::endl;
-						//	std::cout << "top3: " << topCFD[2] << std::endl;
-						//	std::cout << "frontTop1: " << frontTopCFD[0] << std::endl;
-						//	std::cout << "frontTop2: " << frontTopCFD[1] << std::endl;
-
-						fC_effective = ArcLength_FrontTopBot_Outside[fDetectorId]/fMaxTDiff;
-						arcLength = abs(fC_effective * 0.5 * (fFrontTopMin - fTopMin));
+						fRand21 = fTopMin1 - fTopMin;
+						fRand22 = fFrontTopMin1 - fFrontTopMin;
+					/*	if(fEventNumber == 89 || fEventNumber == 434){
+								std::cout << "EventNumber: " << fEventNumber << std::endl;
+								std::cout << "detNum: " << fDetectorId << std::endl;
+								std::cout << "fTOF: " << fTOF << std::endl;
+							std::cout << "top1: " << topCFD[0] << std::endl;
+							std::cout << "top2: " << topCFD[1] << std::endl;
+							std::cout << "top3: " << topCFD[2] << std::endl;
+							std::cout << "frontTop1: " << frontTopCFD[0] << std::endl;
+							std::cout << "frontTop2: " << frontTopCFD[1] << std::endl;
+						}
+					*/	fC_effective = ArcLength_FrontTopBot_Outside[fDetectorId]/fMaxTDiff;
+						arcLength = abs(fC_effective * 0.5 * (fFrontTopMin1 - fTopMin1));
 						R = sqrt(fDistance*fDistance - XPos[fDetectorId]*XPos[fDetectorId]); // cm
 						theta = abs(arcLength / R);
 						fYPos = abs(R * sin(theta)); // cm
@@ -240,18 +263,24 @@ class DetectorDaemon : public TObject {
 						//std::cout << "Case 3" << std::endl;
 						//	std::cout << "Smallest and second and MaxDeltaT: " << fBottomMin << " and " << fFrontBottomMin << " and " << MaxDeltaTBot[fDetectorId] << std::endl;
 						f2pmt = 3;
-						fFrontBottomMin = rand.Gaus(fFrontBottomMin, fTimingUncertainty);
-						fBottomMin = rand.Gaus(fBottomMin, fTimingUncertainty);
-						fTOF = (fBottomMin+fFrontBottomMin)/2. - 0.5*MaxDeltaTBot[fDetectorId];
+						fFrontBottomMin1 = rand.Gaus(fFrontBottomMin, fTimingUncertainty);
+						fBottomMin1 = rand.Gaus(fBottomMin, fTimingUncertainty);
+						fTOF = (fBottomMin1+fFrontBottomMin1)/2. - 0.5*MaxDeltaTBot[fDetectorId];
 						fMaxTDiff = MaxDeltaTBot[fDetectorId];
-						/*	std::cout << "bottom1: " << bottomCFD[0] << std::endl;
+						fRand31 = fFrontBottomMin1 - fFrontBottomMin;
+						fRand32 = fBottomMin1 - fBottomMin;
+					/*	if(fEventNumber == 89 || fEventNumber == 434){
+								std::cout << "EventNumber: " << fEventNumber << std::endl;
+								std::cout << "detNum: " << fDetectorId << std::endl;
+								std::cout << "fTOF: " << fTOF << std::endl;
+							std::cout << "bottom1: " << bottomCFD[0] << std::endl;
 							std::cout << "bottom2: " << bottomCFD[1] << std::endl;
 							std::cout << "bottom3: " << bottomCFD[2] << std::endl;
 							std::cout << "frontBottom1: " << frontBottomCFD[0] << std::endl;
 							std::cout << "frontBottom2: " << frontBottomCFD[1] << std::endl;
-							*/
-						fC_effective = ArcLength_FrontTopBot_Outside[fDetectorId]/fMaxTDiff;
-						arcLength = abs(fC_effective * 0.5 * (fFrontBottomMin - fBottomMin));
+						}
+					*/	fC_effective = ArcLength_FrontTopBot_Outside[fDetectorId]/fMaxTDiff;
+						arcLength = abs(fC_effective * 0.5 * (fFrontBottomMin1 - fBottomMin1));
 						R = sqrt(fDistance*fDistance - XPos[fDetectorId]*XPos[fDetectorId]); // cm
 						theta = abs(arcLength / R);
 						fYPos = abs(R * sin(theta)); // cm
@@ -265,20 +294,26 @@ class DetectorDaemon : public TObject {
 						//std::cout << "Case 4" << std::endl;
 						//	std::cout << "Smallest and second and MaxDeltaT: " << fTopMin << " and " << fFrontMidMin << " and " << MaxDeltaTTop[fDetectorId] << std::endl;
 						f2pmt = 4;
-						fTopMin = rand.Gaus(fTopMin, fTimingUncertainty);
-						fFrontMidMin = rand.Gaus(fFrontMidMin, fTimingUncertainty);
-						fTOF = (fTopMin+fFrontMidMin)/2. - 0.5*MaxDeltaTTop[fDetectorId];
+						fTopMin1 = rand.Gaus(fTopMin, fTimingUncertainty);
+						fFrontMidMin1 = rand.Gaus(fFrontMidMin, fTimingUncertainty);
+						fTOF = (fTopMin1+fFrontMidMin1)/2. - 0.5*MaxDeltaTTop[fDetectorId];
 						fMaxTDiff = MaxDeltaTTop[fDetectorId];
-						/*	std::cout << "top1: " << topCFD[0] << std::endl;
+						fRand41 = fTopMin1 - fTopMin;
+						fRand42 = fFrontMidMin1 - fFrontMidMin;
+					/*	if(fEventNumber == 89 || fEventNumber == 434){
+								std::cout << "EventNumber: " << fEventNumber << std::endl;
+								std::cout << "detNum: " << fDetectorId << std::endl;
+								std::cout << "fTOF: " << fTOF << std::endl;
+							std::cout << "top1: " << topCFD[0] << std::endl;
 							std::cout << "top2: " << topCFD[1] << std::endl;
 							std::cout << "top3: " << topCFD[2] << std::endl;
 							std::cout << "frontMid1: " << frontMidCFD[0] << std::endl;
 							std::cout << "frontMid2: " << frontMidCFD[1] << std::endl;
-							*/
-						fC_effective = ArcLength_FrontMid_Outside[fDetectorId]/fMaxTDiff;
+							}						
+					*/	fC_effective = ArcLength_FrontMid_Outside[fDetectorId]/fMaxTDiff;
 						if ( fDetectorId >= 14) fC_effective = ArcLength_FrontMid_Inside[fDetectorId]/fMaxTDiff;
 
-						arcLength = abs(fC_effective * 0.5 * (fFrontMidMin - fTopMin));
+						arcLength = abs(fC_effective * 0.5 * (fFrontMidMin1 - fTopMin1));
 						R = sqrt(fDistance*fDistance - XPos[fDetectorId]*XPos[fDetectorId]); // cm
 						theta = abs(arcLength / R);
 						fYPos = abs(R * sin(theta)); // cm
@@ -296,20 +331,26 @@ class DetectorDaemon : public TObject {
 						//std::cout << "Case 5" << std::endl;
 						//	std::cout << "Smallest and second and MaxDeltaT: " << fBottomMin << " and " << fFrontMidMin << " and " << MaxDeltaTBot[fDetectorId] << std::endl;
 						f2pmt = 5;
-						fFrontMidMin = rand.Gaus(fFrontMidMin, fTimingUncertainty);
-						fBottomMin = rand.Gaus(fBottomMin, fTimingUncertainty);
-						fTOF = (fBottomMin+fFrontMidMin)/2. - 0.5*MaxDeltaTBot[fDetectorId];
+						fFrontMidMin1 = rand.Gaus(fFrontMidMin, fTimingUncertainty);
+						fBottomMin1 = rand.Gaus(fBottomMin, fTimingUncertainty);
+						fTOF = (fBottomMin1+fFrontMidMin1)/2. - 0.5*MaxDeltaTBot[fDetectorId];
 						fMaxTDiff = MaxDeltaTBot[fDetectorId];
-						/*	std::cout << "bottom1: " << bottomCFD[0] << std::endl;
+						fRand51 = fFrontMidMin1 - fFrontMidMin;
+						fRand52 = fBottomMin1 - fBottomMin;
+					/*	if(fEventNumber == 89 || fEventNumber == 434){
+								std::cout << "EventNumber: " << fEventNumber << std::endl;
+								std::cout << "detNum: " << fDetectorId << std::endl;
+								std::cout << "fTOF: " << fTOF << std::endl;
+							std::cout << "bottom1: " << bottomCFD[0] << std::endl;
 							std::cout << "bottom2: " << bottomCFD[1] << std::endl;
 							std::cout << "bottom3: " << bottomCFD[2] << std::endl;
 							std::cout << "frontMid1: " << frontMidCFD[0] << std::endl;
 							std::cout << "frontMid2: " << frontMidCFD[1] << std::endl;
-							*/
-						fC_effective = ArcLength_FrontMid_Outside[fDetectorId]/fMaxTDiff;
+						}	
+					*/	fC_effective = ArcLength_FrontMid_Outside[fDetectorId]/fMaxTDiff;
 						if ( fDetectorId >= 5 && fDetectorId <= 8 ) fC_effective = ArcLength_FrontMid_Inside[fDetectorId]/fMaxTDiff;
 
-						arcLength = abs(fC_effective * 0.5 * (fFrontMidMin - fBottomMin));
+						arcLength = abs(fC_effective * 0.5 * (fFrontMidMin1 - fBottomMin1));
 						R = sqrt(fDistance*fDistance - XPos[fDetectorId]*XPos[fDetectorId]); // cm
 						theta = abs(arcLength / R);
 						fYPos = abs(R * sin(theta)); // cm
@@ -329,18 +370,24 @@ class DetectorDaemon : public TObject {
 						//std::cout << "Case 6" << std::endl;
 						//	std::cout << "Smallest and second and MaxDeltaT: " << fTopMin << " and " << fFrontBottomMin << " and " << MaxDeltaTTop[fDetectorId]+ MaxDeltaTMid[fDetectorId]  << std::endl;
 						f2pmt = 6;
-						fTopMin = rand.Gaus(fTopMin, fTimingUncertainty);
-						fFrontBottomMin = rand.Gaus(fFrontBottomMin, fTimingUncertainty);
-						fTOF = (fTopMin+fFrontBottomMin)/2. - 0.5*(MaxDeltaTTop[fDetectorId]+ MaxDeltaTMid[fDetectorId]);
+						fTopMin1 = rand.Gaus(fTopMin, fTimingUncertainty);
+						fFrontBottomMin1 = rand.Gaus(fFrontBottomMin, fTimingUncertainty);
+						fTOF = (fTopMin1+fFrontBottomMin1)/2. - 0.5*(MaxDeltaTTop[fDetectorId]+ MaxDeltaTMid[fDetectorId]);
 						fMaxTDiff = MaxDeltaTTop[fDetectorId] + MaxDeltaTMid[fDetectorId];
-						/*	std::cout << "top1: " << topCFD[0] << std::endl;
+						fRand61 = fTopMin1 - fTopMin;
+						fRand62 = fFrontBottomMin1 - fFrontBottomMin;
+					/*	if(fEventNumber == 89 || fEventNumber == 434){
+								std::cout << "EventNumber: " << fEventNumber << std::endl;
+								std::cout << "detNum: " << fDetectorId << std::endl;
+								std::cout << "fTOF: " << fTOF << std::endl;
+							std::cout << "top1: " << topCFD[0] << std::endl;
 							std::cout << "top2: " << topCFD[1] << std::endl;
 							std::cout << "top3: " << topCFD[2] << std::endl;
 							std::cout << "frontBottom1: " << frontBottomCFD[0] << std::endl;
 							std::cout << "frontBottom2: " << frontBottomCFD[1] << std::endl;
-							*/
-						fC_effective = (ArcLength[fDetectorId] -  ArcLength_FrontTopBot_Outside[fDetectorId])/fMaxTDiff;
-						arcLength = abs(fC_effective * 0.5 * (fFrontBottomMin - fTopMin));
+						}
+					*/	fC_effective = (ArcLength[fDetectorId] -  ArcLength_FrontTopBot_Outside[fDetectorId])/fMaxTDiff;
+						arcLength = abs(fC_effective * 0.5 * (fFrontBottomMin1 - fTopMin1));
 						R = sqrt(fDistance*fDistance - XPos[fDetectorId]*XPos[fDetectorId]); // cm
 						theta = abs(arcLength / R);
 						fYPos = abs(R * sin(theta)); // cm
@@ -354,18 +401,24 @@ class DetectorDaemon : public TObject {
 						//std::cout << "Case 7" << std::endl;
 						//	std::cout << "Smallest and second and MaxDeltaT: " << fBottomMin << " and " << fFrontTopMin << " and " << MaxDeltaTBot[fDetectorId]+ MaxDeltaTMid[fDetectorId]<< std::endl;
 						f2pmt = 7;
-						fFrontTopMin = rand.Gaus(fFrontTopMin, fTimingUncertainty);
-						fBottomMin = rand.Gaus(fBottomMin, fTimingUncertainty);
-						fTOF = (fBottomMin+fFrontTopMin)/2. - 0.5*(MaxDeltaTBot[fDetectorId]+ MaxDeltaTMid[fDetectorId]);
+						fFrontTopMin1 = rand.Gaus(fFrontTopMin, fTimingUncertainty);
+						fBottomMin1 = rand.Gaus(fBottomMin, fTimingUncertainty);
+						fTOF = (fBottomMin1+fFrontTopMin1)/2. - 0.5*(MaxDeltaTBot[fDetectorId]+ MaxDeltaTMid[fDetectorId]);
 						fMaxTDiff = MaxDeltaTBot[fDetectorId] + MaxDeltaTMid[fDetectorId];
-						/*	std::cout << "bottom1: " << bottomCFD[0] << std::endl;
+						fRand71 = fFrontTopMin1 - fFrontTopMin;
+						fRand72 = fBottomMin1 - fBottomMin;
+					/*	if(fEventNumber == 89 || fEventNumber == 434){
+								std::cout << "EventNumber: " << fEventNumber << std::endl;
+								std::cout << "detNum: " << fDetectorId << std::endl;
+								std::cout << "fTOF: " << fTOF << std::endl;
+							std::cout << "bottom1: " << bottomCFD[0] << std::endl;
 							std::cout << "bottom2: " << bottomCFD[1] << std::endl;
 							std::cout << "bottom3: " << bottomCFD[2] << std::endl;
 							std::cout << "frontTop1: " << frontTopCFD[0] << std::endl;
 							std::cout << "frontTop2: " << frontTopCFD[1] << std::endl;
-							*/
-						fC_effective = (ArcLength[fDetectorId] -  ArcLength_FrontTopBot_Outside[fDetectorId])/fMaxTDiff;
-						arcLength = abs(fC_effective * 0.5 * (fBottomMin - fFrontTopMin));
+						}
+					*/	fC_effective = (ArcLength[fDetectorId] -  ArcLength_FrontTopBot_Outside[fDetectorId])/fMaxTDiff;
+						arcLength = abs(fC_effective * 0.5 * (fBottomMin1 - fFrontTopMin1));
 						R = sqrt(fDistance*fDistance - XPos[fDetectorId]*XPos[fDetectorId]); // cm
 						theta = abs(arcLength / R);
 						fYPos = abs(R * sin(theta)); // cm
@@ -379,17 +432,23 @@ class DetectorDaemon : public TObject {
 						//std::cout << "Case 8" << std::endl;
 						//	std::cout << "Smallest and second and MaxDeltaT: " << fFrontBottomMin << " and " << fFrontTopMin << " and " << MaxDeltaTMid[fDetectorId]<< std::endl;
 						f2pmt = 8;
-						fFrontTopMin = rand.Gaus(fFrontTopMin, fTimingUncertainty);
-						fFrontBottomMin = rand.Gaus(fFrontBottomMin, fTimingUncertainty);
-						fTOF = (fFrontBottomMin+fFrontTopMin)/2. - 0.5*MaxDeltaTMid[fDetectorId];
+						fFrontTopMin1 = rand.Gaus(fFrontTopMin, fTimingUncertainty);
+						fFrontBottomMin1 = rand.Gaus(fFrontBottomMin, fTimingUncertainty);
+						fTOF = (fFrontBottomMin1+fFrontTopMin1)/2. - 0.5*MaxDeltaTMid[fDetectorId];
 						fMaxTDiff = MaxDeltaTMid[fDetectorId];
-						/*	std::cout << "frontTop1: " << frontTopCFD[0] << std::endl;
+						fRand81 = fFrontTopMin1 - fFrontTopMin;
+						fRand82 = fFrontBottomMin1 - fFrontBottomMin;
+					/*	if(fEventNumber == 89 || fEventNumber == 434){
+								std::cout << "EventNumber: " << fEventNumber << std::endl;
+								std::cout << "detNum: " << fDetectorId << std::endl;
+								std::cout << "fTOF: " << fTOF << std::endl;
+							std::cout << "frontTop1: " << frontTopCFD[0] << std::endl;
 							std::cout << "frontTop2: " << frontTopCFD[1] << std::endl;
 							std::cout << "frontBottom1: " << frontBottomCFD[0] << std::endl;
 							std::cout << "frontBottom2: " << frontBottomCFD[1] << std::endl;
-							*/
-						fC_effective = (ArcLength_FrontTop_FrontBot[fDetectorId])/fMaxTDiff;
-						arcLength = abs(fC_effective * 0.5 * (fFrontBottomMin - fFrontTopMin));
+						}
+					*/	fC_effective = (ArcLength_FrontTop_FrontBot[fDetectorId])/fMaxTDiff;
+						arcLength = abs(fC_effective * 0.5 * (fFrontBottomMin1 - fFrontTopMin1));
 						R = sqrt(fDistance*fDistance - XPos[fDetectorId]*XPos[fDetectorId]); // cm
 						theta = abs(arcLength / R);
 						fYPos = abs(R * sin(theta)); // cm
@@ -859,6 +918,42 @@ class DetectorDaemon : public TObject {
 		double DeltaY() {
 			return fYDelta;
 		}
+		std::vector<double> GetRand() {
+			std::vector<double> Num(2, -10);
+			if (f2pmt ==1){
+			Num[0] = fRand11;
+			Num[1] = fRand12;
+			}
+			if (f2pmt ==2){
+			Num[0] = fRand21;
+			Num[1] = fRand22;
+			}
+			if (f2pmt ==3){
+			Num[0] = fRand31;
+			Num[1] = fRand32;
+			}
+			if (f2pmt ==4){
+			Num[0] = fRand41;
+			Num[1] = fRand42;
+			}
+			if (f2pmt ==5){
+			Num[0] = fRand51;
+			Num[1] = fRand52;
+			}
+			if (f2pmt ==6){
+			Num[0] = fRand61;
+			Num[1] = fRand62;
+			}
+			if (f2pmt ==7){
+			Num[0] = fRand71;
+			Num[1] = fRand72;
+			}
+			if (f2pmt ==8){
+			Num[0] = fRand81;
+			Num[1] = fRand82;
+			}
+			return Num;
+		}
 
 	private:
 		int fEventNumber;
@@ -895,6 +990,22 @@ class DetectorDaemon : public TObject {
 		double fConversion1 = 9.3149410242e5; // keV/u // Allison
 		double fConversion2;
 		double fC_effective;
+		double fRand11;
+		double fRand12;
+		double fRand21;
+		double fRand22;
+		double fRand31;
+		double fRand32;
+		double fRand41;
+		double fRand42;
+		double fRand51;
+		double fRand52;
+		double fRand61;
+		double fRand62;
+		double fRand71;
+		double fRand72;
+		double fRand81;
+		double fRand82;
 
 		int fThreshold = 1;
 
@@ -939,6 +1050,11 @@ class DetectorDaemon : public TObject {
 		double fFrontTopMin;
 		double fFrontMidMin;
 		double fFrontBottomMin;
+		double fTopMin1;
+		double fBottomMin1;
+		double fFrontTopMin1;
+		double fFrontMidMin1;
+		double fFrontBottomMin1;
 
 		//REVIST
 		double  topCFD[3] = {DBL_MAX, DBL_MAX, DBL_MAX};
