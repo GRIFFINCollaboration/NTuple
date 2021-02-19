@@ -986,12 +986,13 @@ bool Converter::Run() {
 			if(fZDSHit) {
 
 				if (fDaemonBarsConfig == true) {
+				//std::cout << "Made it to true" << std::endl;
 				//TOF
 				FillHistDetector1DTOF(hist1D, fDaemonBarsArray, "daemon_bars_uncorr_zds_coin_tof", "Daemon1D");
 				FillHistDetector1DTOFZDS(hist1D, fDaemonBarsArray, fZDSDetector, "daemon_bars_corr_zds_coin_tof", "Daemon1Dns");
-				FillHistDetector1DTOFZDS(hist1D, fDaemonBarsArray, fZDSDetector, "daemon_bars_zds_coinc_timing", "Daemon1DCoin");
+				FillHistDetector1DCoinTOFZDS(hist1D, fDaemonBarsArray, fZDSDetector, "daemon_bars_zds_coinc_timing", "Daemon1DCoin");
 				FillHistDetector2DPulseTOF(hist2D, fDaemonBarsArray, fZDSDetector, "daemon_bars_pulse_zds_coin", "Daemon2D");
-				FillHistDetector2DGammaDescantTOF(hist2D, fDescantBlueDetector, fGriffinDetector, fZDSDetector, "griffin_unsup_zds_coin_TOFedepDescant","Griffin2D");
+			/*	FillHistDetector2DGammaDescantTOF(hist2D, fDescantBlueDetector, fGriffinDetector, fZDSDetector, "griffin_unsup_zds_coin_TOFedepDescant","Griffin2D");
 				FillHistDetector1DTOFDescantZDS(hist1D, fDescantBlueDetector, fZDSDetector, "descant_corr_zds_coin_tof", "Daemon1Dns");
 				FillHistDetector2DGammaDescantTOF(hist2D, fDescantWhiteDetector, fGriffinDetector, fZDSDetector, "griffin_unsup_zds_coin_TOFedepDescant","Griffin2D");
 				FillHistDetector1DTOFDescantZDS(hist1D, fDescantWhiteDetector, fZDSDetector, "descant_corr_zds_coin_tof", "Daemon1Dns");
@@ -1001,7 +1002,7 @@ bool Converter::Run() {
 				FillHistDetector1DTOFDescantZDS(hist1D, fDescantGreenDetector, fZDSDetector, "descant_corr_zds_coin_tof", "Daemon1Dns");
 				FillHistDetector2DGammaDescantTOF(hist2D, fDescantYellowDetector, fGriffinDetector, fZDSDetector, "griffin_unsup_zds_coin_TOFedepDescant","Griffin2D");
 				FillHistDetector1DTOFDescantZDS(hist1D, fDescantYellowDetector, fZDSDetector, "descant_corr_zds_coin_tof", "Daemon1Dns");
-				
+			*/	
 				//Energy
 				if(!fDescantHit){
 				FillHistDetector1DEnergyTOFZDS(hist1D, fDaemonBarsArray, fZDSDetector, "daemon_bars_corr_zds_coin_antiDescant_anti_energy_tof", "Daemon1DEnergy");
@@ -1852,11 +1853,13 @@ bool Converter::Run() {
 						case 8800:
 							fDaemonBarsArray->push_back(DetectorDaemon(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime, fParticleType, fProcessType, fCollectedTop1, fCollectedTop2, fCollectedTop3, fCollectedBottom1, fCollectedBottom2, fCollectedBottom3, fCollectedFrontTop1, fCollectedFrontTop2, fCollectedFrontMid1, fCollectedFrontMid2, fCollectedFrontBottom1, fCollectedFrontBottom2, fCFDTimeTop1, fCFDTimeTop2, fCFDTimeTop3, fCFDTimeBottom1, fCFDTimeBottom2, fCFDTimeBottom3, fCFDTimeFrontTop1, fCFDTimeFrontTop2, fCFDTimeFrontMid1, fCFDTimeFrontMid2, fCFDTimeFrontBottom1, fCFDTimeFrontBottom2, 8800));
 							fDaemonHit = true;
+							//std::cout << "Made it daemon turn true" << std::endl;
 
 							break;
 						case 9000:
 							fZDSDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
 							fZDSHit = true;
+							//std::cout << "Made it turn true" << std::endl;
 							break;
 
 						default:
@@ -2838,6 +2841,22 @@ void Converter::FillHistDetector1DTOFZDS(TH1F* hist1D, std::vector<DetectorDaemo
 	}
 
 }
+void Converter::FillHistDetector1DCoinTOFZDS(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::vector<Detector>* detectorZDS, std::string hist_name, std::string hist_dir) {
+			int eventZDS = detectorZDS->at(0).EventNumber();
+			double timeZDS = 1.e9*detectorZDS->at(0).Time();
+	for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
+		int event = detector->at(firstDet).EventNumber();
+		double tof = detector->at(firstDet).TOF();
+			TRandom rand;
+			double fTimingUncertainty = 0.2/2.355; //.2/2.35
+			timeZDS = rand.Gaus(timeZDS, fTimingUncertainty);
+			if (event == eventZDS) {
+					hist1D = Get1DHistogram(hist_name,hist_dir);
+					hist1D->Fill(timeZDS-tof);
+			}
+	}
+
+}
 
 void Converter::FillHistDetector1DTOFDescantZDS(TH1F* hist1D, std::vector<Detector>* detector, std::vector<Detector>* detectorZDS, std::string hist_name, std::string hist_dir) {
 	for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
@@ -3356,7 +3375,7 @@ double Converter::CalculateCFD(TH1F * TimeHist){
 
 
 double Converter::GetTime(std::vector<double>*  fTime){
-	double low, high;
+	long double low, high;
 	long int binRange1;	
 	long int binRange2;	
 	long int binNum1;
@@ -3365,6 +3384,14 @@ double Converter::GetTime(std::vector<double>*  fTime){
 	int shift = 100;
 	TRandom rand;
 
+	//If only 1 entry
+	if (fTime->size() == 1) {
+		time = fTime->at(0);
+		double bin_width = 0.1;
+		time = rand.Uniform(time - bin_width/2., time + bin_width/2.);
+		//		std::cout << "1 entry CFD time: " << time << std::endl;
+		return time;
+	}
 
 	low = *std::min_element(fTime->begin(), fTime->end());
 	high = *std::max_element(fTime->begin(), fTime->end());
@@ -3384,6 +3411,8 @@ double Converter::GetTime(std::vector<double>*  fTime){
 		std::cout << "binRange1: " << binRange1 << std::endl;
 		std::cout << "binRange2: " << binRange2 << std::endl;
 		std::cout << "binNum1: " << binNum1 << std::endl;
+		std::cout << "low: " << low << std::endl;
+		std::cout << "high: " << high << std::endl;
 	}
 	TH1F * fTimeHistogram = new TH1F("fTimeHistogram", "title", binNum1, binRange1, binRange2);
 	//fTimeHistogram->Reset("ICESM");
@@ -3396,15 +3425,6 @@ double Converter::GetTime(std::vector<double>*  fTime){
 		fTimeHistogram->Fill(fTime->at(k));
 	}
 
-	//If only 1 entry
-	if (fTime->size() == 1) {
-		time = fTime->at(0);
-		double bin_width = fTimeHistogram->GetXaxis()->GetBinWidth(1);
-		time = rand.Uniform(time - bin_width/2., time + bin_width/2.);
-		//		std::cout << "1 entry CFD time: " << time << std::endl;
-		delete fTimeHistogram;
-		return time;
-	}
 	//If maximum is 1
 	if (fTimeHistogram->GetMaximum() == 1) {
 		//time = fTimeHistogram->GetBinCenter(fTimeHistogram->FindFirstBinAbove(0));

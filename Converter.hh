@@ -104,6 +104,7 @@ class Converter {
 		void FillHistDetector1DEnergyTOFDescantZDS(TH1F* hist1D, std::vector<Detector>* detector, std::vector<Detector>* detectorZDS, std::string hist_name, std::string hist_dir);
 		void FillHistDetector1DEnergyRand1(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
 		void FillHistDetector1DEnergyRand2(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector1DCoinTOFZDS(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::vector<Detector>* detectorZDS, std::string hist_name, std::string hist_dir);
 
 		void FillHistDetector1DGamma(TH1F* hist1D, std::vector<Detector>* detector, std::string hist_name, std::string hist_dir);
 		void FillHistDetector2DGammaGamma(TH2F* hist2D, std::vector<Detector>* detector, std::string hist_name, std::string hist_dir);
@@ -125,8 +126,8 @@ class Converter {
 		TChain fChain;
 		TFile* fOutput;
 		TTree fTree;
-		//TRandom3 fRandom;
-		TRandom fRandom;
+		TRandom3 fRandom;
+		//TRandom fRandom;
 
 		Int_t LaBrGriffinNeighbours_det[8][3];
 		Int_t LaBrGriffinNeighbours_cry[8][3];

@@ -38,11 +38,12 @@ class DetectorDaemon : public TObject {
 					MaxDeltaT[i] = MaxDeltaTTop[i]+MaxDeltaTBot[i]+MaxDeltaTMid[i];
 				}
 
-				//Detector configuration: 1 is front bars, 2 is Unsegmented Tiles, 3 is Segmented Tiles, 0 is bars with no front
-				int DetConfiguration = 1;
+				//Detector configuration: 1 is front bars, 2 is Unsegmented Tiles, 3 is Segmented Tiles, 0 is bars with no front, 5 is test stuff
+				//int DetConfiguration = 1;
 				//int DetConfiguration = 2;
 				//int DetConfiguration = 3;
 				//int DetConfiguration = 0;
+				int DetConfiguration = 5;
 
 
 	//			TRandom rand;
@@ -104,6 +105,19 @@ class DetectorDaemon : public TObject {
 					frontBottomHit = true;
 				}
 
+				if (DetConfiguration == 5  && topHit == true && fSystemId == 8800) { //Unsegmented
+					fTOF = fCFDTimeTop1;
+					fTOF = rand.Gaus(fTOF, TMath::Sqrt(2)*fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+					f2pmt = 1; //Doesnt do much but allows for hist functions to remain unchanged with bar conditions
+						fC_effective = -2;
+						fYDelta = -200;
+						fThetaSim = -200; 
+						fPhiSim = -200;
+						fThetaCalc = -200;
+						fPhiCalc = -200;
+						fPhiDiff = -400;
+						fThetaDiff = -400;
+				}
 
 				if (DetConfiguration == 1 || DetConfiguration == 0) { // for no front just need to add the MaxDeltaTNoFront
 
