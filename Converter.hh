@@ -76,6 +76,7 @@ class Converter {
 		//TH3I* Get3DHistogram(std::string, std::string);
 		THnSparseF* GetNDHistogram(std::string, std::string);
 
+		void FillHistDetector1DPulseHeight(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
 		void FillHistDetector1DProcess(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
 		void FillHistDetector1DPMT(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
 		void FillHistDetector1DParticle(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
@@ -176,15 +177,20 @@ class Converter {
 		std::vector<double>*  fTimeTop1 = NULL;
 		std::vector<double>*  fTimeTop2 = NULL;
 		std::vector<double>*  fTimeTop3 = NULL;
+		std::vector<double>*  fTimeTopTotal = NULL;
 		std::vector<double>*  fTimeBottom1 = NULL;
 		std::vector<double>*  fTimeBottom2 = NULL;
 		std::vector<double>*  fTimeBottom3 = NULL;
+		std::vector<double>*  fTimeBottomTotal = NULL;
 		std::vector<double>*  fTimeFrontTop1 = NULL;
 		std::vector<double>*  fTimeFrontTop2 = NULL;
+		std::vector<double>*  fTimeFrontTopTotal = NULL;
 		std::vector<double>*  fTimeFrontMid1 = NULL;
 		std::vector<double>*  fTimeFrontMid2 = NULL;
+		std::vector<double>*  fTimeFrontMidTotal = NULL;
 		std::vector<double>*  fTimeFrontBottom1 = NULL;
 		std::vector<double>*  fTimeFrontBottom2 = NULL;
+		std::vector<double>*  fTimeFrontBottomTotal = NULL;
 		Double_t fDepEnergy;
 		Double_t fPosx;
 		Double_t fPosy;
@@ -199,15 +205,20 @@ class Converter {
 		Double_t fCFDTimeTop1;
 		Double_t fCFDTimeTop2;
 		Double_t fCFDTimeTop3;
+		Double_t fCFDTimeTopTotal;
 		Double_t fCFDTimeBottom1;
 		Double_t fCFDTimeBottom2;
 		Double_t fCFDTimeBottom3;
+		Double_t fCFDTimeBottomTotal;
 		Double_t fCFDTimeFrontTop1;
 		Double_t fCFDTimeFrontTop2;
+		Double_t fCFDTimeFrontTopTotal;
 		Double_t fCFDTimeFrontMid1;
 		Double_t fCFDTimeFrontMid2;
+		Double_t fCFDTimeFrontMidTotal;
 		Double_t fCFDTimeFrontBottom1;
 		Double_t fCFDTimeFrontBottom2;
+		Double_t fCFDTimeFrontBottomTotal;
 
 		bool   fSceptarHit;
 		bool   fZDSHit;

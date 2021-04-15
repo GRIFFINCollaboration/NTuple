@@ -597,6 +597,17 @@ Converter::Converter(std::vector<std::string>& inputFileNames, const std::string
 		fChain.SetBranchAddress("CollectionTimeFrontBottom2", &fTimeFrontBottom2);
 		//std::cout << "Made it! 4" << std::endl;
 
+		fTimeTopTotal = NULL;
+		fTimeBottomTotal = NULL;
+		fTimeFrontTopTotal = NULL;
+		fTimeFrontMidTotal = NULL;
+		fTimeFrontBottomTotal = NULL;
+		fCFDTimeTopTotal = DBL_MAX;
+		fCFDTimeBottomTotal = DBL_MAX;
+		fCFDTimeFrontTopTotal = DBL_MAX;
+		fCFDTimeFrontMidTotal = DBL_MAX;
+		fCFDTimeFrontBottomTotal = DBL_MAX;
+
 		//create output file
 		fOutput = new TFile(outputFileName.c_str(),"recreate");
 		if(!fOutput->IsOpen()) {
@@ -900,14 +911,27 @@ bool Converter::Run() {
 			FillHistDetector1DEvent(hist1D, fDaemonBarsArray, "event_entries", "Event1D");
 			FillHistDetector1DEnergyRand1(hist1D, fDaemonBarsArray, "daemon_bars_Rand_Result_1", "Daemon1DRand");
 			FillHistDetector1DEnergyRand2(hist1D, fDaemonBarsArray, "daemon_bars_Rand_Result_2", "Daemon1DRand");
+			FillHistDetector1DPulseHeight(hist1D, fDaemonBarsArray, "daemon_bars_pulseHeight", "Daemon1DEnergy");
 			//DaemonTOF Bars
 			FillHistDetector1DTOF(hist1D, fDaemonBarsArray, "daemon_bars_unsup_uncorr_tof", "Daemon1Dns");
 			FillHistDetector1DDeltaT(hist1D, fDaemonBarsArray, "daemon_bars_unsup_uncorr_delta_t_tof", "Daemon1DDelta");
 			FillHistDetector1DDeltaY(hist1D, fDaemonBarsArray, "daemon_bars_delta_Y", "Daemon1DDeltaPos");
+				//DeltaT 
+				FillHistDetector2DPmtDeltaT(hist2D, fDaemonBarsArray, "daemon_pmt_deltaT", "Daemon1DDelta");
+				FillHistDetector2DDetDeltaT(hist2D, fDaemonBarsArray, "daemon_det_deltaT", "Daemon1DDelta");
+				FillHistDetector2DParDeltaT(hist2D, fDaemonBarsArray, "daemon_particle_deltaT", "Daemon1DDelta");
 			//Daemon Extra Histograms Bars
 			FillHistDetector1DParticle(hist1D, fDaemonBarsArray, "daemon_bars_particle_type", "Daemon1DExtra");
 			FillHistDetector1DProcess(hist1D, fDaemonBarsArray, "daemon_bars_process_type", "Daemon1DExtra");
 			FillHistDetector1DPMT(hist1D, fDaemonBarsArray, "daemon_bars_pmt_hit", "Daemon1DExtra");
+			//Positoin
+			FillHistDetector1DArc(hist1D, fDaemonBarsArray, "daemon_bars_zds_arc_diff", "Daemon1DDeltaPos");
+			FillHistDetector1DDeltaY(hist1D, fDaemonBarsArray, "daemon_bars_zds_delta_Y", "Daemon1DDeltaPos");
+			FillHistDetector2DPmtDeltaY(hist2D, fDaemonBarsArray, "daemon_pmt_deltaY_zds_coin", "Daemon1DDeltaPos");
+			FillHistDetector2DDetDeltaY(hist2D, fDaemonBarsArray, "daemon_det_deltaY_zds_coin", "Daemon1DDeltaPos");
+			FillHistDetector2DDetDeltaTheta(hist2D, fDaemonBarsArray, "daemon_det_deltaTheta_zds_coin", "Daemon1DDeltaPos");
+			FillHistDetector2DDetDeltaPhi(hist2D, fDaemonBarsArray, "daemon_det_deltaPhi_zds_coin", "Daemon1DDeltaPos");
+			FillHistDetector2DDetDeltaThetaPhi(hist2D, fDaemonBarsArray, "daemon_deltaThetaX_PhiY_zds_coin", "Daemon1DDeltaPos");
 			}
 	/*		if (fDaemonBarsConfig == false) {
 			//DaemonTOF Blue Tiles
@@ -1731,15 +1755,25 @@ bool Converter::Run() {
 			fCFDTimeTop1 = DBL_MAX;
 			fCFDTimeTop2= DBL_MAX;
 			fCFDTimeTop3= DBL_MAX;
+			fCFDTimeTopTotal= DBL_MAX;
 			fCFDTimeBottom1 = DBL_MAX;
 			fCFDTimeBottom2 = DBL_MAX;
 			fCFDTimeBottom3 = DBL_MAX;
+			fCFDTimeBottomTotal = DBL_MAX;
 			fCFDTimeFrontTop1 = DBL_MAX;
 			fCFDTimeFrontTop2 = DBL_MAX;
+			fCFDTimeFrontTopTotal = DBL_MAX;
 			fCFDTimeFrontMid1 = DBL_MAX;
 			fCFDTimeFrontMid2 = DBL_MAX;
+			fCFDTimeFrontMidTotal = DBL_MAX;
 			fCFDTimeFrontBottom1 = DBL_MAX;
 			fCFDTimeFrontBottom2 = DBL_MAX;
+			fCFDTimeFrontBottomTotal = DBL_MAX;
+			fTimeTopTotal = NULL;
+			fTimeBottomTotal = NULL;
+			fTimeFrontTopTotal = NULL;
+			fTimeFrontMidTotal = NULL;
+			fTimeFrontBottomTotal = NULL;
 
 			fZDSDetector->clear();
 
@@ -1826,32 +1860,32 @@ bool Converter::Run() {
 						case 8700:
 							//std::cout << "Made it! Pushback" << std::endl;
 							//fDaemonBarsArray->push_back(DetectorDaemon(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime, fCollectedTop1, fCollectedTop2, fCollectedTop3, fCollectedBottom1, fCollectedBottom2, fCollectedBottom3, fCollectedFrontTop1, fCollectedFrontTop2, fCollectedFrontMid1, fCollectedFrontMid2, fCollectedFrontBottom1, fCollectedFrontBottom2));
-							fDaemonBarsArray->push_back(DetectorDaemon(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime, fParticleType, fProcessType, fCollectedTop1, fCollectedTop2, fCollectedTop3, fCollectedBottom1, fCollectedBottom2, fCollectedBottom3, fCollectedFrontTop1, fCollectedFrontTop2, fCollectedFrontMid1, fCollectedFrontMid2, fCollectedFrontBottom1, fCollectedFrontBottom2, fCFDTimeTop1, fCFDTimeTop2, fCFDTimeTop3, fCFDTimeBottom1, fCFDTimeBottom2, fCFDTimeBottom3, fCFDTimeFrontTop1, fCFDTimeFrontTop2, fCFDTimeFrontMid1, fCFDTimeFrontMid2, fCFDTimeFrontBottom1, fCFDTimeFrontBottom2, 8700));
+							fDaemonBarsArray->push_back(DetectorDaemon(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime, fParticleType, fProcessType, fCollectedTop1, fCollectedTop2, fCollectedTop3, fCollectedBottom1, fCollectedBottom2, fCollectedBottom3, fCollectedFrontTop1, fCollectedFrontTop2, fCollectedFrontMid1, fCollectedFrontMid2, fCollectedFrontBottom1, fCollectedFrontBottom2, fCFDTimeTop1, fCFDTimeTop2, fCFDTimeTop3, fCFDTimeBottom1, fCFDTimeBottom2, fCFDTimeBottom3, fCFDTimeFrontTop1, fCFDTimeFrontTop2, fCFDTimeFrontMid1, fCFDTimeFrontMid2, fCFDTimeFrontBottom1, fCFDTimeFrontBottom2, 8700, fCFDTimeTopTotal, fCFDTimeBottomTotal, fCFDTimeFrontTopTotal, fCFDTimeFrontMidTotal, fCFDTimeFrontBottomTotal));
 							fDaemonHit = true;
 
 							break;
 						case 8710:
-							fDaemonBlueTiles->push_back(DetectorDaemon(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime, fParticleType, fProcessType, fCollectedTop1, fCollectedTop2, fCollectedTop3, fCollectedBottom1, fCollectedBottom2, fCollectedBottom3, fCollectedFrontTop1, fCollectedFrontTop2, fCollectedFrontMid1, fCollectedFrontMid2, fCollectedFrontBottom1, fCollectedFrontBottom2, fCFDTimeTop1, fCFDTimeTop2, fCFDTimeTop3, fCFDTimeBottom1, fCFDTimeBottom2, fCFDTimeBottom3, fCFDTimeFrontTop1, fCFDTimeFrontTop2, fCFDTimeFrontMid1, fCFDTimeFrontMid2, fCFDTimeFrontBottom1, fCFDTimeFrontBottom2, 8710));
+							fDaemonBlueTiles->push_back(DetectorDaemon(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime, fParticleType, fProcessType, fCollectedTop1, fCollectedTop2, fCollectedTop3, fCollectedBottom1, fCollectedBottom2, fCollectedBottom3, fCollectedFrontTop1, fCollectedFrontTop2, fCollectedFrontMid1, fCollectedFrontMid2, fCollectedFrontBottom1, fCollectedFrontBottom2, fCFDTimeTop1, fCFDTimeTop2, fCFDTimeTop3, fCFDTimeBottom1, fCFDTimeBottom2, fCFDTimeBottom3, fCFDTimeFrontTop1, fCFDTimeFrontTop2, fCFDTimeFrontMid1, fCFDTimeFrontMid2, fCFDTimeFrontBottom1, fCFDTimeFrontBottom2, 8710, fCFDTimeTopTotal, fCFDTimeBottomTotal, fCFDTimeFrontTopTotal, fCFDTimeFrontMidTotal, fCFDTimeFrontBottomTotal));
 							fDaemonHit = true;
 							break;
 						case 8720:
-							fDaemonWhiteTiles->push_back(DetectorDaemon(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime, fParticleType, fProcessType, fCollectedTop1, fCollectedTop2, fCollectedTop3, fCollectedBottom1, fCollectedBottom2, fCollectedBottom3, fCollectedFrontTop1, fCollectedFrontTop2, fCollectedFrontMid1, fCollectedFrontMid2, fCollectedFrontBottom1, fCollectedFrontBottom2, fCFDTimeTop1, fCFDTimeTop2, fCFDTimeTop3, fCFDTimeBottom1, fCFDTimeBottom2, fCFDTimeBottom3, fCFDTimeFrontTop1, fCFDTimeFrontTop2, fCFDTimeFrontMid1, fCFDTimeFrontMid2, fCFDTimeFrontBottom1, fCFDTimeFrontBottom2, 8720));
+							fDaemonWhiteTiles->push_back(DetectorDaemon(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime, fParticleType, fProcessType, fCollectedTop1, fCollectedTop2, fCollectedTop3, fCollectedBottom1, fCollectedBottom2, fCollectedBottom3, fCollectedFrontTop1, fCollectedFrontTop2, fCollectedFrontMid1, fCollectedFrontMid2, fCollectedFrontBottom1, fCollectedFrontBottom2, fCFDTimeTop1, fCFDTimeTop2, fCFDTimeTop3, fCFDTimeBottom1, fCFDTimeBottom2, fCFDTimeBottom3, fCFDTimeFrontTop1, fCFDTimeFrontTop2, fCFDTimeFrontMid1, fCFDTimeFrontMid2, fCFDTimeFrontBottom1, fCFDTimeFrontBottom2, 8720, fCFDTimeTopTotal, fCFDTimeBottomTotal, fCFDTimeFrontTopTotal, fCFDTimeFrontMidTotal, fCFDTimeFrontBottomTotal));
 							fDaemonHit = true;
 							break;
 						case 8730:
-							fDaemonRedTiles->push_back(DetectorDaemon(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime, fParticleType, fProcessType, fCollectedTop1, fCollectedTop2, fCollectedTop3, fCollectedBottom1, fCollectedBottom2, fCollectedBottom3, fCollectedFrontTop1, fCollectedFrontTop2, fCollectedFrontMid1, fCollectedFrontMid2, fCollectedFrontBottom1, fCollectedFrontBottom2, fCFDTimeTop1, fCFDTimeTop2, fCFDTimeTop3, fCFDTimeBottom1, fCFDTimeBottom2, fCFDTimeBottom3, fCFDTimeFrontTop1, fCFDTimeFrontTop2, fCFDTimeFrontMid1, fCFDTimeFrontMid2, fCFDTimeFrontBottom1, fCFDTimeFrontBottom2, 8730));
+							fDaemonRedTiles->push_back(DetectorDaemon(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime, fParticleType, fProcessType, fCollectedTop1, fCollectedTop2, fCollectedTop3, fCollectedBottom1, fCollectedBottom2, fCollectedBottom3, fCollectedFrontTop1, fCollectedFrontTop2, fCollectedFrontMid1, fCollectedFrontMid2, fCollectedFrontBottom1, fCollectedFrontBottom2, fCFDTimeTop1, fCFDTimeTop2, fCFDTimeTop3, fCFDTimeBottom1, fCFDTimeBottom2, fCFDTimeBottom3, fCFDTimeFrontTop1, fCFDTimeFrontTop2, fCFDTimeFrontMid1, fCFDTimeFrontMid2, fCFDTimeFrontBottom1, fCFDTimeFrontBottom2, 8730, fCFDTimeTopTotal, fCFDTimeBottomTotal, fCFDTimeFrontTopTotal, fCFDTimeFrontMidTotal, fCFDTimeFrontBottomTotal));
 							fDaemonHit = true;
 							break;
 						case 8740:
-							fDaemonGreenTiles->push_back(DetectorDaemon(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime, fParticleType, fProcessType, fCollectedTop1, fCollectedTop2, fCollectedTop3, fCollectedBottom1, fCollectedBottom2, fCollectedBottom3, fCollectedFrontTop1, fCollectedFrontTop2, fCollectedFrontMid1, fCollectedFrontMid2, fCollectedFrontBottom1, fCollectedFrontBottom2, fCFDTimeTop1, fCFDTimeTop2, fCFDTimeTop3, fCFDTimeBottom1, fCFDTimeBottom2, fCFDTimeBottom3, fCFDTimeFrontTop1, fCFDTimeFrontTop2, fCFDTimeFrontMid1, fCFDTimeFrontMid2, fCFDTimeFrontBottom1, fCFDTimeFrontBottom2, 8740));
+							fDaemonGreenTiles->push_back(DetectorDaemon(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime, fParticleType, fProcessType, fCollectedTop1, fCollectedTop2, fCollectedTop3, fCollectedBottom1, fCollectedBottom2, fCollectedBottom3, fCollectedFrontTop1, fCollectedFrontTop2, fCollectedFrontMid1, fCollectedFrontMid2, fCollectedFrontBottom1, fCollectedFrontBottom2, fCFDTimeTop1, fCFDTimeTop2, fCFDTimeTop3, fCFDTimeBottom1, fCFDTimeBottom2, fCFDTimeBottom3, fCFDTimeFrontTop1, fCFDTimeFrontTop2, fCFDTimeFrontMid1, fCFDTimeFrontMid2, fCFDTimeFrontBottom1, fCFDTimeFrontBottom2, 8740, fCFDTimeTopTotal, fCFDTimeBottomTotal, fCFDTimeFrontTopTotal, fCFDTimeFrontMidTotal, fCFDTimeFrontBottomTotal));
 							fDaemonHit = true;
 							break;
 						case 8750:
-							fDaemonYellowTiles->push_back(DetectorDaemon(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime, fParticleType, fProcessType, fCollectedTop1, fCollectedTop2, fCollectedTop3, fCollectedBottom1, fCollectedBottom2, fCollectedBottom3, fCollectedFrontTop1, fCollectedFrontTop2, fCollectedFrontMid1, fCollectedFrontMid2, fCollectedFrontBottom1, fCollectedFrontBottom2, fCFDTimeTop1, fCFDTimeTop2, fCFDTimeTop3, fCFDTimeBottom1, fCFDTimeBottom2, fCFDTimeBottom3, fCFDTimeFrontTop1, fCFDTimeFrontTop2, fCFDTimeFrontMid1, fCFDTimeFrontMid2, fCFDTimeFrontBottom1, fCFDTimeFrontBottom2, 8750));
+							fDaemonYellowTiles->push_back(DetectorDaemon(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime, fParticleType, fProcessType, fCollectedTop1, fCollectedTop2, fCollectedTop3, fCollectedBottom1, fCollectedBottom2, fCollectedBottom3, fCollectedFrontTop1, fCollectedFrontTop2, fCollectedFrontMid1, fCollectedFrontMid2, fCollectedFrontBottom1, fCollectedFrontBottom2, fCFDTimeTop1, fCFDTimeTop2, fCFDTimeTop3, fCFDTimeBottom1, fCFDTimeBottom2, fCFDTimeBottom3, fCFDTimeFrontTop1, fCFDTimeFrontTop2, fCFDTimeFrontMid1, fCFDTimeFrontMid2, fCFDTimeFrontBottom1, fCFDTimeFrontBottom2, 8750, fCFDTimeTopTotal, fCFDTimeBottomTotal, fCFDTimeFrontTopTotal, fCFDTimeFrontMidTotal, fCFDTimeFrontBottomTotal));
 							fDaemonHit = true;
 							break;
 						case 8800:
-							fDaemonBarsArray->push_back(DetectorDaemon(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime, fParticleType, fProcessType, fCollectedTop1, fCollectedTop2, fCollectedTop3, fCollectedBottom1, fCollectedBottom2, fCollectedBottom3, fCollectedFrontTop1, fCollectedFrontTop2, fCollectedFrontMid1, fCollectedFrontMid2, fCollectedFrontBottom1, fCollectedFrontBottom2, fCFDTimeTop1, fCFDTimeTop2, fCFDTimeTop3, fCFDTimeBottom1, fCFDTimeBottom2, fCFDTimeBottom3, fCFDTimeFrontTop1, fCFDTimeFrontTop2, fCFDTimeFrontMid1, fCFDTimeFrontMid2, fCFDTimeFrontBottom1, fCFDTimeFrontBottom2, 8800));
+							fDaemonBarsArray->push_back(DetectorDaemon(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime, fParticleType, fProcessType, fCollectedTop1, fCollectedTop2, fCollectedTop3, fCollectedBottom1, fCollectedBottom2, fCollectedBottom3, fCollectedFrontTop1, fCollectedFrontTop2, fCollectedFrontMid1, fCollectedFrontMid2, fCollectedFrontBottom1, fCollectedFrontBottom2, fCFDTimeTop1, fCFDTimeTop2, fCFDTimeTop3, fCFDTimeBottom1, fCFDTimeBottom2, fCFDTimeBottom3, fCFDTimeFrontTop1, fCFDTimeFrontTop2, fCFDTimeFrontMid1, fCFDTimeFrontMid2, fCFDTimeFrontBottom1, fCFDTimeFrontBottom2, 8800, fCFDTimeTopTotal, fCFDTimeBottomTotal, fCFDTimeFrontTopTotal, fCFDTimeFrontMidTotal, fCFDTimeFrontBottomTotal));
 							fDaemonHit = true;
 							//std::cout << "Made it daemon turn true" << std::endl;
 
@@ -1918,61 +1952,112 @@ bool Converter::AboveThreshold(double energy, int systemID) {
 	}
 	else if(systemID >= 8700 && systemID <= 8800){
 		//Daemon Bars
-		int threshold = 1 ;
+		int threshold = 3;
 		//Top
 		if (fCollectedTop1>=threshold) {
 			fCFDTimeTop1 = GetTime(fTimeTop1);
+			if (fTimeTopTotal == NULL) fTimeTopTotal = fTimeTop1;
+			else fTimeTopTotal->insert(fTimeTopTotal->end(), fTimeTop1->begin(), fTimeTop1->end());
 			//std::cout << "fCFDTimeTop1: " << fCFDTimeTop1 << std::endl;
 		}else fCFDTimeTop1 = DBL_MAX;
 		if (fCollectedTop2>=threshold) {
 			fCFDTimeTop2 = GetTime(fTimeTop2);
+			if (fTimeTopTotal == NULL) fTimeTopTotal = fTimeTop2;
+			else fTimeTopTotal->insert(fTimeTopTotal->end(), fTimeTop2->begin(), fTimeTop2->end());
 			//std::cout << "fCFDTimeTop2: " << fCFDTimeTop2 << std::endl;
 		}else fCFDTimeTop2 = DBL_MAX;
 		if (fCollectedTop3>=threshold) {
 			fCFDTimeTop3 = GetTime(fTimeTop3);
+			if (fTimeTopTotal == NULL) fTimeTopTotal = fTimeTop3;
+			else fTimeTopTotal->insert(fTimeTopTotal->end(), fTimeTop3->begin(), fTimeTop3->end());
 			//std::cout << "fCFDTimeTop3: " << fCFDTimeTop3 << std::endl;
 		}else fCFDTimeTop3 = DBL_MAX;
+		
+		if(fCollectedTop1>=threshold || fCollectedTop2>=threshold || fCollectedTop3>=threshold) {
+			fCFDTimeTopTotal = GetTime(fTimeTopTotal);
+		}else fCFDTimeTopTotal = DBL_MAX;
+		
+		
 		//Bottom
 		if (fCollectedBottom1>=threshold) {
 			fCFDTimeBottom1 = GetTime(fTimeBottom1);
+			if (fTimeBottomTotal == NULL) fTimeBottomTotal = fTimeBottom1;
+			else fTimeBottomTotal->insert(fTimeBottomTotal->end(), fTimeBottom1->begin(), fTimeBottom1->end());
 			//std::cout << "fCFDTimeBottom1: " << fCFDTimeBottom1 << std::endl;
 		}else fCFDTimeBottom1 = DBL_MAX;
 		if (fCollectedBottom2>=threshold) {
 			fCFDTimeBottom2 = GetTime(fTimeBottom2);
+			if (fTimeBottomTotal == NULL) fTimeBottomTotal = fTimeBottom2;
+			else fTimeBottomTotal->insert(fTimeBottomTotal->end(), fTimeBottom2->begin(), fTimeBottom2->end());
 			//std::cout << "fCFDTimeBottom2: " << fCFDTimeBottom2 << std::endl;
 		}else fCFDTimeBottom2 = DBL_MAX;
 		if (fCollectedBottom3>=threshold) {
 			fCFDTimeBottom3 = GetTime(fTimeBottom3);
+			if (fTimeBottomTotal == NULL) fTimeBottomTotal = fTimeBottom3;
+			else fTimeBottomTotal->insert(fTimeBottomTotal->end(), fTimeBottom3->begin(), fTimeBottom3->end());
 			//std::cout << "fCFDTimeBottom3: " << fCFDTimeBottom3 << std::endl;
 		}else fCFDTimeBottom3 = DBL_MAX;
+
+		if(fCollectedBottom1>=threshold || fCollectedBottom2>=threshold || fCollectedBottom3>=threshold) {
+			fCFDTimeBottomTotal = GetTime(fTimeBottomTotal);
+		}else fCFDTimeBottomTotal = DBL_MAX;
+
+
 		//Front Top
 		if (fCollectedFrontTop1>=threshold) {
 			fCFDTimeFrontTop1 = GetTime(fTimeFrontTop1);
+			if (fTimeFrontTopTotal == NULL) fTimeFrontTopTotal = fTimeFrontTop1;
+			else fTimeFrontTopTotal->insert(fTimeFrontTopTotal->end(), fTimeFrontTop1->begin(), fTimeFrontTop1->end());
 			//std::cout << "fCFDTimeFrontTop1: " << fCFDTimeFrontTop1 << std::endl;
 		}else fCFDTimeFrontTop1 = DBL_MAX;
 		if (fCollectedFrontTop2>=threshold) {
 			fCFDTimeFrontTop2 = GetTime(fTimeFrontTop2);
+			if (fTimeFrontTopTotal == NULL) fTimeFrontTopTotal = fTimeFrontTop2;
+			else fTimeFrontTopTotal->insert(fTimeFrontTopTotal->end(), fTimeFrontTop2->begin(), fTimeFrontTop2->end());
 			//std::cout << "fCFDTimeFrontTop2: " << fCFDTimeFrontTop2 << std::endl;
 		}else fCFDTimeFrontTop2 = DBL_MAX;
+
+		if(fCollectedFrontTop1>=threshold || fCollectedFrontTop2>=threshold) {
+			fCFDTimeFrontTopTotal = GetTime(fTimeFrontTopTotal);
+		}else fCFDTimeFrontTopTotal = DBL_MAX;
+
+
 		//Front Mid
 		if (fCollectedFrontMid1>=threshold) {
 			fCFDTimeFrontMid1 = GetTime(fTimeFrontMid1);
+			if (fTimeFrontMidTotal == NULL) fTimeFrontMidTotal = fTimeFrontMid1;
+			else fTimeFrontMidTotal->insert(fTimeFrontMidTotal->end(), fTimeFrontMid1->begin(), fTimeFrontMid1->end());
 			//std::cout << "fCFDTimeFrontMid1: " << fCFDTimeFrontMid1 << std::endl;
 		}else fCFDTimeFrontMid1 = DBL_MAX;
 		if (fCollectedFrontMid2>=threshold) {
 			fCFDTimeFrontMid2 = GetTime(fTimeFrontMid2);
+			if (fTimeFrontMidTotal == NULL) fTimeFrontMidTotal = fTimeFrontMid2;
+			else fTimeFrontMidTotal->insert(fTimeFrontMidTotal->end(), fTimeFrontMid2->begin(), fTimeFrontMid2->end());
 			//std::cout << "fCFDTimeFrontMid2: " << fCFDTimeFrontMid2 << std::endl;
 		}else fCFDTimeFrontMid2 = DBL_MAX;
+		
+		if(fCollectedFrontMid1>=threshold || fCollectedFrontMid2>=threshold) {
+			fCFDTimeFrontMidTotal = GetTime(fTimeFrontMidTotal);
+		}else fCFDTimeFrontMidTotal = DBL_MAX;
+
+		
 		//Front Bottom
 		if (fCollectedFrontBottom1>=threshold) {
 			fCFDTimeFrontBottom1 = GetTime(fTimeFrontBottom1);
+			if (fTimeFrontBottomTotal == NULL) fTimeFrontBottomTotal = fTimeFrontBottom1;
+			else fTimeFrontBottomTotal->insert(fTimeFrontBottomTotal->end(), fTimeFrontBottom1->begin(), fTimeFrontBottom1->end());
 			//std::cout << "fCFDTimeFrontBottom1: " << fCFDTimeFrontBottom1 << std::endl;
 		}else fCFDTimeFrontBottom1 = DBL_MAX;
 		if (fCollectedFrontBottom2>=threshold) {
 			fCFDTimeFrontBottom2 = GetTime(fTimeFrontBottom2);
+			if (fTimeFrontBottomTotal == NULL) fTimeFrontBottomTotal = fTimeFrontBottom2;
+			fTimeFrontBottomTotal->insert(fTimeFrontBottomTotal->end(), fTimeFrontBottom2->begin(), fTimeFrontBottom2->end());
 			//std::cout << "fCFDTimeFrontBottom2: " << fCFDTimeFrontBottom2 << std::endl;
 		}else fCFDTimeFrontBottom2 = DBL_MAX;
 
+		if(fCollectedFrontBottom1>=threshold || fCollectedFrontBottom2>=threshold) {
+			fCFDTimeFrontBottomTotal = GetTime(fTimeFrontBottomTotal);
+		}else fCFDTimeFrontBottomTotal = DBL_MAX;
 
 
 		if ((fCollectedTop1 || fCollectedTop2 || fCollectedTop3)>0 || (fCollectedBottom1 || fCollectedBottom2 || fCollectedBottom3)>0 || (fCollectedFrontTop1 || fCollectedFrontTop2)>0 || (fCollectedFrontMid1 || fCollectedFrontMid2)>0|| (fCollectedFrontBottom1 || fCollectedFrontBottom2)>0){
@@ -2662,9 +2747,11 @@ THnSparseF* Converter::GetNDHistogram(std::string histogramName, std::string dir
 }
 void Converter::FillHistDetector1DTOF(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir) {
 	for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
+		int pmt = detector->at(firstDet).PMT();
 		double time = detector->at(firstDet).TOF();
 		//std::cout << "Made it, tof:" << time  << std::endl;
-		if (time >0){
+		//if (time >0 && pmt < 10){
+		if (pmt < 10){
 			hist1D = Get1DHistogram(hist_name,hist_dir);
 			hist1D->Fill(time);
 		}
@@ -2820,10 +2907,9 @@ void Converter::FillHistDetector1DTOFZDS(TH1F* hist1D, std::vector<DetectorDaemo
 		for(size_t firstDetS = 0; firstDetS < detectorZDS->size(); ++firstDetS) {
 			int eventZDS = detectorZDS->at(firstDetS).EventNumber();
 			double timeZDS = 1.e9*detectorZDS->at(firstDetS).Time();
-			TRandom rand;
 			double fTimingUncertainty = 0.2/2.355; //.2/2.35
-			timeZDS = rand.Gaus(timeZDS, fTimingUncertainty);
-			//tof = rand.Gaus(tof, 0.6/2.355);
+			timeZDS = fRandom.Gaus(timeZDS, fTimingUncertainty);
+			//tof = fRandom.Gaus(tof, 0.6/2.355);
 			//if(timeZDS<0) timeZDS=0;
 			//	std::cout << "EventSceptar: " << eventSceptar  << std::endl;
 			if (event == eventZDS) {
@@ -2847,12 +2933,14 @@ void Converter::FillHistDetector1DCoinTOFZDS(TH1F* hist1D, std::vector<DetectorD
 	for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
 		int event = detector->at(firstDet).EventNumber();
 		double tof = detector->at(firstDet).TOF();
-			TRandom rand;
 			double fTimingUncertainty = 0.2/2.355; //.2/2.35
-			timeZDS = rand.Gaus(timeZDS, fTimingUncertainty);
+			//double fTimingUncertainty = 1./2.355; //.2/2.35
+			timeZDS = fRandom.Gaus(timeZDS, fTimingUncertainty);
+			double timeDiff = timeZDS-tof;
+			//timeDiff = fRandom.Gaus(timeDiff, fTimingUncertainty);
 			if (event == eventZDS) {
 					hist1D = Get1DHistogram(hist_name,hist_dir);
-					hist1D->Fill(timeZDS-tof);
+					hist1D->Fill(timeDiff);
 			}
 	}
 
@@ -2865,11 +2953,10 @@ void Converter::FillHistDetector1DTOFDescantZDS(TH1F* hist1D, std::vector<Detect
 		for(size_t firstDetS = 0; firstDetS < detectorZDS->size(); ++firstDetS) {
 			int eventZDS = detectorZDS->at(firstDetS).EventNumber();
 			double timeZDS = 1.e9*detectorZDS->at(firstDetS).Time();
-			TRandom rand;
 			double fTimingUncertainty = 0.2/2.355; //.2/2.35
 			double fTimingUncertainty2 = 1./2.355; //.2/2.35
-			timeZDS = rand.Gaus(timeZDS, fTimingUncertainty);
-			tof = rand.Gaus(tof, fTimingUncertainty2);
+			timeZDS = fRandom.Gaus(timeZDS, fTimingUncertainty);
+			tof = fRandom.Gaus(tof, fTimingUncertainty2);
 			if(timeZDS<0) timeZDS=0;
 			if (event == eventZDS) {
 				if (tof > 0 && timeZDS >= 0){
@@ -2888,12 +2975,11 @@ void Converter::FillHistDetector1DEnergyTOF(TH1F* hist1D, std::vector<DetectorDa
 	//	std::cout << "Event: " << event  << std::endl;
 		double tof = detector->at(firstDet).TOF();
 		int pmt = detector->at(firstDet).PMT();
-			TRandom rand;
 			double fTimingUncertainty = 0.2/2.355; //.2/2.35
-			//double timeZDS = rand.Gaus(0, fTimingUncertainty);
-			//tof = rand.Gaus(tof, fTimingUncertainty);
+			//double timeZDS = fRandom.Gaus(0, fTimingUncertainty);
+			//tof = fRandom.Gaus(tof, fTimingUncertainty);
 			tof = fRandom.Gaus(tof, fTimingUncertainty);
-			//tof = rand.Gaus(tof, 0.6/2.355);
+			//tof = fRandom.Gaus(tof, 0.6/2.355);
 		//	if(timeZDS<0) timeZDS=TMath::Abs(timeZDS);
 				if (pmt < 10 && tof > 0){
 					//double Etof = detector->at(firstDet).EnergyTOF(tof-timeZDS);
@@ -2981,9 +3067,7 @@ void Converter::FillHistDetector1DEnergyRand2(TH1F* hist1D, std::vector<Detector
 	for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
 		double tof = detector->at(firstDet).TOF();
 		int pmt = detector->at(firstDet).PMT();
-			TRandom rand;
 			double fTimingUncertainty = 0.2/2.355; //.2/2.35
-			//tof = rand.Gaus(tof, fTimingUncertainty);
 			double tof1 = fRandom.Gaus(tof, fTimingUncertainty);
 			double diff = tof1-tof;
 				if (pmt < 10 && tof > 0){
@@ -2992,6 +3076,16 @@ void Converter::FillHistDetector1DEnergyRand2(TH1F* hist1D, std::vector<Detector
 				}
 	}
 
+}
+void Converter::FillHistDetector1DPulseHeight(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir) {
+	for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
+		double tof = detector->at(firstDet).TOF();
+		int pmt = detector->at(firstDet).PMT();
+		if (pmt < 10){
+		hist1D = Get1DHistogram(hist_name,hist_dir);
+		hist1D->Fill(detector->at(firstDet).PulseHeight());
+		}
+	}
 }
 
 
@@ -3005,10 +3099,8 @@ void Converter::FillHistDetector1DEnergyTOFZDS(TH1F* hist1D, std::vector<Detecto
 	//	for(size_t firstDetS = 0; firstDetS < detectorZDS->size(); ++firstDetS) {
 	//		int eventZDS = detectorZDS->at(firstDetS).EventNumber();
 	//		double timeZDS = 1.e9*detectorZDS->at(firstDetS).Time();
-			TRandom rand;
 			double fTimingUncertainty = 0.2/2.355; //.2/2.35
-			timeZDS = rand.Gaus(timeZDS, fTimingUncertainty);
-			//tof = rand.Gaus(tof, 0.6/2.355);
+			timeZDS = fRandom.Gaus(timeZDS, fTimingUncertainty);
 			if(timeZDS<0) timeZDS=0;
 			if (event == eventZDS) {
 				if (pmt < 10 && tof > 0 && timeZDS >= 0){
@@ -3060,9 +3152,8 @@ void Converter::FillHistDetector2DParDeltaT(TH2F* hist2D, std::vector<DetectorDa
 
 void Converter::FillHistDetector2DPulseTOF(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::vector<Detector>* detectorZDS, std::string hist_name, std::string hist_dir) {
 	double timeZDS = 1.e9*detectorZDS->at(0).Time();
-			TRandom rand;
 			double fTimingUncertainty = 0.2/2.355; //.2/2.35
-			timeZDS = rand.Gaus(timeZDS, fTimingUncertainty);
+			timeZDS = fRandom.Gaus(timeZDS, fTimingUncertainty);
 			if(timeZDS<0) timeZDS=0;
 	for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
 		double tof = detector->at(firstDet).TOF();
@@ -3075,9 +3166,8 @@ void Converter::FillHistDetector2DPulseTOF(TH2F* hist2D, std::vector<DetectorDae
 }
 void Converter::FillHistDetector2DGammaTOF(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::vector<Detector>* detectorGriffin, std::vector<Detector>* detectorZDS, std::string hist_name, std::string hist_dir) {
 	double timeZDS = 1.e9*detectorZDS->at(0).Time();
-			TRandom rand;
 			double fTimingUncertainty = 0.2/2.355; //.2/2.35
-			timeZDS = rand.Gaus(timeZDS, fTimingUncertainty);
+			timeZDS = fRandom.Gaus(timeZDS, fTimingUncertainty);
 			if(timeZDS<0) timeZDS=0;
 		for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
 			double tof = detector->at(firstDet).TOF();
@@ -3093,14 +3183,13 @@ void Converter::FillHistDetector2DGammaTOF(TH2F* hist2D, std::vector<DetectorDae
 }
 void Converter::FillHistDetector2DGammaDescantTOF(TH2F* hist2D, std::vector<Detector>* detector, std::vector<Detector>* detectorGriffin, std::vector<Detector>* detectorZDS, std::string hist_name, std::string hist_dir) {
 	double timeZDS = 1.e9*detectorZDS->at(0).Time();
-			TRandom rand;
 			double fTimingUncertainty = 0.2/2.355; //.2/2.35
 			double fTimingUncertainty2 = 1./2.355; //.2/2.35
-			timeZDS = rand.Gaus(timeZDS, fTimingUncertainty);
+			timeZDS = fRandom.Gaus(timeZDS, fTimingUncertainty);
 			if(timeZDS<0) timeZDS=0;
 		for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
 			double tof = 1.e9*detector->at(firstDet).Time();
-			tof = rand.Gaus(tof, fTimingUncertainty2);
+			tof = fRandom.Gaus(tof, fTimingUncertainty2);
 			if (tof > 0){
 			
 			for(size_t secondDet = 0; secondDet < detectorGriffin->size(); ++secondDet) {
@@ -3119,11 +3208,10 @@ void Converter::FillHistDetector1DEnergyTOFDescantZDS(TH1F* hist1D, std::vector<
 	//	for(size_t firstDetS = 0; firstDetS < detectorZDS->size(); ++firstDetS) {
 	//		int eventZDS = detectorZDS->at(firstDetS).EventNumber();
 	//		double timeZDS = 1.e9*detectorZDS->at(firstDetS).Time();
-			TRandom rand;
 			double fTimingUncertainty = 0.2/2.355; //.2/2.35
 			double fTimingUncertainty2 = 1./2.355; //.2/2.35
-			timeZDS = rand.Gaus(timeZDS, fTimingUncertainty);
-			tof = rand.Gaus(tof, fTimingUncertainty2);
+			timeZDS = fRandom.Gaus(timeZDS, fTimingUncertainty);
+			tof = fRandom.Gaus(tof, fTimingUncertainty2);
 			if(timeZDS<0) timeZDS=0;
 			if (event == eventZDS) {
 				if (tof > 0 && timeZDS >= 0){
@@ -3139,13 +3227,11 @@ void Converter::FillHistDetector1DEnergyTOFDescantZDS(TH1F* hist1D, std::vector<
 
 void Converter::FillHistDetector2DGammaEnergy(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::vector<Detector>* detectorGriffin, std::vector<Detector>* detectorZDS, std::string hist_name, std::string hist_dir) {
 	double timeZDS = 1.e9*detectorZDS->at(0).Time();
-			TRandom rand;
 			double fTimingUncertainty = 0.2/2.355; //.2/2.35
-			timeZDS = rand.Gaus(timeZDS, fTimingUncertainty);
+			timeZDS = fRandom.Gaus(timeZDS, fTimingUncertainty);
 			if(timeZDS<0) timeZDS=0;
 		for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
 			double tof = detector->at(firstDet).TOF();
-			//tof = rand.Gaus(tof, 0.6/2.355);
 			double energy = detector->at(firstDet).EnergyTOF(tof - timeZDS);
 			int pmt = detector->at(firstDet).PMT();
 			if (pmt < 10 && tof > 0){
@@ -3331,7 +3417,6 @@ double Converter::CalculateCFD(TH1F * TimeHist){
 	double bin_width = TimeHist->GetXaxis()->GetBinWidth(1);
 	double time_delay = 1.5;
 	int delay = time_delay/bin_width; //ns - should be on the order of rise time
-	TRandom rand;
 	//	double timingUncertainty = 0.1; //ns
 	double attenuation = 0.2; //what should this be?
 
@@ -3365,9 +3450,8 @@ double Converter::CalculateCFD(TH1F * TimeHist){
 
 	}
 	//std::cout << "cfd: " << cfd << std::endl;
-	cfd = rand.Uniform(cfd - bin_width/2., cfd + bin_width/2.);
+	cfd = fRandom.Uniform(cfd - bin_width/2., cfd + bin_width/2.);
 	
-	//cfd = rand.Gaus(cfd, timingUncertainty);
 	return cfd;
 }
 
@@ -3380,15 +3464,15 @@ double Converter::GetTime(std::vector<double>*  fTime){
 	long int binRange2;	
 	long int binNum1;
 	double time;
+	//Change from 10 to 100 replicates experimental tails when comparing
 	int dispersion = 10; //10 -> 0.1ns per bin	// Changing this from 10 to 1 seems to have stopped the int loop to neg num problem.  May need to convert everything to ns->s to fix?
 	int shift = 100;
-	TRandom rand;
 
 	//If only 1 entry
 	if (fTime->size() == 1) {
 		time = fTime->at(0);
 		double bin_width = 0.1;
-		time = rand.Uniform(time - bin_width/2., time + bin_width/2.);
+		time = fRandom.Uniform(time - bin_width/2., time + bin_width/2.);
 		//		std::cout << "1 entry CFD time: " << time << std::endl;
 		return time;
 	}
@@ -3430,7 +3514,7 @@ double Converter::GetTime(std::vector<double>*  fTime){
 		//time = fTimeHistogram->GetBinCenter(fTimeHistogram->FindFirstBinAbove(0));
 		time = low;
 		double bin_width = fTimeHistogram->GetXaxis()->GetBinWidth(1);
-		time = rand.Uniform(time - bin_width/2., time + bin_width/2.);
+		time = fRandom.Uniform(time - bin_width/2., time + bin_width/2.);
 		//		std::cout << "Maximum is 1 CFD time: " << time << std::endl;
 		delete fTimeHistogram;
 		return time;
