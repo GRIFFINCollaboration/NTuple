@@ -94,9 +94,11 @@ class Converter {
 		void FillHistDetector1DDeltaY(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
 		void FillHistDetector2DPmtDeltaY(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
 		void FillHistDetector2DDetDeltaY(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector2DDetDeltaX(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
 		void FillHistDetector2DDetDeltaPhi(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
 		void FillHistDetector2DDetDeltaThetaPhi(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
 		void FillHistDetector2DDetDeltaTheta(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector2DPmtDeltaTheta(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
 		void FillHistDetector1DArc(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
 		void FillHistDetector2DGammaTOF(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::vector<Detector>* detectorGriffin, std::vector<Detector>* detectorZDS, std::string hist_name, std::string hist_dir);
 		void FillHistDetector2DGammaEnergy(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::vector<Detector>* detectorGriffin, std::vector<Detector>* detectorZDS, std::string hist_name, std::string hist_dir);
@@ -223,6 +225,7 @@ class Converter {
 		bool   fSceptarHit;
 		bool   fZDSHit;
 		bool   fDescantHit;
+		bool   fDescantHitNeutron;
 		bool   fDaemonHit;
 		bool   fDaemonBarsConfig;
 

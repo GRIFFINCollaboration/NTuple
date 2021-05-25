@@ -35,17 +35,19 @@ class DetectorDaemon : public TObject {
 				fFrontMidMin1 = DBL_MAX;
 				fFrontBottomMin1 = DBL_MAX;
 
-				//Detector configuration: 1 is front bars, 2 is Unsegmented Tiles, 3 is Segmented Tiles, 0 is bars with no front, 5 is test stuff
+				//Detector configuration: 1 is front bars, 2 is Unsegmented Tiles, 3 is Segmented Tiles, 0 is bars with no front, 5 is test stuff, 4 is unsegmented Tiles 2 pmts
+				//int DetConfiguration = 0;
 				int DetConfiguration = 1;
 				//int DetConfiguration = 2;
 				//int DetConfiguration = 3;
-				//int DetConfiguration = 0;
+				//int DetConfiguration = 4;
 				//int DetConfiguration = 5;
 
 				fSumSignal = false;// This should always be false since I think each array would sum the SiPM to the largest extent, and no total summing of SiPM locations is needed.
 
 				//Input Parameter, 8->10, 11->14, 14->18, 17->20, 20->24
-				fDetNum  = 8;
+				fDetNum  = 14;
+				int fDetNumAcross = fDetNum;
 
 				if(fDetNum == 8){
 					int size = sizeof(MaxDeltaT8NF)/sizeof(MaxDeltaT8NF[0]);
@@ -119,8 +121,19 @@ class DetectorDaemon : public TObject {
 				}
 				CalculatePositions(fDetNum);
 
-
-
+				int detNumAbove = fDetNum - fDetNumAcross;
+				int above1 = fDetNumAcross/2. - detNumAbove/2.;
+				int above2 = fDetNumAcross/2. + detNumAbove/2. - 1;
+				//std::cout << "detNumAbove: " << detNumAbove << std::endl;
+				//std::cout << "above1: " << above1 << std::endl;
+				//std::cout << "above2: " << above2 << std::endl;
+				if (fDetNumAcross % 2 != 0 ) {
+				int detNumAbove = fDetNum - fDetNumAcross;
+				int above1 = (fDetNumAcross-1)/2. - 1;
+				int above2 = (fDetNumAcross-1)/2. + 1;
+				//std::cout << "above1: " << above1 << std::endl;
+				//std::cout << "above2: " << above2 << std::endl;
+				}
 				fConversion2 = fConversion1 / (c*c);
 				fTimingUncertainty = fTimingUncertaintyFWHM/2.355; //.6/2.35
 
@@ -193,15 +206,15 @@ class DetectorDaemon : public TObject {
 					frontBottomHit = true;
 				}
 
-				//if (DetConfiguration == 5  && topHit == true && fSystemId == 8800) { //Unsegmented
-				if (DetConfiguration == 5  && bottomHit ==true && topHit == true && fSystemId == 8800) { //Unsegmented
+				if (DetConfiguration == 5  && topHit == true && fSystemId == 8800) { //ZDS and test bar
+				//if (DetConfiguration == 5  && bottomHit ==true && topHit == true && fSystemId == 8800) { // test bar
 
-					//fTOF = fCFDTimeTop1;
+					fCFDTimeTop1 = rand.Gaus(fCFDTimeTop1, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+					//fCFDTimeBottom1 = rand.Gaus(fCFDTimeBottom1, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
 					f2pmt = 1;
-					//				fCFDTimeTop1 = rand.Gaus(fCFDTimeTop1, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
-					//				fCFDTimeBottom1 = rand.Gaus(fCFDTimeBottom1, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
-					fTOF = (fCFDTimeTop1 - fCFDTimeBottom1);
-					//fTOF = 0.5*(fCFDTimeTop1 + fCFDTimeBottom1); //5cm away, 1cm thick
+					fTOF = fCFDTimeTop1;
+					//fTOF = (fCFDTimeTop1 - fCFDTimeBottom1);
+					//fTOF = (fCFDTimeTop1 + fCFDTimeBottom1); //5cm away, 1cm thick
 					/*		fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
 					//fTOF = rand.Gaus(fTOF, 0.3/2.355); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
 					//if(bottomHit==true && abs(fPosition.Y()) < 1) {
@@ -320,7 +333,8 @@ class DetectorDaemon : public TObject {
 					if(bottomHit && topHit   && !frontTopHit && !frontMidHit && !frontBottomHit) {
 						//std::cout << "Case 1" << std::endl;
 						//std::cout << "Smallest and second and MaxDeltaT: " << fTopMin << " and " << fBottomMin << " and " << MaxDeltaT[fDetectorId] << std::endl;
-						f2pmt = 1;
+						if (DetConfiguration==0) f2pmt = 1;
+						else f2pmt = 11;
 						fTopMin1 = rand.Gaus(fTopMin, fTimingUncertainty);
 						fBottomMin1 = rand.Gaus(fBottomMin, fTimingUncertainty);
 						fTOF = (fTopMin1+fBottomMin1)/2. - 0.5*MaxDeltaT[fDetectorId];
@@ -346,11 +360,11 @@ class DetectorDaemon : public TObject {
 						//fYPos = R * sin(theta); // cm
 						fYPos = abs(R * sin(theta)); // cm
 						//if (arcLength<0) fYPos = - fYPos;
-						if ( fDetectorId >= 5 && fDetectorId <= 8){
+						if ( fDetectorId >= above1 && fDetectorId <= above2){
 							if(fTopMin <= fBottomMin) fYPos = 0.5*(YPos[fDetectorId] + fPMTSize + fBeamlineXY) + fYPos;
 							if(fTopMin > fBottomMin) fYPos = 0.5*(YPos[fDetectorId] + fPMTSize + fBeamlineXY) - fYPos;
 						}
-						if ( fDetectorId >= 14){
+						if ( fDetectorId >= fDetNumAcross){
 							if(fTopMin <= fBottomMin) fYPos = -0.5*(YPos[fDetectorId] + fPMTSize + fBeamlineXY) + fYPos;
 							if(fTopMin > fBottomMin) fYPos = -0.5*(YPos[fDetectorId] + fPMTSize + fBeamlineXY) - fYPos;
 						} else {
@@ -381,7 +395,8 @@ class DetectorDaemon : public TObject {
 							std::cout << "frontTop1: " << frontTopCFD[0] << std::endl;
 							std::cout << "frontTop2: " << frontTopCFD[1] << std::endl;
 							}
-							*/	fC_effective = ArcLength_FrontTopBot_Outside[fDetectorId]/fMaxTDiff;
+							*/	
+						fC_effective = ArcLength_FrontTopBot_Outside[fDetectorId]/fMaxTDiff;
 						arcLength = abs(fC_effective * 0.5 * (fFrontTopMin1 - fTopMin1));
 						R = sqrt(fDistance*fDistance - XPos[fDetectorId]*XPos[fDetectorId]); // cm
 						theta = abs(arcLength / R);
@@ -416,7 +431,8 @@ class DetectorDaemon : public TObject {
 							std::cout << "frontBottom1: " << frontBottomCFD[0] << std::endl;
 							std::cout << "frontBottom2: " << frontBottomCFD[1] << std::endl;
 							}
-							*/	fC_effective = ArcLength_FrontTopBot_Outside[fDetectorId]/fMaxTDiff;
+							*/	
+						fC_effective = ArcLength_FrontTopBot_Outside[fDetectorId]/fMaxTDiff;
 						arcLength = abs(fC_effective * 0.5 * (fFrontBottomMin1 - fBottomMin1));
 						R = sqrt(fDistance*fDistance - XPos[fDetectorId]*XPos[fDetectorId]); // cm
 						theta = abs(arcLength / R);
@@ -425,6 +441,23 @@ class DetectorDaemon : public TObject {
 						if(fBottomMin <= fFrontBottomMin) fYPos = offset - fYPos;
 						if(fBottomMin > fFrontBottomMin) fYPos = offset + fYPos;
 						fYDelta = pos.Y()/10. - fYPos;
+
+						//Testing
+						//arcLength = abs(fC_effective * 0.5 * (fFrontBottomMin1 - fBottomMin1)) + fC_effective * 0.5 * fMaxTDiff;
+						double fYPos1, fYPos2;
+						double arcLength1, arcLength2;;
+						arcLength1 = fC_effective *(fBottomMin1 - fTOF);
+						arcLength2 = fC_effective *(fFrontBottomMin1 - fTOF);
+						theta = arcLength1/R;
+						fYPos = abs(R * sin(theta)); // cm
+						fYPos1 = -YPos[fDetectorId]+fYPos;
+						theta = arcLength2/R;
+						fYPos = abs(R * sin(theta)); // cm
+						fYPos2 = -frontPMT[fDetectorId] - fYPos;
+						fYPos = 0.5 * (fYPos1 + fYPos2);
+						fYDelta = pos.Y()/10. - fYPos;
+
+
 					} 
 					// Top and Front Mid
 					if(!bottomHit && topHit  && !frontTopHit && frontMidHit  && !frontBottomHit) {
@@ -448,13 +481,13 @@ class DetectorDaemon : public TObject {
 							std::cout << "frontMid2: " << frontMidCFD[1] << std::endl;
 							}						
 							*/	fC_effective = ArcLength_FrontMid_Outside[fDetectorId]/fMaxTDiff;
-						if ( fDetectorId >= 14) fC_effective = ArcLength_FrontMid_Inside[fDetectorId]/fMaxTDiff;
+						if ( fDetectorId >= fDetNumAcross) fC_effective = ArcLength_FrontMid_Inside[fDetectorId]/fMaxTDiff;
 
 						arcLength = abs(fC_effective * 0.5 * (fFrontMidMin1 - fTopMin1));
 						R = sqrt(fDistance*fDistance - XPos[fDetectorId]*XPos[fDetectorId]); // cm
 						theta = abs(arcLength / R);
 						fYPos = abs(R * sin(theta)); // cm
-						if(fDetectorId >= 14){
+						if(fDetectorId >= fDetNumAcross){
 							if(fTopMin <= fFrontMidMin) fYPos = -0.5*(fPMTSize + fBeamlineXY + midPMT[fDetectorId]) + fYPos;
 							if(fTopMin > fFrontMidMin) fYPos = -0.5*(fPMTSize + fBeamlineXY + midPMT[fDetectorId]) - fYPos;
 						} else{
@@ -485,14 +518,14 @@ class DetectorDaemon : public TObject {
 							std::cout << "frontMid2: " << frontMidCFD[1] << std::endl;
 							}	
 							*/	fC_effective = ArcLength_FrontMid_Outside[fDetectorId]/fMaxTDiff;
-						if ( fDetectorId >= 5 && fDetectorId <= 8 ) fC_effective = ArcLength_FrontMid_Inside[fDetectorId]/fMaxTDiff;
+						if ( fDetectorId >= above1 && fDetectorId <= above2 ) fC_effective = ArcLength_FrontMid_Inside[fDetectorId]/fMaxTDiff;
 
 						arcLength = abs(fC_effective * 0.5 * (fFrontMidMin1 - fBottomMin1));
 						R = sqrt(fDistance*fDistance - XPos[fDetectorId]*XPos[fDetectorId]); // cm
 						theta = abs(arcLength / R);
 						fYPos = abs(R * sin(theta)); // cm
 
-						if ( fDetectorId >= 5 && fDetectorId <= 8){
+						if ( fDetectorId >= above1 && fDetectorId <= above2){
 							if(fBottomMin <= fFrontMidMin) fYPos = 0.5*(fPMTSize + fBeamlineXY + midPMT[fDetectorId]) - fYPos;
 							if(fBottomMin > fFrontMidMin) fYPos = 0.5*(fPMTSize + fBeamlineXY + midPMT[fDetectorId]) + fYPos;
 
@@ -506,7 +539,8 @@ class DetectorDaemon : public TObject {
 					if(!bottomHit && topHit  && !frontTopHit && !frontMidHit && frontBottomHit ) {
 						//std::cout << "Case 6" << std::endl;
 						//	std::cout << "Smallest and second and MaxDeltaT: " << fTopMin << " and " << fFrontBottomMin << " and " << MaxDeltaTTop[fDetectorId]+ MaxDeltaTMid[fDetectorId]  << std::endl;
-						f2pmt = 6;
+						//f2pmt = 6;
+						f2pmt = 16;
 						fTopMin1 = rand.Gaus(fTopMin, fTimingUncertainty);
 						fFrontBottomMin1 = rand.Gaus(fFrontBottomMin, fTimingUncertainty);
 						fTOF = (fTopMin1+fFrontBottomMin1)/2. - 0.5*(MaxDeltaTTop[fDetectorId]+ MaxDeltaTMid[fDetectorId]);
@@ -537,7 +571,8 @@ class DetectorDaemon : public TObject {
 					if(bottomHit && !topHit  && frontTopHit  && !frontMidHit && !frontBottomHit) {
 						//std::cout << "Case 7" << std::endl;
 						//	std::cout << "Smallest and second and MaxDeltaT: " << fBottomMin << " and " << fFrontTopMin << " and " << MaxDeltaTBot[fDetectorId]+ MaxDeltaTMid[fDetectorId]<< std::endl;
-						f2pmt = 7;
+						//f2pmt = 7;
+						f2pmt = 17;
 						fFrontTopMin1 = rand.Gaus(fFrontTopMin, fTimingUncertainty);
 						fBottomMin1 = rand.Gaus(fBottomMin, fTimingUncertainty);
 						fTOF = (fBottomMin1+fFrontTopMin1)/2. - 0.5*(MaxDeltaTBot[fDetectorId]+ MaxDeltaTMid[fDetectorId]);
@@ -596,8 +631,26 @@ class DetectorDaemon : public TObject {
 					} 
 
 					if(f2pmt < 10) {
+						bool xNeg=false, yNeg=false;
+						//This assumption boardens the peaks in dtheta dphi
 						fXPos = XPos[fDetectorId];
+						fXDelta = pos.X()/10. - fXPos;
+						//This assumption creates asymmetry in dtheta
 						fZPos = sqrt(fDistance*fDistance - fYPos*fYPos - XPos[fDetectorId]*XPos[fDetectorId]);
+						
+						//fXPos = pos.X()/10.;
+						//fZPos = pos.Z()/10.;
+					/*	if (fXPos < 0 && pos.X() < 0){
+						fXPos = abs(fXPos);
+						pos.SetX(abs(pos.X()));
+						xNeg = true;
+						}
+						if (fYPos < 0 && pos.X() < 0){
+						fYPos = abs(fYPos);
+						pos.SetY(abs(pos.Y()));
+						yNeg = true;
+						}
+					*/
 						const TVector3 CalcPos(fXPos, fYPos, fZPos);
 						double theta1 = pos.Angle(CalcPos); // Note this is in meters, Calc is in cm, Still works though
 						fArcDiff = fDistance*theta1;
@@ -605,14 +658,34 @@ class DetectorDaemon : public TObject {
 						fPhiSim = pos.Phi()*180./TMath::Pi();
 						fThetaCalc = CalcPos.Theta()*180./TMath::Pi();
 						fPhiCalc = CalcPos.Phi()*180./TMath::Pi();
+						//if (fPhiSim < 0.) fPhiSim = 360. + fPhiSim;
+						//if (fPhiCalc < 0.) fPhiCalc = 360. + fPhiCalc;
+						//fThetaSim = TMath::ACos(pos.Z()/10./fDistance)*180./TMath::Pi();
+						//fThetaCalc = TMath::ACos(fZPos/fDistance)*180./TMath::Pi();
+						
 						fPhiDiff = fPhiSim - fPhiCalc;
 						fThetaDiff = fThetaSim - fThetaCalc;
+						//fPhiDiff = CalcPos.DeltaPhi(pos);
+						//fThetaDiff = CalcPos.DeltaTheta(pos);
+					/*	if (xNeg == true){
+						fXPos = -1.*fXPos;
+						pos.SetX(-1.*(pos.X()));
+						xNeg = false;
+						}
+						if (yNeg == true){
+						fYPos = -1.*fYPos;
+						pos.SetY(-1.*(pos.Y()));
+						yNeg = false;
+						}
+						*/
 					}
 
 				}
 				if (DetConfiguration == 2  && topHit == true) { //Unsegmented
-					fTOF = fTopMin;
-					fTOF = rand.Gaus(fTOF, TMath::Sqrt(2)*fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+				//if (DetConfiguration == 4  && topHit == true && frontTopHit == true) { //Unsegmented and 2 sipms
+					if (fTopMin < fFrontTopMin) fTOF = fTopMin;
+					if (fFrontTopMin < fTopMin) fTOF = fFrontTopMin;
+					fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
 					f2pmt = 1; //Doesnt do much but allows for hist functions to remain unchanged with bar conditions
 					if(fSystemId == 8710){
 						fXPos = bluePosition[fDetectorId][0];
@@ -654,12 +727,14 @@ class DetectorDaemon : public TObject {
 					fPhiDiff = fPhiSim - fPhiCalc;
 					fThetaDiff = fThetaSim - fThetaCalc;
 					fYDelta = pos.Y()/10. - fYPos;
+					fXDelta = pos.X()/10. - fXPos;
 				}
 				if (DetConfiguration == 2  && topHit == false) { //Unsegmented
 					f2pmt = 10;
 					fTOF = -1;
 					fYPos = -150;
 					fYDelta = -200;
+					fXDelta = -200;
 					fXPos = -200;
 					fZPos = -200;
 					fC_effective = -1;
@@ -679,7 +754,7 @@ class DetectorDaemon : public TObject {
 					//Still have issues with simulation where if detNum is same for differenct systemIDs they stack -> Investigate further.
 					if(fSystemId == 8710 && topHit ==true) {
 						fTOF = fTopMin;
-						fTOF = rand.Gaus(fTOF, TMath::Sqrt(2)*fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+						fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
 						fXPos = bluePositionTop[fDetectorId][0];
 						fYPos = bluePositionTop[fDetectorId][1];
 						fZPos = bluePositionTop[fDetectorId][2];
@@ -688,7 +763,7 @@ class DetectorDaemon : public TObject {
 					}
 					if(fSystemId == 8710 && bottomHit ==true) {
 						fTOF = fBottomMin;
-						fTOF = rand.Gaus(fTOF, TMath::Sqrt(2)*fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+						fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
 						fXPos = bluePositionBottom[fDetectorId][0];
 						fYPos = bluePositionBottom[fDetectorId][1];
 						fZPos = bluePositionBottom[fDetectorId][2];
@@ -697,7 +772,7 @@ class DetectorDaemon : public TObject {
 					}
 					if(fSystemId == 8710 && frontTopHit ==true) {
 						fTOF = fFrontTopMin;
-						fTOF = rand.Gaus(fTOF, TMath::Sqrt(2)*fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+						fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
 						fXPos = bluePositionFrontTop[fDetectorId][0];
 						fYPos = bluePositionFrontTop[fDetectorId][1];
 						fZPos = bluePositionFrontTop[fDetectorId][2];
@@ -706,7 +781,7 @@ class DetectorDaemon : public TObject {
 					}
 					if(fSystemId == 8710 && frontBottomHit ==true) {
 						fTOF = fFrontBottomMin;
-						fTOF = rand.Gaus(fTOF, TMath::Sqrt(2)*fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+						fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
 						fXPos = bluePositionFrontBottom[fDetectorId][0];
 						fYPos = bluePositionFrontBottom[fDetectorId][1];
 						fZPos = bluePositionFrontBottom[fDetectorId][2];
@@ -715,7 +790,7 @@ class DetectorDaemon : public TObject {
 					}
 					if(fSystemId == 8720 && topHit ==true) {
 						fTOF = fTopMin;
-						fTOF = rand.Gaus(fTOF, TMath::Sqrt(2)*fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+						fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
 						fXPos = whitePositionTop[fDetectorId-15][0];
 						fYPos = whitePositionTop[fDetectorId-15][1];
 						fZPos = whitePositionTop[fDetectorId-15][2];
@@ -724,7 +799,7 @@ class DetectorDaemon : public TObject {
 					}
 					if(fSystemId == 8720 && bottomHit ==true) {
 						fTOF = fBottomMin;
-						fTOF = rand.Gaus(fTOF, TMath::Sqrt(2)*fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+						fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
 						fXPos = whitePositionBottom[fDetectorId-15][0];
 						fYPos = whitePositionBottom[fDetectorId-15][1];
 						fZPos = whitePositionBottom[fDetectorId-15][2];
@@ -733,7 +808,7 @@ class DetectorDaemon : public TObject {
 					}
 					if(fSystemId == 8720 && frontTopHit ==true) {
 						fTOF = fFrontTopMin;
-						fTOF = rand.Gaus(fTOF, TMath::Sqrt(2)*fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+						fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
 						fXPos = whitePositionFrontTop[fDetectorId-15][0];
 						fYPos = whitePositionFrontTop[fDetectorId-15][1];
 						fZPos = whitePositionFrontTop[fDetectorId-15][2];
@@ -742,7 +817,7 @@ class DetectorDaemon : public TObject {
 					}
 					if(fSystemId == 8720 && frontBottomHit ==true) {
 						fTOF = fFrontBottomMin;
-						fTOF = rand.Gaus(fTOF, TMath::Sqrt(2)*fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+						fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
 						fXPos = whitePositionFrontBottom[fDetectorId-15][0];
 						fYPos = whitePositionFrontBottom[fDetectorId-15][1];
 						fZPos = whitePositionFrontBottom[fDetectorId-15][2];
@@ -751,7 +826,7 @@ class DetectorDaemon : public TObject {
 					}
 					if(fSystemId == 8730 && topHit ==true) {
 						fTOF = fTopMin;
-						fTOF = rand.Gaus(fTOF, TMath::Sqrt(2)*fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+						fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
 						fXPos = redPositionTop[fDetectorId-15-20][0];
 						fYPos = redPositionTop[fDetectorId-15-20][1];
 						fZPos = redPositionTop[fDetectorId-15-20][2];
@@ -760,7 +835,7 @@ class DetectorDaemon : public TObject {
 					}
 					if(fSystemId == 8730 && bottomHit ==true) {
 						fTOF = fBottomMin;
-						fTOF = rand.Gaus(fTOF, TMath::Sqrt(2)*fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+						fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
 						fXPos = redPositionBottom[fDetectorId-15-20][0];
 						fYPos = redPositionBottom[fDetectorId-15-20][1];
 						fZPos = redPositionBottom[fDetectorId-15-20][2];
@@ -769,7 +844,7 @@ class DetectorDaemon : public TObject {
 					}
 					if(fSystemId == 8730 && frontTopHit ==true) {
 						fTOF = fFrontTopMin;
-						fTOF = rand.Gaus(fTOF, TMath::Sqrt(2)*fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+						fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
 						fXPos = redPositionFrontTop[fDetectorId-15-20][0];
 						fYPos = redPositionFrontTop[fDetectorId-15-20][1];
 						fZPos = redPositionFrontTop[fDetectorId-15-20][2];
@@ -778,7 +853,7 @@ class DetectorDaemon : public TObject {
 					}
 					if(fSystemId == 8730 && frontBottomHit ==true) {
 						fTOF = fFrontBottomMin;
-						fTOF = rand.Gaus(fTOF, TMath::Sqrt(2)*fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+						fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
 						fXPos = redPositionFrontBottom[fDetectorId-15-20][0];
 						fYPos = redPositionFrontBottom[fDetectorId-15-20][1];
 						fZPos = redPositionFrontBottom[fDetectorId-15-20][2];
@@ -787,7 +862,7 @@ class DetectorDaemon : public TObject {
 					}
 					if(fSystemId == 8740 && topHit ==true) {
 						fTOF = fTopMin;
-						fTOF = rand.Gaus(fTOF, TMath::Sqrt(2)*fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+						fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
 						fXPos = greenPositionTop[fDetectorId-15-20-15][0];
 						fYPos = greenPositionTop[fDetectorId-15-20-15][1];
 						fZPos = greenPositionTop[fDetectorId-15-20-15][2];
@@ -796,7 +871,7 @@ class DetectorDaemon : public TObject {
 					}
 					if(fSystemId == 8740 && bottomHit ==true) {
 						fTOF = fBottomMin;
-						fTOF = rand.Gaus(fTOF, TMath::Sqrt(2)*fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+						fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
 						fXPos = greenPositionBottom[fDetectorId-15-20-15][0];
 						fYPos = greenPositionBottom[fDetectorId-15-20-15][1];
 						fZPos = greenPositionBottom[fDetectorId-15-20-15][2];
@@ -805,7 +880,7 @@ class DetectorDaemon : public TObject {
 					}
 					if(fSystemId == 8740 && frontTopHit ==true) {
 						fTOF = fFrontTopMin;
-						fTOF = rand.Gaus(fTOF, TMath::Sqrt(2)*fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+						fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
 						fXPos = greenPositionFrontTop[fDetectorId-15-20-15][0];
 						fYPos = greenPositionFrontTop[fDetectorId-15-20-15][1];
 						fZPos = greenPositionFrontTop[fDetectorId-15-20-15][2];
@@ -814,7 +889,7 @@ class DetectorDaemon : public TObject {
 					}
 					if(fSystemId == 8740 && frontBottomHit ==true) {
 						fTOF = fFrontBottomMin;
-						fTOF = rand.Gaus(fTOF, TMath::Sqrt(2)*fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+						fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
 						fXPos = greenPositionFrontBottom[fDetectorId-15-20-15][0];
 						fYPos = greenPositionFrontBottom[fDetectorId-15-20-15][1];
 						fZPos = greenPositionFrontBottom[fDetectorId-15-20-15][2];
@@ -823,7 +898,7 @@ class DetectorDaemon : public TObject {
 					}
 					if(fSystemId == 8750 && topHit ==true) {
 						fTOF = fTopMin;
-						fTOF = rand.Gaus(fTOF, TMath::Sqrt(2)*fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+						fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
 						fXPos = yellowPositionTop[fDetectorId-15-20-15-10][0];
 						fYPos = yellowPositionTop[fDetectorId-15-20-15-10][1];
 						fZPos = yellowPositionTop[fDetectorId-15-20-15-10][2];
@@ -832,7 +907,7 @@ class DetectorDaemon : public TObject {
 					}
 					if(fSystemId == 8750 && bottomHit ==true) {
 						fTOF = fBottomMin;
-						fTOF = rand.Gaus(fTOF, TMath::Sqrt(2)*fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+						fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
 						fXPos = yellowPositionBottom[fDetectorId-15-20-15-10][0];
 						fYPos = yellowPositionBottom[fDetectorId-15-20-15-10][1];
 						fZPos = yellowPositionBottom[fDetectorId-15-20-15-10][2];
@@ -841,7 +916,7 @@ class DetectorDaemon : public TObject {
 					}
 					if(fSystemId == 8750 && frontTopHit ==true) {
 						fTOF = fFrontTopMin;
-						fTOF = rand.Gaus(fTOF, TMath::Sqrt(2)*fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+						fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
 						fXPos = yellowPositionFrontTop[fDetectorId-15-20-15-10][0];
 						fYPos = yellowPositionFrontTop[fDetectorId-15-20-15-10][1];
 						fZPos = yellowPositionFrontTop[fDetectorId-15-20-15-10][2];
@@ -850,7 +925,7 @@ class DetectorDaemon : public TObject {
 					}
 					if(fSystemId == 8750 && frontBottomHit ==true) {
 						fTOF = fFrontBottomMin;
-						fTOF = rand.Gaus(fTOF, TMath::Sqrt(2)*fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+						fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
 						fXPos = yellowPositionFrontBottom[fDetectorId-15-20-15-10][0];
 						fYPos = yellowPositionFrontBottom[fDetectorId-15-20-15-10][1];
 						fZPos = yellowPositionFrontBottom[fDetectorId-15-20-15-10][2];
@@ -868,11 +943,13 @@ class DetectorDaemon : public TObject {
 					fPhiDiff = fPhiSim - fPhiCalc;
 					fThetaDiff = fThetaSim - fThetaCalc;
 					fYDelta = pos.Y()/10. - fYPos;
+					fXDelta = pos.X()/10. - fXPos;
 					if(hit==false) {
 						f2pmt = 10;
 						fTOF = -1;
 						fYPos = -150;
 						fYDelta = -200;
+						fXDelta = -200;
 						fXPos = -200;
 						fZPos = -200;
 						fC_effective = -1;
@@ -1054,6 +1131,9 @@ class DetectorDaemon : public TObject {
 				}
 				double DeltaY() {
 					return fYDelta;
+				}
+				double DeltaX() {
+					return fXDelta;
 				}
 				std::vector<double> GetRand() {
 					std::vector<double> Num(2, -10);
@@ -1481,6 +1561,7 @@ class DetectorDaemon : public TObject {
 				double fXPos;
 				double fYPos;
 				double fYDelta;
+				double fXDelta;
 				double fZPos;
 				double fArcDiff;
 				double fThetaDiff;
@@ -1492,7 +1573,8 @@ class DetectorDaemon : public TObject {
 				double fThickness = 1.5;
 				double fDistance;
 				//double fTimingUncertaintyFWHM = 0.6; // 600 ps // For zds and SiPM combined
-				double fTimingUncertaintyFWHM = 0.4; // 400 ps //For SiPM only
+				double fTimingUncertaintyFWHM = 0.3; // 400 ps //For SiPM only
+				//double fTimingUncertaintyFWHM = 0.; // 400 ps //For SiPM only
 				//double fTimingUncertaintyFWHM = 0.25; // 400 ps //For SiPM only
 				double fTimingUncertainty;
 				double fMass = 1008664.91595e-6; // u //Allison

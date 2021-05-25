@@ -551,6 +551,7 @@ Converter::Converter(std::vector<std::string>& inputFileNames, const std::string
 		fSceptarHit = false;
 		fZDSHit = false;
 		fDescantHit = false;
+		fDescantHitNeutron = false;
 		fDaemonHit = false;
 		fDaemonBarsConfig = true;
 		//fDaemonBarsConfig = false;
@@ -925,19 +926,22 @@ bool Converter::Run() {
 			FillHistDetector1DProcess(hist1D, fDaemonBarsArray, "daemon_bars_process_type", "Daemon1DExtra");
 			FillHistDetector1DPMT(hist1D, fDaemonBarsArray, "daemon_bars_pmt_hit", "Daemon1DExtra");
 			//Positoin
-			FillHistDetector1DArc(hist1D, fDaemonBarsArray, "daemon_bars_zds_arc_diff", "Daemon1DDeltaPos");
-			FillHistDetector1DDeltaY(hist1D, fDaemonBarsArray, "daemon_bars_zds_delta_Y", "Daemon1DDeltaPos");
-			FillHistDetector2DPmtDeltaY(hist2D, fDaemonBarsArray, "daemon_pmt_deltaY_zds_coin", "Daemon1DDeltaPos");
-			FillHistDetector2DDetDeltaY(hist2D, fDaemonBarsArray, "daemon_det_deltaY_zds_coin", "Daemon1DDeltaPos");
-			FillHistDetector2DDetDeltaTheta(hist2D, fDaemonBarsArray, "daemon_det_deltaTheta_zds_coin", "Daemon1DDeltaPos");
-			FillHistDetector2DDetDeltaPhi(hist2D, fDaemonBarsArray, "daemon_det_deltaPhi_zds_coin", "Daemon1DDeltaPos");
-			FillHistDetector2DDetDeltaThetaPhi(hist2D, fDaemonBarsArray, "daemon_deltaThetaX_PhiY_zds_coin", "Daemon1DDeltaPos");
+			FillHistDetector1DArc(hist1D, fDaemonBarsArray, "daemon_bars_arc_diff", "Daemon1DDeltaPos");
+			FillHistDetector1DDeltaY(hist1D, fDaemonBarsArray, "daemon_bars_delta_Y", "Daemon1DDeltaPos");
+			FillHistDetector2DPmtDeltaY(hist2D, fDaemonBarsArray, "daemon_pmt_deltaY", "Daemon1DDeltaPos");
+			FillHistDetector2DDetDeltaY(hist2D, fDaemonBarsArray, "daemon_det_deltaY", "Daemon1DDeltaPos");
+			FillHistDetector2DDetDeltaX(hist2D, fDaemonBarsArray, "daemon_det_deltaX", "Daemon1DDeltaPos");
+			FillHistDetector2DDetDeltaTheta(hist2D, fDaemonBarsArray, "daemon_det_deltaTheta", "Daemon1DDeltaPos");
+			FillHistDetector2DPmtDeltaTheta(hist2D, fDaemonBarsArray, "daemon_pmt_deltaTheta", "Daemon1DDeltaPos");
+			FillHistDetector2DDetDeltaPhi(hist2D, fDaemonBarsArray, "daemon_det_deltaPhi", "Daemon1DDeltaPos");
+			FillHistDetector2DDetDeltaThetaPhi(hist2D, fDaemonBarsArray, "daemon_deltaThetaX_PhiY", "Daemon1DDeltaPos");
 			}
-	/*		if (fDaemonBarsConfig == false) {
+			if (fDaemonBarsConfig == false) {
 			//DaemonTOF Blue Tiles
 			FillHistDetector1DTOF(hist1D, fDaemonBlueTiles, "daemon_blueTiles_unsup_uncorr_tof", "Daemon1D");
 			FillHistDetector1DDeltaT(hist1D, fDaemonBlueTiles, "daemon_blueTiles_unsup_uncorr_delta_t_tof", "Daemon1DDelta");
 			FillHistDetector1DDeltaY(hist1D, fDaemonBlueTiles, "daemon_blueTiles_delta_Y", "Daemon1DDeltaPos");
+			FillHistDetector1DEnergyTOF(hist1D, fDaemonBlueTiles, "daemon_blueTiles_energy_tof", "Daemon1DEnergy");
 			//Daemon Extra Histograms Blue Tiles
 			FillHistDetector1DParticle(hist1D, fDaemonBlueTiles, "daemon_blueTiles_particle_type", "Daemon1DExtra");
 			FillHistDetector1DProcess(hist1D, fDaemonBlueTiles, "daemon_blueTiles_process_type", "Daemon1DExtra");
@@ -946,6 +950,7 @@ bool Converter::Run() {
 			FillHistDetector1DTOF(hist1D, fDaemonWhiteTiles, "daemon_whiteTiles_unsup_uncorr_tof", "Daemon1D");
 			FillHistDetector1DDeltaT(hist1D, fDaemonWhiteTiles, "daemon_whiteTiles_unsup_uncorr_delta_t_tof", "Daemon1DDelta");
 			FillHistDetector1DDeltaY(hist1D, fDaemonWhiteTiles, "daemon_whiteTiles_delta_Y", "Daemon1DDeltaPos");
+			FillHistDetector1DEnergyTOF(hist1D, fDaemonWhiteTiles, "daemon_whiteTiles_energy_tof", "Daemon1DEnergy");
 			//Daemon Extra Histograms White Tiles
 			FillHistDetector1DParticle(hist1D, fDaemonWhiteTiles, "daemon_whiteTiles_particle_type", "Daemon1DExtra");
 			FillHistDetector1DProcess(hist1D, fDaemonWhiteTiles, "daemon_whiteTiles_process_type", "Daemon1DExtra");
@@ -958,10 +963,12 @@ bool Converter::Run() {
 			FillHistDetector1DParticle(hist1D, fDaemonRedTiles, "daemon_redTiles_particle_type", "Daemon1DExtra");
 			FillHistDetector1DProcess(hist1D, fDaemonRedTiles, "daemon_redTiles_process_type", "Daemon1DExtra");
 			FillHistDetector1DPMT(hist1D, fDaemonRedTiles, "daemon_redTiles_pmt_hit", "Daemon1DExtra");
+			FillHistDetector1DEnergyTOF(hist1D, fDaemonRedTiles, "daemon_redTiles_energy_tof", "Daemon1DEnergy");
 			//DaemonTOF Green Tiles
 			FillHistDetector1DTOF(hist1D, fDaemonGreenTiles, "daemon_greenTiles_unsup_uncorr_tof", "Daemon1D");
 			FillHistDetector1DDeltaT(hist1D, fDaemonGreenTiles, "daemon_greenTiles_unsup_uncorr_delta_t_tof", "Daemon1DDelta");
 			FillHistDetector1DDeltaY(hist1D, fDaemonGreenTiles, "daemon_greenTiles_delta_Y", "Daemon1DDeltaPos");
+			FillHistDetector1DEnergyTOF(hist1D, fDaemonGreenTiles, "daemon_greenTiles_energy_tof", "Daemon1DEnergy");
 			//Daemon Extra Histograms Green Tiles
 			FillHistDetector1DParticle(hist1D, fDaemonGreenTiles, "daemon_greenTiles_particle_type", "Daemon1DExtra");
 			FillHistDetector1DProcess(hist1D, fDaemonGreenTiles, "daemon_greenTiles_process_type", "Daemon1DExtra");
@@ -970,6 +977,7 @@ bool Converter::Run() {
 			FillHistDetector1DTOF(hist1D, fDaemonYellowTiles, "daemon_yellowTiles_unsup_uncorr_tof", "Daemon1D");
 			FillHistDetector1DDeltaT(hist1D, fDaemonYellowTiles, "daemon_yellowTiles_unsup_uncorr_delta_t_tof", "Daemon1DDelta");
 			FillHistDetector1DDeltaY(hist1D, fDaemonYellowTiles, "daemon_yellowTiles_delta_Y", "Daemon1DDeltaPos");
+			FillHistDetector1DEnergyTOF(hist1D, fDaemonYellowTiles, "daemon_yellowTiles_energy_tof", "Daemon1DEnergy");
 			//Daemon Extra Histograms Yellow Tiles
 			FillHistDetector1DParticle(hist1D, fDaemonYellowTiles, "daemon_yellowTiles_particle_type", "Daemon1DExtra");
 			FillHistDetector1DProcess(hist1D, fDaemonYellowTiles, "daemon_yellowTiles_process_type", "Daemon1DExtra");
@@ -980,12 +988,20 @@ bool Converter::Run() {
 			FillHistDetector1DTOF(hist1D, fDaemonTilesArray, "daemon_Tiles_unsup_uncorr_tof", "Daemon1D");
 			FillHistDetector1DDeltaT(hist1D, fDaemonTilesArray, "daemon_Tiles_unsup_uncorr_delta_t_tof", "Daemon1DDelta");
 			FillHistDetector1DDeltaY(hist1D, fDaemonTilesArray, "daemon_Tiles_delta_Y", "Daemon1DDeltaPos");
-			//Daemon Extra Histograms Yellow Tiles
+			FillHistDetector1DEnergyTOF(hist1D, fDaemonTilesArray, "daemon_Tiles_energy_tof", "Daemon1DEnergy");
+			//Daemon Extra Histograms  Tiles
 			FillHistDetector1DParticle(hist1D, fDaemonTilesArray, "daemon_Tiles_particle_type", "Daemon1DExtra");
 			FillHistDetector1DProcess(hist1D, fDaemonTilesArray, "daemon_Tiles_process_type", "Daemon1DExtra");
 			FillHistDetector1DPMT(hist1D, fDaemonTilesArray, "daemon_Tiles_pmt_hit", "Daemon1DExtra");
+			// Position
+			FillHistDetector1DDeltaY(hist1D, fDaemonTilesArray, "daemon_tilesArray_zds_delta_Y", "Daemon1DDeltaPos");
+			FillHistDetector2DDetDeltaY(hist2D, fDaemonTilesArray, "daemon_tilesArray_det_deltaY_zds_coin", "Daemon1DDeltaPos");
+			FillHistDetector2DDetDeltaTheta(hist2D, fDaemonTilesArray, "daemon_tilesArray_det_deltaTheta_zds_coin", "Daemon1DDeltaPos");
+			FillHistDetector2DDetDeltaPhi(hist2D, fDaemonTilesArray, "daemon_tilesArray_det_deltaPhi_zds_coin", "Daemon1DDeltaPos");
+			FillHistDetector2DDetDeltaThetaPhi(hist2D, fDaemonTilesArray, "daemon_tilesArray_deltaThetaX_PhiY_zds_coin", "Daemon1DDeltaPos");
+			FillHistDetector1DArc(hist1D, fDaemonTilesArray, "daemon_tilesArray_zds_radial_diff", "Daemon1DDeltaPos");
 			}
-*/
+
 
 			//ZDS
 			FillHistDetector1DZDS(hist1D, fZDSDetector, "zds_unsup_uncorr_tof", "ZDS1Dns");
@@ -1065,6 +1081,7 @@ bool Converter::Run() {
 				if(fDescantHit){
 				FillHistDetector2DGammaTOF(hist2D, fDaemonBarsArray, fGriffinDetector, fZDSDetector, "griffin_unsup_zds_daemon_coin_DescantCoin_TOFedep","Griffin2D");
 				FillHistDetector2DGammaEnergy(hist2D, fDaemonBarsArray, fGriffinDetector, fZDSDetector, "griffin_unsup_zds_daemon_coin_DescantCoin_ETOFedep","Griffin2D");
+				if (fDescantHitNeutron) FillHistDetector2DGammaEnergy(hist2D, fDaemonBarsArray, fGriffinDetector, fZDSDetector, "griffin_unsup_zds_daemon_coin_DescantCoinNeutron_ETOFedep","Griffin2D");
 				}
 					
 				}
@@ -1780,6 +1797,8 @@ bool Converter::Run() {
 			fDaemonHit = false;
 			fZDSHit = false;
 			fSceptarHit = false;
+			fDescantHit = false;
+			fDescantHitNeutron = false;
 			//std::cout << "Made it! 9" << std::endl;
 
 		}
@@ -1837,22 +1856,27 @@ bool Converter::Run() {
 						case 8010:
 							fDescantBlueDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
 							fDescantHit = true;
+							if (fParticleType == 4) fDescantHitNeutron = true;
 							break;
 						case 8020:
 							fDescantGreenDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
 							fDescantHit = true;
+							if (fParticleType == 4) fDescantHitNeutron = true;
 							break;
 						case 8030:
 							fDescantRedDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
 							fDescantHit = true;
+							if (fParticleType == 4) fDescantHitNeutron = true;
 							break;
 						case 8040:
 							fDescantWhiteDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
 							fDescantHit = true;
+							if (fParticleType == 4) fDescantHitNeutron = true;
 							break;
 						case 8050:
 							fDescantYellowDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
 							fDescantHit = true;
+							if (fParticleType == 4) fDescantHitNeutron = true;
 							break;
 							//case 9000:
 							//	fPacesDetector->push_back(Detector(fEventNumber, fDetNumber, fCryNumber, fDepEnergy, smearedEnergy, TVector3(fPosx,fPosy,fPosz), fTime));
@@ -2749,6 +2773,8 @@ void Converter::FillHistDetector1DTOF(TH1F* hist1D, std::vector<DetectorDaemon>*
 	for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
 		int pmt = detector->at(firstDet).PMT();
 		double time = detector->at(firstDet).TOF();
+		double fTimingUncertainty = 0.25/2.355; //.2/2.35
+		//time = fRandom.Gaus(time, fTimingUncertainty);
 		//std::cout << "Made it, tof:" << time  << std::endl;
 		//if (time >0 && pmt < 10){
 		if (pmt < 10){
@@ -2863,6 +2889,18 @@ void Converter::FillHistDetector2DDetDeltaY(TH2F* hist2D, std::vector<DetectorDa
 	}
 	}
 }
+void Converter::FillHistDetector2DDetDeltaX(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir) {
+	for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
+		TVector3 pos = detector->at(firstDet).Position();
+		double deltaX = detector->at(firstDet).DeltaX();
+		double tof = detector->at(firstDet).TOF();
+		int pmt = detector->at(firstDet).PMT();
+		if (tof>0 && pmt<10) {
+		hist2D = Get2DHistogram(hist_name,hist_dir);
+		hist2D->Fill(detector->at(firstDet).DetectorId(), deltaX);
+	}
+	}
+}
 void Converter::FillHistDetector2DDetDeltaPhi(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir) {
 	for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
 		double deltaPhi = detector->at(firstDet).DeltaPhi();
@@ -2885,6 +2923,18 @@ void Converter::FillHistDetector2DDetDeltaTheta(TH2F* hist2D, std::vector<Detect
 	}
 	}
 }
+void Converter::FillHistDetector2DPmtDeltaTheta(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir) {
+	for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
+		double deltaTheta = detector->at(firstDet).DeltaTheta();
+		double tof = detector->at(firstDet).TOF();
+		int pmt = detector->at(firstDet).PMT();
+		if (tof>0 && pmt<10) {
+		hist2D = Get2DHistogram(hist_name,hist_dir);
+		hist2D->Fill(pmt, deltaTheta);
+	}
+	}
+}
+
 void Converter::FillHistDetector2DDetDeltaThetaPhi(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir) {
 	for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
 		double deltaPhi = detector->at(firstDet).DeltaPhi();
@@ -2893,7 +2943,7 @@ void Converter::FillHistDetector2DDetDeltaThetaPhi(TH2F* hist2D, std::vector<Det
 		int pmt = detector->at(firstDet).PMT();
 		if (tof>0 && pmt<10) {
 		hist2D = Get2DHistogram(hist_name,hist_dir);
-		hist2D->Fill(deltaPhi, deltaTheta);
+		hist2D->Fill(deltaTheta, deltaPhi);
 	}
 	}
 }
@@ -2907,7 +2957,7 @@ void Converter::FillHistDetector1DTOFZDS(TH1F* hist1D, std::vector<DetectorDaemo
 		for(size_t firstDetS = 0; firstDetS < detectorZDS->size(); ++firstDetS) {
 			int eventZDS = detectorZDS->at(firstDetS).EventNumber();
 			double timeZDS = 1.e9*detectorZDS->at(firstDetS).Time();
-			double fTimingUncertainty = 0.2/2.355; //.2/2.35
+			double fTimingUncertainty = 0.25/2.355; //.2/2.35
 			timeZDS = fRandom.Gaus(timeZDS, fTimingUncertainty);
 			//tof = fRandom.Gaus(tof, 0.6/2.355);
 			//if(timeZDS<0) timeZDS=0;
@@ -2933,7 +2983,7 @@ void Converter::FillHistDetector1DCoinTOFZDS(TH1F* hist1D, std::vector<DetectorD
 	for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
 		int event = detector->at(firstDet).EventNumber();
 		double tof = detector->at(firstDet).TOF();
-			double fTimingUncertainty = 0.2/2.355; //.2/2.35
+			double fTimingUncertainty = 0.25/2.355; //.2/2.35
 			//double fTimingUncertainty = 1./2.355; //.2/2.35
 			timeZDS = fRandom.Gaus(timeZDS, fTimingUncertainty);
 			double timeDiff = timeZDS-tof;
@@ -2975,7 +3025,7 @@ void Converter::FillHistDetector1DEnergyTOF(TH1F* hist1D, std::vector<DetectorDa
 	//	std::cout << "Event: " << event  << std::endl;
 		double tof = detector->at(firstDet).TOF();
 		int pmt = detector->at(firstDet).PMT();
-			double fTimingUncertainty = 0.2/2.355; //.2/2.35
+			double fTimingUncertainty = 0.25/2.355; //.2/2.35
 			//double timeZDS = fRandom.Gaus(0, fTimingUncertainty);
 			//tof = fRandom.Gaus(tof, fTimingUncertainty);
 			tof = fRandom.Gaus(tof, fTimingUncertainty);
@@ -3067,7 +3117,7 @@ void Converter::FillHistDetector1DEnergyRand2(TH1F* hist1D, std::vector<Detector
 	for(size_t firstDet = 0; firstDet < detector->size(); ++firstDet) {
 		double tof = detector->at(firstDet).TOF();
 		int pmt = detector->at(firstDet).PMT();
-			double fTimingUncertainty = 0.2/2.355; //.2/2.35
+			double fTimingUncertainty = 0.25/2.355; //.2/2.35
 			double tof1 = fRandom.Gaus(tof, fTimingUncertainty);
 			double diff = tof1-tof;
 				if (pmt < 10 && tof > 0){
@@ -3099,7 +3149,7 @@ void Converter::FillHistDetector1DEnergyTOFZDS(TH1F* hist1D, std::vector<Detecto
 	//	for(size_t firstDetS = 0; firstDetS < detectorZDS->size(); ++firstDetS) {
 	//		int eventZDS = detectorZDS->at(firstDetS).EventNumber();
 	//		double timeZDS = 1.e9*detectorZDS->at(firstDetS).Time();
-			double fTimingUncertainty = 0.2/2.355; //.2/2.35
+			double fTimingUncertainty = 0.25/2.355; //.2/2.35
 			timeZDS = fRandom.Gaus(timeZDS, fTimingUncertainty);
 			if(timeZDS<0) timeZDS=0;
 			if (event == eventZDS) {
@@ -3415,10 +3465,12 @@ double Converter::CalculateCFD(TH1F * TimeHist){
 	double cfd = 0;
 
 	double bin_width = TimeHist->GetXaxis()->GetBinWidth(1);
-	double time_delay = 1.5;
+	double time_delay = 5.;
 	int delay = time_delay/bin_width; //ns - should be on the order of rise time
 	//	double timingUncertainty = 0.1; //ns
-	double attenuation = 0.2; //what should this be?
+	//double attenuation = 0.2; //what should this be?
+	double attenuation = 0.15; //what should this be?
+	//1.5 delay and att 0.1 good
 
 	std::vector<double> monitor(TimeHist->GetXaxis()->GetNbins()-delay);
 	//Check if TimeHist is null
@@ -3527,11 +3579,17 @@ double Converter::GetTime(std::vector<double>*  fTime){
 	//std::cout << "binRang1: " << binRange1 << std::endl;
 	//std::cout << "binRange1*binWidth: " << binRange1*fTimeHist->GetBinWidth(1) << std::endl;
 
-	time = binRange1+CalculateCFD(fTimeHistogram);
+	//For CFD algorithm
+	//time = binRange1+CalculateCFD(fTimeHistogram);
+	//time = CalculateCFD(fTimeHistogram);
+	
+	//For Leading edge + Guassian method
+	time = fTimeHistogram->GetBinCenter(fTimeHistogram->FindFirstBinAbove(0));
+	double bin_width = fTimeHistogram->GetXaxis()->GetBinWidth(1);
+	time = fRandom.Uniform(time - bin_width/2., time + bin_width/2.);
+	//For Leading edge + Guassian method -> skip the histogram and use the minimum element in the vector
+	time = low;
 	//	std::cout << "CFD time: " << time << std::endl;
-
-	//time = fTimeHistogram->GetBinCenter(fTimeHistogram->GetMaximumBin());
-	//std::cout << "Max time: " << fTimeHistogram->GetBinCenter(fTimeHistogram->GetMaximumBin()) << std::endl;
 
 	delete fTimeHistogram;
 	return time;

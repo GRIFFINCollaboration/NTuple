@@ -132,10 +132,11 @@ Settings::Settings(std::string fileName, int verbosityLevel)
     fTimeWindow[8500].resize(1,std::vector<double>(1));
 
     // Daemon Bar, assuming 14 across, 18 total
-    fResolution[8700].resize(18);
-    fThreshold[8700].resize(18,std::vector<double>(1));
-    fThresholdWidth[8700].resize(18,std::vector<double>(1));
-    fTimeWindow[8700].resize(18,std::vector<double>(1));
+    // Daemon Bar, assuming 20 across, 24 total
+    fResolution[8700].resize(24);
+    fThreshold[8700].resize(24,std::vector<double>(1));
+    fThresholdWidth[8700].resize(24,std::vector<double>(1));
+    fTimeWindow[8700].resize(24,std::vector<double>(1));
     //ZDS
     fResolution[9000].resize(1);
     fThreshold[9000].resize(1,std::vector<double>(1));
@@ -369,7 +370,7 @@ Settings::Settings(std::string fileName, int verbosityLevel)
 
     // Daemon Bars
 	 //double fanoFactor1 = env.GetValue("DaemonBars.Resolution.FanoFactor",20.);
-    for(int detector = 0; detector < 18; ++detector) {
+    for(int detector = 0; detector < 24; ++detector) {
         offset = env.GetValue(Form("DaemonBars.%d.Resolution.Offset",detector),0.0);
         linear = env.GetValue(Form("DaemonBars.%d.Resolution.Linear",detector),0.0);
         quadratic = env.GetValue(Form("DaemonBars.%d.Resolution.Quadratic",detector),0.000);
@@ -490,17 +491,17 @@ Settings::Settings(std::string fileName, int verbosityLevel)
     fRangeLow["Daemon1D"] = env.GetValue("Histogram.1D.Daemon.RangeLow.s",0);
     fRangeHigh["Daemon1D"] = env.GetValue("Histogram.1D.Daemon.RangeHigh.s", 5000);
     
-    fNofBins["Daemon1Dns"] = env.GetValue("Histogram.1D.Daemon.NofBins", 5100);
+    fNofBins["Daemon1Dns"] = env.GetValue("Histogram.1D.Daemon.NofBins.ns", 5100);
     fRangeLow["Daemon1Dns"] = env.GetValue("Histogram.1D.Daemon.RangeLow.ns", -10);
     fRangeHigh["Daemon1Dns"] = env.GetValue("Histogram.1D.Daemon.RangeHigh.ns", 500);
     
-    fNofBins["Daemon1DEnergy"] = env.GetValue("Histogram.1D.DaemonEnergy.NofBins",5000);
+    fNofBins["Daemon1DEnergy"] = env.GetValue("Histogram.1D.DaemonEnergy.NofBins",10000);
     fRangeLow["Daemon1DEnergy"] = env.GetValue("Histogram.1D.DaemonEnergy.RangeLow.keV",0);
-    fRangeHigh["Daemon1DEnergy"] = env.GetValue("Histogram.1D.DaemonEnergy.RangeHigh.keV", 5000);
+    fRangeHigh["Daemon1DEnergy"] = env.GetValue("Histogram.1D.DaemonEnergy.RangeHigh.keV", 10000);
     
-    fNofBins["Daemon1DRand"] = env.GetValue("Histogram.1D.DaemonDelta.NofBins",10000);
-    fRangeLow["Daemon1DRand"] = env.GetValue("Histogram.1D.DaemonDelta.RangeLow.ns", -5);
-    fRangeHigh["Daemon1DRand"] = env.GetValue("Histogram.1D.DaemonDelta.RangeHigh.ns", 5);
+    fNofBins["Daemon1DRand"] = env.GetValue("Histogram.1D.DaemonRand.NofBins",10000);
+    fRangeLow["Daemon1DRand"] = env.GetValue("Histogram.1D.DaemonRand.RangeLow.ns", -5);
+    fRangeHigh["Daemon1DRand"] = env.GetValue("Histogram.1D.DaemonRand.RangeHigh.ns", 5);
     
     fNofBins["Daemon1DDelta"] = env.GetValue("Histogram.1D.DaemonDelta.NofBins",1000);
     fRangeLow["Daemon1DDelta"] = env.GetValue("Histogram.1D.DaemonDelta.RangeLow.ns", -50);
@@ -510,13 +511,9 @@ Settings::Settings(std::string fileName, int verbosityLevel)
     fRangeLow["Daemon1DCoin"] = env.GetValue("Histogram.1D.DaemonDelta.RangeLow.ns", -5);
     fRangeHigh["Daemon1DCoin"] = env.GetValue("Histogram.1D.DaemonDelta.RangeHigh.ns", 5);
     
-    fNofBins["Daemon1DDeltaPos"] = env.GetValue("Histogram.1D.DaemonDeltaPos.NofBins",100);
+    fNofBins["Daemon1DDeltaPos"] = env.GetValue("Histogram.1D.DaemonDeltaPos.NofBins", 200);
     fRangeLow["Daemon1DDeltaPos"] = env.GetValue("Histogram.1D.DaemonDeltaPos.RangeLow.cm.deg", -50);
     fRangeHigh["Daemon1DDeltaPos"] = env.GetValue("Histogram.1D.DaemonDeltaPos.RangeHigh.cm.deg", 50);
-    
-    fNofBins["Daemon1DDeltaPos"] = env.GetValue("Histogram.1D.DaemonDeltaPos.NofBins",100);
-    fRangeLow["Daemon1DDeltaPos"] = env.GetValue("Histogram.1D.DaemonDeltaPos.RangeLow.cm", -50);
-    fRangeHigh["Daemon1DDeltaPos"] = env.GetValue("Histogram.1D.DaemonDeltaPos.RangeHigh.cm", 50);
     
     fNofBins["Daemon2D"] = env.GetValue("Histogram.2D.Daemon.NofBins",5000);
     fRangeLow["Daemon2D"] = env.GetValue("Histogram.2D.Daemon.RangeLow.keV",0);
