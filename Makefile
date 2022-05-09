@@ -13,6 +13,7 @@ NAME		   = NTuple
 LIB_DIR 	   = $(HOME)/lib
 
 ROOTLIBS    := $(shell root-config --libs)
+ROOTFLAGS   := $(shell root-config --cflags)
 ROOTINC     := -I$(shell root-config --incdir)
 
 COMM_DIR 	= $(HOME)/CommandLineInterface
@@ -23,8 +24,8 @@ LIBRARIES	= CommandLineInterface Utilities
 
 CC		      = gcc
 CXX         = g++
-CPPFLAGS 	= $(ROOTINC) $(INCLUDES) -fPIC
-CXXFLAGS	   = -std=gnu++0x -pedantic -Wall -Wno-long-long -g -O3
+CPPFLAGS 	= $(ROOTINC) $(INCLUDES)
+CXXFLAGS	   = $(ROOTFLAGS) -pedantic -Wall -Wno-long-long -g -O3
 
 LDFLAGS		= -g -fPIC
 
