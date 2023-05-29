@@ -9,7 +9,7 @@ public:
     Detector(int evNumber, int detNumber, int cryNumber, double simEnergy, double energy, TVector3 pos, double time)
         : fEventNumber(evNumber), fDetectorId(detNumber), fCrystalId(cryNumber), fSimulationEnergy(simEnergy), fEnergy(energy), fPosition(pos), fTime(time) {
     }
-    ~Detector(){};
+	  ~Detector(){};
 
     void AddEnergy(double simEnergy, double energy) {
         fSimulationEnergy += simEnergy;
@@ -57,6 +57,24 @@ public:
     }
     double Time() {
         return fTime;
+    }
+
+    double EnergyTOF(double fTOFCorrected) {
+		double fEnergyTOF;
+	    if (fTOFCorrected>0) {
+		    //double fDistance = 50. + 7.5;
+		    double fDistance = 50.;
+		double fMass = 1008664.91595e-6; // u //Allison
+		double c = 299792458.; // m/s
+		double fConversion1 = 9.3149410242e5; // keV/u // Allison
+		double fConversion2;
+		fConversion2 = fConversion1 / (c*c);
+		    double velocity = (fDistance/100.)/(fTOFCorrected*1.e-9);
+		    double vel2 = velocity*velocity;
+		    fEnergyTOF = 0.5 * fMass * vel2 * fConversion2;
+	    }else fEnergyTOF = -1.;
+
+	    return fEnergyTOF;
     }
 
 private:
