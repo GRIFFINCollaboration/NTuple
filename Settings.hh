@@ -19,6 +19,12 @@ public:
     int VerbosityLevel() {
         return fVerbosityLevel;
     }
+    double DaemonThresholdSettings() {
+        return fDaemonThreshold;
+    }
+    double DaemonWidthSettings() {
+        return fDaemonWidth;
+    }
 
     int BufferSize() {
         return fBufferSize;
@@ -79,7 +85,7 @@ public:
 		if (systemID ==8750)
 		return fResolution[systemID].at(detectorID-15-20-15-10).at(crystalID).Eval(en);
 		if (systemID >=1010  && systemID <= 1100)
-		return fResolution[systemID].at(detectorID).at(crystalID-1).Eval(en);
+		return fResolution[systemID].at(detectorID-1).at(crystalID-1).Eval(en);
 		else return fResolution[systemID].at(detectorID).at(crystalID).Eval(en);
         }
         return 0.;
@@ -99,7 +105,7 @@ public:
 		if (systemID ==8750)
             return fThreshold[systemID].at(detectorID-15-20-15-10).at(crystalID);
 		if (systemID >=1010  && systemID <= 1100)
-            return fThreshold[systemID].at(detectorID).at(crystalID-1);
+            return fThreshold[systemID].at(detectorID-1).at(crystalID-1);
 		else return fThreshold[systemID].at(detectorID).at(crystalID);
         }
         return 0.001;
@@ -119,7 +125,7 @@ public:
 		if (systemID == 8750)
             return fThresholdWidth[systemID].at(detectorID-15-20-15-10).at(crystalID);
 		if (systemID >=1010  && systemID <= 1100)
-            return fThresholdWidth[systemID].at(detectorID).at(crystalID-1);
+            return fThresholdWidth[systemID].at(detectorID-1).at(crystalID-1);
 		else return fThresholdWidth[systemID].at(detectorID).at(crystalID);
         }
         return 0.;
@@ -139,7 +145,7 @@ public:
 		if (systemID ==8750)
             return fTimeWindow[systemID].at(detectorID-15-20-15-10).at(crystalID);
 		if (systemID >=1010  && systemID <= 1100)
-            return fTimeWindow[systemID].at(detectorID).at(crystalID-1);
+            return fTimeWindow[systemID].at(detectorID-1).at(crystalID-1);
 		else return fTimeWindow[systemID].at(detectorID).at(crystalID);
         }
         return 0.;
@@ -182,6 +188,10 @@ private:
     double fGriffinAddbackVectorLengthmm;
     double fGriffinAddbackVectorDepthmm;
     double fGriffinAddbackVectorCrystalFaceDistancemm;
+
+    
+    double fDaemonWidth; 
+    double fDaemonThreshold;
 
     std::map<int,std::vector<std::vector<TF1> > > fResolution;
     std::map<int,std::vector<std::vector<double> > > fThreshold;

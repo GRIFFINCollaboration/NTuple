@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include "TVector3.h"
+#include "TH1F.h"
 #include "TMath.h"
 #include <TRandom.h>
 
@@ -10,8 +11,8 @@ class DetectorDaemon : public TObject {
 	public:
 		static TRandom rand;
 		DetectorDaemon(){};
-		DetectorDaemon(int evNumber, int detNumber, int cryNumber, double simEnergy, double energy, TVector3 pos, double time, int particleType, int processType, int numCollectedPhotonsTop1, int numCollectedPhotonsTop2, int numCollectedPhotonsTop3, int numCollectedPhotonsBottom1, int numCollectedPhotonsBottom2, int numCollectedPhotonsBottom3, int numCollectedPhotonsFrontTop1, int numCollectedPhotonsFrontTop2, int numCollectedPhotonsFrontMid1, int numCollectedPhotonsFrontMid2, int numCollectedPhotonsFrontBottom1, int numCollectedPhotonsFrontBottom2, double timetop1, double timetop2, double timetop3, double timebottom1, double timebottom2, double timebottom3, double timefronttop1, double timefronttop2, double timefrontmid1, double timefrontmid2, double timefrontbottom1, double timefrontbottom2, int systemID, double timeTopTotal, double timeBottomTotal, double timeFrontTopTotal, double timeFrontMidTotal, double timeFrontBottomTotal)
-			: fEventNumber(evNumber), fDetectorId(detNumber), fCrystalId(cryNumber), fSimulationEnergy(simEnergy), fEnergy(energy), fPosition(pos), fTime(time), fParticleType(particleType), fProcessType(processType), fCollectedTop1(numCollectedPhotonsTop1), fCollectedTop2(numCollectedPhotonsTop2), fCollectedTop3(numCollectedPhotonsTop3), fCollectedBottom1(numCollectedPhotonsBottom1), fCollectedBottom2(numCollectedPhotonsBottom2), fCollectedBottom3(numCollectedPhotonsBottom3), fCollectedFrontTop1(numCollectedPhotonsFrontTop1), fCollectedFrontTop2(numCollectedPhotonsFrontTop2), fCollectedFrontMid1(numCollectedPhotonsFrontMid1), fCollectedFrontMid2(numCollectedPhotonsFrontMid2), fCollectedFrontBottom1(numCollectedPhotonsFrontBottom1), fCollectedFrontBottom2(numCollectedPhotonsFrontBottom2), fCFDTimeTop1(timetop1), fCFDTimeTop2(timetop2), fCFDTimeTop3(timetop3), fCFDTimeBottom1(timebottom1), fCFDTimeBottom2(timebottom2), fCFDTimeBottom3(timebottom3), fCFDTimeFrontTop1(timefronttop1), fCFDTimeFrontTop2(timefronttop2),fCFDTimeFrontMid1(timefrontmid1), fCFDTimeFrontMid2(timefrontmid2), fCFDTimeFrontBottom1(timefrontbottom1), fCFDTimeFrontBottom2(timefrontbottom2), fSystemId(systemID), fCFDTimeTopTotal(timeTopTotal), fCFDTimeBottomTotal(timeBottomTotal), fCFDTimeFrontTopTotal(timeFrontTopTotal), fCFDTimeFrontMidTotal(timeFrontMidTotal), fCFDTimeFrontBottomTotal(timeFrontBottomTotal) {
+		DetectorDaemon(int evNumber, int detNumber, int cryNumber, double simEnergy, double energy, TVector3 pos, double time, int particleType, int processType, int numCollectedPhotonsTop1, int numCollectedPhotonsTop2, int numCollectedPhotonsTop3, int numCollectedPhotonsBottom1, int numCollectedPhotonsBottom2, int numCollectedPhotonsBottom3, int numCollectedPhotonsFrontTop1, int numCollectedPhotonsFrontTop2, int numCollectedPhotonsFrontMid1, int numCollectedPhotonsFrontMid2, int numCollectedPhotonsFrontBottom1, int numCollectedPhotonsFrontBottom2, double timetop1, double timetop2, double timetop3, double timebottom1, double timebottom2, double timebottom3, double timefronttop1, double timefronttop2, double timefrontmid1, double timefrontmid2, double timefrontbottom1, double timefrontbottom2, int systemID, double timeTopTotal, double timeBottomTotal, double timeFrontTopTotal, double timeFrontMidTotal, double timeFrontBottomTotal, std::vector<double>* opticalTime, std::vector<double>* opticalEnergy,  std::vector<double>* vectorTimeTop1, double totScintPhoton) 
+			: fEventNumber(evNumber), fDetectorId(detNumber), fCrystalId(cryNumber), fSimulationEnergy(simEnergy), fEnergy(energy), fPosition(pos), fTime(time), fParticleType(particleType), fProcessType(processType), fCollectedTop1(numCollectedPhotonsTop1), fCollectedTop2(numCollectedPhotonsTop2), fCollectedTop3(numCollectedPhotonsTop3), fCollectedBottom1(numCollectedPhotonsBottom1), fCollectedBottom2(numCollectedPhotonsBottom2), fCollectedBottom3(numCollectedPhotonsBottom3), fCollectedFrontTop1(numCollectedPhotonsFrontTop1), fCollectedFrontTop2(numCollectedPhotonsFrontTop2), fCollectedFrontMid1(numCollectedPhotonsFrontMid1), fCollectedFrontMid2(numCollectedPhotonsFrontMid2), fCollectedFrontBottom1(numCollectedPhotonsFrontBottom1), fCollectedFrontBottom2(numCollectedPhotonsFrontBottom2), fCFDTimeTop1(timetop1), fCFDTimeTop2(timetop2), fCFDTimeTop3(timetop3), fCFDTimeBottom1(timebottom1), fCFDTimeBottom2(timebottom2), fCFDTimeBottom3(timebottom3), fCFDTimeFrontTop1(timefronttop1), fCFDTimeFrontTop2(timefronttop2),fCFDTimeFrontMid1(timefrontmid1), fCFDTimeFrontMid2(timefrontmid2), fCFDTimeFrontBottom1(timefrontbottom1), fCFDTimeFrontBottom2(timefrontbottom2), fSystemId(systemID), fCFDTimeTopTotal(timeTopTotal), fCFDTimeBottomTotal(timeBottomTotal), fCFDTimeFrontTopTotal(timeFrontTopTotal), fCFDTimeFrontMidTotal(timeFrontMidTotal), fCFDTimeFrontBottomTotal(timeFrontBottomTotal), fOpTime(opticalTime), fOpEnergy(opticalEnergy), fVectorTimeTop1(vectorTimeTop1), fNumScintPhotons(totScintPhoton) {
 
 
 				//			std::cout << "Begin of fEvent: " << fEventNumber << " and detNum: " << fDetectorId << std::endl;
@@ -35,13 +36,17 @@ class DetectorDaemon : public TObject {
 				fFrontMidMin1 = DBL_MAX;
 				fFrontBottomMin1 = DBL_MAX;
 
-				//Detector configuration: 1 is front bars, 2 is Unsegmented Tiles, 3 is Segmented Tiles, 0 is bars with no front, 5 is test stuff, 4 is unsegmented Tiles 2 pmts
+				//Detector configuration: 1 is front bars, 2 is Unsegmented Tiles, 3 is Segmented Tiles, 0 is bars with no front, 5 is test stuff, 4 is unsegmented Tiles 2 pmts, 6 is aux positions.
 				//int DetConfiguration = 0;
-				int DetConfiguration = 1;
+				//int DetConfiguration = 1;
 				//int DetConfiguration = 2;
 				//int DetConfiguration = 3;
 				//int DetConfiguration = 4;
-				//int DetConfiguration = 5;
+				int DetConfiguration = 5; 
+				bool fAdjustTileTime = true;//used with option 4 above
+				bool useDT = true;
+				//int DetConfiguration = 6;
+
 
 				fSumSignal = false;// This should always be false since I think each array would sum the SiPM to the largest extent, and no total summing of SiPM locations is needed.
 
@@ -136,86 +141,270 @@ class DetectorDaemon : public TObject {
 				}
 				fConversion2 = fConversion1 / (c*c);
 				fTimingUncertainty = fTimingUncertaintyFWHM/2.355; //.6/2.35
+				
+				fBarsPulseTop=0;
+				fBarsPulseBottom=0;
+				fBarsPulseFrontMid=0;
+				fBarsPulseFrontTop=0;
+				fBarsPulseFrontBottom=0;
+				fBarsPulse1=0;
+				fBarsPulse2=0;
 
 
 				//Determine the earliest time for each pmt channel based on location
-				std::vector<double> Across(5, -2);
+				//std::vector<double> Across(5, -2);
+				std::vector<double> Across(5, DBL_MAX);
 				int AcrossCounter = 0;
 				//std::cout << "dbl_max: " << DBL_MAX << std::endl;
-
+				//if (fCFDTimeTop1 == DBL_MAX) fCollectedTop1 = 0;
 				if (fCollectedTop1>=fThreshold) topCFD[0] = fCFDTimeTop1;
 				if (fCollectedTop2>=fThreshold) topCFD[1] = fCFDTimeTop2;
 				if (fCollectedTop3>=fThreshold) topCFD[2] = fCFDTimeTop3;
+				//fTopMin = std::min({fCFDTimeTop1, fCFDTimeTop2, fCFDTimeTop3});
 				fTopMin = std::min({topCFD[0], topCFD[1], topCFD[2]});
+				if (fTopMin == topCFD[0]) fBarsPulseTop = fCollectedTop1;
+				else if (fTopMin == topCFD[1]) fBarsPulseTop = fCollectedTop2;
+				else if (fTopMin == topCFD[2]) fBarsPulseTop = fCollectedTop3;
+
 				if (fSumSignal == true) {
 					fTopMin = fCFDTimeTopTotal;
 				}
 				//std::cout << "fTopMin: " << fTopMin << std::endl;
 				if (fTopMin != DBL_MAX && fTopMin > 0.) {
 					Across[AcrossCounter] = fTopMin;
+					//Across[0] = fTopMin;
 					AcrossCounter++;
 					topHit = true;
 				}
+					
+
+
 				if (fCollectedBottom1>=fThreshold) bottomCFD[0] = fCFDTimeBottom1;
 				if (fCollectedBottom2>=fThreshold) bottomCFD[1] = fCFDTimeBottom2;
 				if (fCollectedBottom3>=fThreshold) bottomCFD[2] = fCFDTimeBottom3;
 				fBottomMin = std::min({bottomCFD[0], bottomCFD[1], bottomCFD[2]});
+				if (fBottomMin == bottomCFD[0]) fBarsPulseBottom = fCollectedBottom1;
+				else if (fBottomMin == bottomCFD[1]) fBarsPulseBottom = fCollectedBottom2;
+				else if (fBottomMin == bottomCFD[2]) fBarsPulseBottom = fCollectedBottom3;
 				if (fSumSignal == true) {
 					fBottomMin = fCFDTimeBottomTotal;
 				}
 				//std::cout << "fBottomMin: " << fBottomMin << std::endl;
 				if (fBottomMin != DBL_MAX && fBottomMin>0.) {
 					Across[AcrossCounter] = fBottomMin;
+					//Across[1] = fBottomMin;
 					AcrossCounter++;
 					bottomHit = true;	
 				}
 				if (fCollectedFrontTop1>=fThreshold) frontTopCFD[0] = fCFDTimeFrontTop1;
 				if (fCollectedFrontTop2>=fThreshold) frontTopCFD[1] = fCFDTimeFrontTop2;
 				fFrontTopMin = std::min({frontTopCFD[0], frontTopCFD[1]});
+				if (fFrontTopMin == frontTopCFD[0]) fBarsPulseFrontTop = fCollectedFrontTop1;
+				else if (fFrontTopMin == frontTopCFD[1]) fBarsPulseFrontTop = fCollectedFrontTop2;
 				if (fSumSignal == true) {
 					fFrontTopMin = fCFDTimeFrontTopTotal;
 				}
 				//std::cout << "fFrontTopMin: " << fFrontTopMin << std::endl;
 				if (fFrontTopMin != DBL_MAX && fFrontTopMin>0.) {
 					Across[AcrossCounter] = fFrontTopMin;
+					//Across[2] = fFrontTopMin;
 					AcrossCounter++;
 					frontTopHit = true;
 				}
 				if (fCollectedFrontMid1>=fThreshold) frontMidCFD[0] = fCFDTimeFrontMid1;
 				if (fCollectedFrontMid2>=fThreshold) frontMidCFD[1] = fCFDTimeFrontMid2;
 				fFrontMidMin = std::min({frontMidCFD[0], frontMidCFD[1]});
+				if (fFrontMidMin == frontMidCFD[0]) fBarsPulseFrontMid = fCollectedFrontMid1;
+				else if (fFrontMidMin == frontMidCFD[1]) fBarsPulseFrontMid = fCollectedFrontMid2;
 				if (fSumSignal == true) {
 					fFrontMidMin = fCFDTimeFrontMidTotal;
 				}
 				//std::cout << "fFrontMidMin: " << fFrontMidMin << std::endl;
 				if (fFrontMidMin != DBL_MAX && fFrontMidMin>0.) {
 					Across[AcrossCounter] = fFrontMidMin;
+					//Across[3] = fFrontMidMin;
 					AcrossCounter++;
 					frontMidHit = true;
 				}
 				if (fCollectedFrontBottom1>=fThreshold) frontBottomCFD[0] = fCFDTimeFrontBottom1;
 				if (fCollectedFrontBottom2>=fThreshold) frontBottomCFD[1] = fCFDTimeFrontBottom2;
 				fFrontBottomMin = std::min({frontBottomCFD[0], frontBottomCFD[1]});
+				if (fFrontBottomMin == frontBottomCFD[0]) fBarsPulseFrontBottom = fCollectedFrontBottom1;
+				else if (fFrontBottomMin == frontBottomCFD[1]) fBarsPulseFrontBottom = fCollectedFrontBottom2;
 				if (fSumSignal == true) {
 					fFrontBottomMin = fCFDTimeFrontBottomTotal;
 				}
 				//std::cout << "fFrontBottomMin: " << fFrontBottomMin << std::endl;
 				if (fFrontBottomMin != DBL_MAX && fFrontBottomMin > 0.) {
 					Across[AcrossCounter] = fFrontBottomMin;
+					//Across[4] = fFrontBottomMin;
 					AcrossCounter++;
 					frontBottomHit = true;
 				}
-
-				if (DetConfiguration == 5  && topHit == true && fSystemId == 8800) { //ZDS and test bar
+				
+				if (DetConfiguration == 5 && useDT == true){
+					double originalCounter = AcrossCounter;
+					double deadTimeThreshold;
+					double deadTimeThreshold1 = 35e3*448e-9;
+					double deadTimeThreshold2 = 35e3*448e-9;
+					double deadTimeThreshold3 = 35e3*448e-9;
+					double deadTimeThreshold4 = 35e3*448e-9;
+					//double deadTimeThreshold1 = 700e3*448e-9;
+					//double deadTimeThreshold2 = 700e3*448e-9;
+					//double deadTimeThreshold3 = 700e3*448e-9;
+					//double deadTimeThreshold4 = 700e3*448e-9;
+					//double deadTimeThreshold3 = 300e3*448e-9;
+					//	double deadTimeThreshold4 = 115e3*448e-9;
+					double deadTimeSum = deadTimeThreshold1+deadTimeThreshold2+deadTimeThreshold3+deadTimeThreshold4;
+					double deadtimeTop = rand.Uniform(0.,1.); 
+					double deadtimeBottom = rand.Uniform(0.,1.); 
+					double deadtimeFrontTop = rand.Uniform(0.,1.); 
+					double deadtimeFrontBottom = rand.Uniform(0.,1.); 
+					if(deadtimeTop<deadTimeThreshold1 && topHit == true){
+						fCFDTimeTop1 = DBL_MAX;
+						Across[0] = DBL_MAX;
+						fCollectedTop1	= 0;
+						topHit = false;	
+						AcrossCounter--;			
+					}
+					if(deadtimeBottom<deadTimeThreshold2 && bottomHit == true){
+						fCFDTimeBottom1 = DBL_MAX;
+						Across[1] = DBL_MAX;
+						fCollectedBottom1	= 0;
+						bottomHit = false;				
+						AcrossCounter--;			
+					}
+					if(deadtimeFrontTop<deadTimeThreshold3 && frontTopHit == true){
+						fCFDTimeFrontTop1 = DBL_MAX;
+						Across[2] = DBL_MAX;
+						fCollectedFrontTop1	= 0;
+						frontTopHit = false;				
+						AcrossCounter--;			
+					}
+					if(deadtimeFrontBottom<deadTimeThreshold4 && frontBottomHit == true){
+						fCFDTimeFrontBottom1 = DBL_MAX;
+						Across[4] = DBL_MAX;
+						fCollectedFrontBottom1	= 0;
+						frontBottomHit = false;				
+						AcrossCounter--;			
+					}
+				}
+				//if (DetConfiguration == 5  && topHit == true && fSystemId == 8800) { //ZDS and test bar
 				//if (DetConfiguration == 5  && bottomHit ==true && topHit == true && fSystemId == 8800) { // test bar
+				//if (DetConfiguration == 5  && (topHit == true || bottomHit == true || frontTopHit == true || frontBottomHit == true)  && AcrossCounter > 3) { //2x2 sipm //took out 8800 condition due to tile
+				if (DetConfiguration == 5  && (topHit == true || bottomHit == true || frontTopHit == true || frontBottomHit == true) ) { //2x2 sipm //took out 8800 condition due to tile
+				//if (DetConfiguration == 5  && (topHit == true && bottomHit == true && frontTopHit == true && frontBottomHit == true) ) { //2x2 sipm //took out 8800 condition due to tile
+					//if (DetConfiguration == 5  && (topHit == true && bottomHit == true) ) { //2x2 sipm //took out 8800 condition due to tile
+					//if (DetConfiguration == 5  && topHit == true) { //2x2 sipm //took out 8800 condition due to tile
+					//if (DetConfiguration == 5  && ( fCFDTimeTopTotal!=DBL_MAX || fCFDTimeBottomTotal!=DBL_MAX || fCFDTimeFrontTopTotal!=DBL_MAX || fCFDTimeFrontBottomTotal!=DBL_MAX) ) { //2x2 sipm //took out 8800 condition due to tile
+					//if (DetConfiguration == 5  && ( fCFDTimeTop1!=DBL_MAX || fCFDTimeBottom1!=DBL_MAX || fCFDTimeFrontTop1!=DBL_MAX || fCFDTimeFrontBottom1!=DBL_MAX) ) { //2x2 sipm //took out 8800 condition due to tile
 
-					fCFDTimeTop1 = rand.Gaus(fCFDTimeTop1, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
-					//fCFDTimeBottom1 = rand.Gaus(fCFDTimeBottom1, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+
+					//bar sipm-sipm or 2x2 config
+					double smallest=-2, secondSmallest = -2;
+					if (AcrossCounter == 1 && Across[0]>0){
+						smallest = Across[0];
+						secondSmallest = -2;
+						f2pmt = 10;
+						fTOF = smallest;
+						fYPos = -150;
+						fYDelta = -200;
+						fXPos = XPos[fDetectorId];;
+						fZPos = sqrt(fDistance*fDistance - fYPos*fYPos - XPos[fDetectorId]*XPos[fDetectorId]);
+						fC_effective = -1;
+						fArcDiff = -1.;
+						fThetaSim = -200; 
+						fPhiSim = -200;
+						fThetaCalc = -200;
+						fPhiCalc = -200;
+						fPhiDiff = -400;
+						fThetaDiff = -400;
+					}
+					if (AcrossCounter > 1) {
+						if (Across[0] <= Across[1] && Across[0]>0 && Across[1]>0) {
+							smallest = Across[0];
+							secondSmallest = Across[1];
+						} else if (Across[0] > Across[1] && Across[0]>0 && Across[1]>0) {
+							smallest = Across[1];
+							secondSmallest = Across[0];
+						}
+						for (int k = 2 ; k < AcrossCounter; ++k) {
+							if(smallest >= Across[k] && Across[k]>0){
+								secondSmallest = smallest;
+								smallest = Across[k];
+							} else if (secondSmallest > Across[k] && smallest < Across[k] && Across[k]>0) {
+								secondSmallest = Across[k];
+							}
+						}
+					}
+					
+					//fDistance = 5. + 15./2. - fThickness/2.-.05; //cm - detector with input thickness (and uses middle), no lead, spacing (0.05cm for optical wrap).
+					fDistance = 50.; //cm - detector with input thickness (and uses middle), no lead, spacing (0.05cm for optical wrap).
+					if(fSystemId == 8710){
+						fXPos = bluePosition[fDetectorId][0];
+						fYPos = bluePosition[fDetectorId][1];
+						fZPos = bluePosition[fDetectorId][2];
+						fDistance =bluePosition[fDetectorId][3] ;				
+					}
+					if(fSystemId == 8720){
+						fXPos = whitePosition[fDetectorId-15][0];
+						fYPos = whitePosition[fDetectorId-15][1];
+						fZPos = whitePosition[fDetectorId-15][2];
+						fDistance = whitePosition[fDetectorId-15][3] ;				
+					}
+					if(fSystemId == 8730){
+						fXPos = redPosition[fDetectorId-15-20][0];
+						fYPos = redPosition[fDetectorId-15-20][1];
+						fZPos = redPosition[fDetectorId-15-20][2];
+						fDistance =redPosition[fDetectorId-15-20][3] ;				
+					}
+					if(fSystemId == 8740){
+						fXPos = greenPosition[fDetectorId-15-20-15][0];
+						fYPos = greenPosition[fDetectorId-15-20-15][1];
+						fZPos = greenPosition[fDetectorId-15-20-15][2];
+						fDistance = greenPosition[fDetectorId-15-20-15][3] ;				
+					}
+					if(fSystemId == 8750){
+						fXPos = yellowPosition[fDetectorId-15-20-15-10][0];
+						fYPos = yellowPosition[fDetectorId-15-20-15-10][1];
+						fZPos = yellowPosition[fDetectorId-15-20-15-10][2];
+						fDistance = yellowPosition[fDetectorId-15-20-15-10][3] ;				
+					}
+
+					//2 Sipm
+					double smallestR = rand.Gaus(smallest, fTimingUncertainty); // Only 1 Sipm, 
+					double secondSmallestR = rand.Gaus(secondSmallest, fTimingUncertainty); // Only 1 Sipm, 
+					double Across0R = rand.Gaus(Across[0], fTimingUncertainty); // Only 1 Sipm, 
+					double Across1R = rand.Gaus(Across[1], fTimingUncertainty); // Only 1 Sipm, 
+					//fTOF =  secondSmallestR - smallestR;
+					//fTOF =  Across[0]- Across[1];
+					//fTOF =  Across0R- Across1R;
+					fTOF =  smallestR;
+					fRand11 = smallestR - smallest;
+					fRand12 = secondSmallestR - secondSmallest;
+
+					//1 Sipm
+					/*	fTOF = rand.Gaus(fCFDTimeTop1, fTimingUncertainty); // Only 1 Sipm
+						fRand11 = fTOF - fCFDTimeTop1 ;
+						fRand12 = -1;
+						*/	//1 Sipm
+					/*	double SumMin = std::min({fCFDTimeTopTotal, fCFDTimeBottomTotal, fCFDTimeFrontTopTotal, fCFDTimeFrontBottomTotal});
+						fTOF = rand.Gaus(SumMin, fTimingUncertainty); // Only 1 Sipm
+						fRand11 = fTOF - SumMin ;
+						fRand12 = -1;
+						*/
+					//SiPM assign
 					f2pmt = 1;
-					fTOF = fCFDTimeTop1;
+					/*	fTopMin = rand.Gaus(fTopMin, fTimingUncertainty); // Only 1 Sipm, 
+						fBottomMin = rand.Gaus(fBottomMin, fTimingUncertainty); // Only 1 Sipm, 
+						fFrontTopMin = rand.Gaus(fFrontTopMin, fTimingUncertainty); // Only 1 Sipm, 
+						fFrontBottomMin = rand.Gaus(fFrontBottomMin, fTimingUncertainty); // Only 1 Sipm, 
+						fTOF =  std::min({fTopMin, fBottomMin, fFrontTopMin, fFrontBottomMin});
+						*/	//fTOF = fCFDTimeTop1;
 					//fTOF = (fCFDTimeTop1 - fCFDTimeBottom1);
 					//fTOF = (fCFDTimeTop1 + fCFDTimeBottom1); //5cm away, 1cm thick
-					/*		fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+					/*		
+							fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
 					//fTOF = rand.Gaus(fTOF, 0.3/2.355); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
 					//if(bottomHit==true && abs(fPosition.Y()) < 1) {
 					if(bottomHit==true) {
@@ -331,16 +520,19 @@ class DetectorDaemon : public TObject {
 					double theta;
 					//Top and Bottom
 					if(bottomHit && topHit   && !frontTopHit && !frontMidHit && !frontBottomHit) {
-						//std::cout << "Case 1" << std::endl;
-						//std::cout << "Smallest and second and MaxDeltaT: " << fTopMin << " and " << fBottomMin << " and " << MaxDeltaT[fDetectorId] << std::endl;
+				//		std::cout << "Case 1" << std::endl;
+				//		std::cout << "Smallest and second and MaxDeltaT: " << fTopMin << " and " << fBottomMin << " and " << MaxDeltaT[fDetectorId] << std::endl;
+						f2pmt = 1;
 						if (DetConfiguration==0) f2pmt = 1;
-						else f2pmt = 11;
+						else f2pmt = 11; // If I remember right, this is due to that we only want events with the closest two pmts
 						fTopMin1 = rand.Gaus(fTopMin, fTimingUncertainty);
 						fBottomMin1 = rand.Gaus(fBottomMin, fTimingUncertainty);
 						fTOF = (fTopMin1+fBottomMin1)/2. - 0.5*MaxDeltaT[fDetectorId];
 						fMaxTDiff = MaxDeltaT[fDetectorId];
 						fRand11 = fTopMin1 - fTopMin;
 						fRand12 = fBottomMin1 - fBottomMin;
+						fBarsPulse1 = fBarsPulseTop;
+						fBarsPulse2 = fBarsPulseBottom;
 						/*	if(fEventNumber == 89 || fEventNumber == 434){
 							std::cout << "EventNumber: " << fEventNumber << std::endl;
 							std::cout << "detNum: " << fDetectorId << std::endl;
@@ -375,9 +567,9 @@ class DetectorDaemon : public TObject {
 					} 
 					// Top and Front Top
 					if(!bottomHit && topHit  && frontTopHit  && !frontMidHit && !frontBottomHit) {
-						//	std::cout << "Case 2" << std::endl;
+				//		std::cout << "Case 2" << std::endl;
 						//	std::cout << "eventNum: " << fEventNumber << std::endl;
-						//	std::cout << "Smallest and second and MaxDeltaT: " << fTopMin << " and " << fFrontTopMin << " and " << MaxDeltaTTop[fDetectorId] << std::endl;
+				//			std::cout << "Smallest and second and MaxDeltaT: " << fTopMin << " and " << fFrontTopMin << " and " << MaxDeltaTTop[fDetectorId] << std::endl;
 						f2pmt = 2;
 						fTopMin1 = rand.Gaus(fTopMin, fTimingUncertainty);
 						fFrontTopMin1 = rand.Gaus(fFrontTopMin, fTimingUncertainty);
@@ -385,6 +577,8 @@ class DetectorDaemon : public TObject {
 						fMaxTDiff = MaxDeltaTTop[fDetectorId];
 						fRand21 = fTopMin1 - fTopMin;
 						fRand22 = fFrontTopMin1 - fFrontTopMin;
+						fBarsPulse1 = fBarsPulseTop;
+						fBarsPulse2 = fBarsPulseFrontTop;
 						/*	if(fEventNumber == 89 || fEventNumber == 434){
 							std::cout << "EventNumber: " << fEventNumber << std::endl;
 							std::cout << "detNum: " << fDetectorId << std::endl;
@@ -412,7 +606,7 @@ class DetectorDaemon : public TObject {
 					} 
 					//Bottom and Front Bottom
 					if(bottomHit && !topHit  && !frontTopHit && !frontMidHit && frontBottomHit ) {
-						//std::cout << "Case 3" << std::endl;
+				//		std::cout << "Case 3" << std::endl;
 						//	std::cout << "Smallest and second and MaxDeltaT: " << fBottomMin << " and " << fFrontBottomMin << " and " << MaxDeltaTBot[fDetectorId] << std::endl;
 						f2pmt = 3;
 						fFrontBottomMin1 = rand.Gaus(fFrontBottomMin, fTimingUncertainty);
@@ -421,6 +615,8 @@ class DetectorDaemon : public TObject {
 						fMaxTDiff = MaxDeltaTBot[fDetectorId];
 						fRand31 = fFrontBottomMin1 - fFrontBottomMin;
 						fRand32 = fBottomMin1 - fBottomMin;
+						fBarsPulse1 = fBarsPulseFrontBottom;
+						fBarsPulse2 = fBarsPulseBottom;
 						/*	if(fEventNumber == 89 || fEventNumber == 434){
 							std::cout << "EventNumber: " << fEventNumber << std::endl;
 							std::cout << "detNum: " << fDetectorId << std::endl;
@@ -461,7 +657,7 @@ class DetectorDaemon : public TObject {
 					} 
 					// Top and Front Mid
 					if(!bottomHit && topHit  && !frontTopHit && frontMidHit  && !frontBottomHit) {
-						//std::cout << "Case 4" << std::endl;
+				//		std::cout << "Case 4" << std::endl;
 						//	std::cout << "Smallest and second and MaxDeltaT: " << fTopMin << " and " << fFrontMidMin << " and " << MaxDeltaTTop[fDetectorId] << std::endl;
 						f2pmt = 4;
 						fTopMin1 = rand.Gaus(fTopMin, fTimingUncertainty);
@@ -470,6 +666,8 @@ class DetectorDaemon : public TObject {
 						fMaxTDiff = MaxDeltaTTop[fDetectorId];
 						fRand41 = fTopMin1 - fTopMin;
 						fRand42 = fFrontMidMin1 - fFrontMidMin;
+						fBarsPulse1 = fBarsPulseTop;
+						fBarsPulse2 = fBarsPulseFrontMid;
 						/*	if(fEventNumber == 89 || fEventNumber == 434){
 							std::cout << "EventNumber: " << fEventNumber << std::endl;
 							std::cout << "detNum: " << fDetectorId << std::endl;
@@ -498,7 +696,7 @@ class DetectorDaemon : public TObject {
 					}
 					// Bottom and Front Mid
 					if(bottomHit && !topHit  && !frontTopHit && frontMidHit  && !frontBottomHit) {
-						//std::cout << "Case 5" << std::endl;
+				//		std::cout << "Case 5" << std::endl;
 						//	std::cout << "Smallest and second and MaxDeltaT: " << fBottomMin << " and " << fFrontMidMin << " and " << MaxDeltaTBot[fDetectorId] << std::endl;
 						f2pmt = 5;
 						fFrontMidMin1 = rand.Gaus(fFrontMidMin, fTimingUncertainty);
@@ -507,6 +705,8 @@ class DetectorDaemon : public TObject {
 						fMaxTDiff = MaxDeltaTBot[fDetectorId];
 						fRand51 = fFrontMidMin1 - fFrontMidMin;
 						fRand52 = fBottomMin1 - fBottomMin;
+						fBarsPulse1 = fBarsPulseFrontMid;
+						fBarsPulse2 = fBarsPulseBottom;
 						/*	if(fEventNumber == 89 || fEventNumber == 434){
 							std::cout << "EventNumber: " << fEventNumber << std::endl;
 							std::cout << "detNum: " << fDetectorId << std::endl;
@@ -537,7 +737,7 @@ class DetectorDaemon : public TObject {
 					} 
 					// Top and Front Bottom
 					if(!bottomHit && topHit  && !frontTopHit && !frontMidHit && frontBottomHit ) {
-						//std::cout << "Case 6" << std::endl;
+				//		std::cout << "Case 6" << std::endl;
 						//	std::cout << "Smallest and second and MaxDeltaT: " << fTopMin << " and " << fFrontBottomMin << " and " << MaxDeltaTTop[fDetectorId]+ MaxDeltaTMid[fDetectorId]  << std::endl;
 						//f2pmt = 6;
 						f2pmt = 16;
@@ -547,6 +747,9 @@ class DetectorDaemon : public TObject {
 						fMaxTDiff = MaxDeltaTTop[fDetectorId] + MaxDeltaTMid[fDetectorId];
 						fRand61 = fTopMin1 - fTopMin;
 						fRand62 = fFrontBottomMin1 - fFrontBottomMin;
+						fBarsPulse1 = fBarsPulseTop;
+						fBarsPulse2 = fBarsPulseFrontBottom;
+
 						/*	if(fEventNumber == 89 || fEventNumber == 434){
 							std::cout << "EventNumber: " << fEventNumber << std::endl;
 							std::cout << "detNum: " << fDetectorId << std::endl;
@@ -569,7 +772,7 @@ class DetectorDaemon : public TObject {
 					} 
 					// Bottom and Front Top
 					if(bottomHit && !topHit  && frontTopHit  && !frontMidHit && !frontBottomHit) {
-						//std::cout << "Case 7" << std::endl;
+				//		std::cout << "Case 7" << std::endl;
 						//	std::cout << "Smallest and second and MaxDeltaT: " << fBottomMin << " and " << fFrontTopMin << " and " << MaxDeltaTBot[fDetectorId]+ MaxDeltaTMid[fDetectorId]<< std::endl;
 						//f2pmt = 7;
 						f2pmt = 17;
@@ -579,6 +782,8 @@ class DetectorDaemon : public TObject {
 						fMaxTDiff = MaxDeltaTBot[fDetectorId] + MaxDeltaTMid[fDetectorId];
 						fRand71 = fFrontTopMin1 - fFrontTopMin;
 						fRand72 = fBottomMin1 - fBottomMin;
+						fBarsPulse1 = fBarsPulseFrontTop;
+						fBarsPulse2 = fBarsPulseBottom;
 						/*	if(fEventNumber == 89 || fEventNumber == 434){
 							std::cout << "EventNumber: " << fEventNumber << std::endl;
 							std::cout << "detNum: " << fDetectorId << std::endl;
@@ -601,7 +806,7 @@ class DetectorDaemon : public TObject {
 					} 
 					// Front Bottom and Front Top
 					if(!bottomHit && !topHit  && frontTopHit  && !frontMidHit && frontBottomHit) {
-						//std::cout << "Case 8" << std::endl;
+				//		std::cout << "Case 8" << std::endl;
 						//	std::cout << "Smallest and second and MaxDeltaT: " << fFrontBottomMin << " and " << fFrontTopMin << " and " << MaxDeltaTMid[fDetectorId]<< std::endl;
 						f2pmt = 8;
 						fFrontTopMin1 = rand.Gaus(fFrontTopMin, fTimingUncertainty);
@@ -610,6 +815,8 @@ class DetectorDaemon : public TObject {
 						fMaxTDiff = MaxDeltaTMid[fDetectorId];
 						fRand81 = fFrontTopMin1 - fFrontTopMin;
 						fRand82 = fFrontBottomMin1 - fFrontBottomMin;
+						fBarsPulse1 = fBarsPulseFrontTop;
+						fBarsPulse2 = fBarsPulseFrontBottom;
 						/*	if(fEventNumber == 89 || fEventNumber == 434){
 							std::cout << "EventNumber: " << fEventNumber << std::endl;
 							std::cout << "detNum: " << fDetectorId << std::endl;
@@ -637,20 +844,20 @@ class DetectorDaemon : public TObject {
 						fXDelta = pos.X()/10. - fXPos;
 						//This assumption creates asymmetry in dtheta
 						fZPos = sqrt(fDistance*fDistance - fYPos*fYPos - XPos[fDetectorId]*XPos[fDetectorId]);
-						
+
 						//fXPos = pos.X()/10.;
 						//fZPos = pos.Z()/10.;
-					/*	if (fXPos < 0 && pos.X() < 0){
-						fXPos = abs(fXPos);
-						pos.SetX(abs(pos.X()));
-						xNeg = true;
-						}
-						if (fYPos < 0 && pos.X() < 0){
-						fYPos = abs(fYPos);
-						pos.SetY(abs(pos.Y()));
-						yNeg = true;
-						}
-					*/
+						/*	if (fXPos < 0 && pos.X() < 0){
+							fXPos = abs(fXPos);
+							pos.SetX(abs(pos.X()));
+							xNeg = true;
+							}
+							if (fYPos < 0 && pos.X() < 0){
+							fYPos = abs(fYPos);
+							pos.SetY(abs(pos.Y()));
+							yNeg = true;
+							}
+							*/
 						const TVector3 CalcPos(fXPos, fYPos, fZPos);
 						double theta1 = pos.Angle(CalcPos); // Note this is in meters, Calc is in cm, Still works though
 						fArcDiff = fDistance*theta1;
@@ -662,31 +869,38 @@ class DetectorDaemon : public TObject {
 						//if (fPhiCalc < 0.) fPhiCalc = 360. + fPhiCalc;
 						//fThetaSim = TMath::ACos(pos.Z()/10./fDistance)*180./TMath::Pi();
 						//fThetaCalc = TMath::ACos(fZPos/fDistance)*180./TMath::Pi();
-						
+
 						fPhiDiff = fPhiSim - fPhiCalc;
 						fThetaDiff = fThetaSim - fThetaCalc;
 						//fPhiDiff = CalcPos.DeltaPhi(pos);
 						//fThetaDiff = CalcPos.DeltaTheta(pos);
-					/*	if (xNeg == true){
-						fXPos = -1.*fXPos;
-						pos.SetX(-1.*(pos.X()));
-						xNeg = false;
-						}
-						if (yNeg == true){
-						fYPos = -1.*fYPos;
-						pos.SetY(-1.*(pos.Y()));
-						yNeg = false;
-						}
-						*/
+						/*	if (xNeg == true){
+							fXPos = -1.*fXPos;
+							pos.SetX(-1.*(pos.X()));
+							xNeg = false;
+							}
+							if (yNeg == true){
+							fYPos = -1.*fYPos;
+							pos.SetY(-1.*(pos.Y()));
+							yNeg = false;
+							}
+							*/
 					}
 
 				}
-				if (DetConfiguration == 2  && topHit == true) { //Unsegmented
-				//if (DetConfiguration == 4  && topHit == true && frontTopHit == true) { //Unsegmented and 2 sipms
+				//if (DetConfiguration == 2  && topHit == true) { //Unsegmented
+				if (DetConfiguration == 4  && topHit == true && frontTopHit == true) { //Unsegmented and 2 sipms
+				//if (DetConfiguration == 4  && (topHit == true || frontTopHit == true)) { //Unsegmented and 2 sipms
 					if (fTopMin < fFrontTopMin) fTOF = fTopMin;
 					if (fFrontTopMin < fTopMin) fTOF = fFrontTopMin;
-					fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+					
+					if (fAdjustTileTime) fTOF = rand.Gaus(fTOF, fTimingUncertainty)-0.4;
+					else fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+					
 					f2pmt = 1; //Doesnt do much but allows for hist functions to remain unchanged with bar conditions
+					fBarsPulse1 = fBarsPulseTop;
+					fBarsPulse2 = fBarsPulseFrontTop;
+					if(DetConfiguration == 2) fBarsPulse2 = 0;
 					if(fSystemId == 8710){
 						fXPos = bluePosition[fDetectorId][0];
 						fYPos = bluePosition[fDetectorId][1];
@@ -719,7 +933,6 @@ class DetectorDaemon : public TObject {
 					}
 					const TVector3 CalcPos(fXPos, fYPos, fZPos);
 					double theta1 = pos.Angle(CalcPos); // Note this is in meters, Calc is in cm, Still works though
-					fArcDiff = pos.DeltaR(CalcPos);//Radial distance not arc
 					fThetaSim = pos.Theta()*180./TMath::Pi();
 					fPhiSim = pos.Phi()*180./TMath::Pi();
 					fThetaCalc = CalcPos.Theta()*180./TMath::Pi();
@@ -728,8 +941,11 @@ class DetectorDaemon : public TObject {
 					fThetaDiff = fThetaSim - fThetaCalc;
 					fYDelta = pos.Y()/10. - fYPos;
 					fXDelta = pos.X()/10. - fXPos;
+					//fArcDiff = pos.DeltaR(CalcPos);//Radial distance not arc
+					fArcDiff = sqrt(fXDelta*fXDelta + fYDelta*fYDelta + (pos.Z()/10. - fZPos)*(pos.Z()/10. - fZPos));//Radial distance not arc
+					//fArcDiff = fDistance*theta1;
 				}
-				if (DetConfiguration == 2  && topHit == false) { //Unsegmented
+				if (DetConfiguration == 2  && topHit == false && frontTopHit == false) { //Unsegmented
 					f2pmt = 10;
 					fTOF = -1;
 					fYPos = -150;
@@ -752,6 +968,11 @@ class DetectorDaemon : public TObject {
 					//What happens if multiple hits, only take earliest?
 					bool hit = false;
 					//Still have issues with simulation where if detNum is same for differenct systemIDs they stack -> Investigate further.
+					if (topHit ==true) fBarsPulse1 = fBarsPulseTop;
+					if (bottomHit ==true) fBarsPulse1 = fBarsPulseBottom;
+					if (frontTopHit ==true) fBarsPulse1 = fBarsPulseFrontTop;
+					if (frontBottomHit ==true) fBarsPulse1 = fBarsPulseFrontBottom;
+					fBarsPulse2 = 0.;
 					if(fSystemId == 8710 && topHit ==true) {
 						fTOF = fTopMin;
 						fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
@@ -935,7 +1156,8 @@ class DetectorDaemon : public TObject {
 
 					const TVector3 CalcPos(fXPos, fYPos, fZPos);
 					double theta1 = pos.Angle(CalcPos); // Note this is in meters, Calc is in cm, Still works though
-					fArcDiff = pos.DeltaR(CalcPos);//Radial distance not arc
+					fArcDiff = sqrt(fXDelta*fXDelta + fYDelta*fYDelta + (pos.Z()/10. - fZPos)*(pos.Z()/10. - fZPos));//Radial distance not arc
+					//fArcDiff = pos.DeltaR(CalcPos);//Radial distance not arc
 					fThetaSim = pos.Theta()*180./TMath::Pi();
 					fPhiSim = pos.Phi()*180./TMath::Pi();
 					fThetaCalc = CalcPos.Theta()*180./TMath::Pi();
@@ -962,6 +1184,49 @@ class DetectorDaemon : public TObject {
 						fThetaDiff = -400;
 
 					}
+				}
+				//if (DetConfiguration == 6  && topHit == true) { //Unsegmented - Aux Positions
+				if (DetConfiguration == 6  && topHit == true && frontTopHit == true) { //Unsegmented and 2 sipms
+					if (fTopMin < fFrontTopMin) fTOF = fTopMin;
+					else fTOF = fFrontTopMin;
+					fTOF = rand.Gaus(fTOF, fTimingUncertainty); // Only 1 Sipm, must correct from previous definition to maintain 600ps fwhm with ZDS
+					f2pmt = 1; //Doesnt do much but allows for hist functions to remain unchanged with bar conditions
+					fBarsPulse1 = fBarsPulseTop;
+					fBarsPulse2 = fBarsPulseFrontTop;
+					if(fSystemId == 8720){
+						fXPos = whitePositionAux[fDetectorId-15][0];
+						fYPos = whitePositionAux[fDetectorId-15][1];
+						fZPos = whitePositionAux[fDetectorId-15][2];
+						fDistance = whitePositionAux[fDetectorId-15][3] ;				
+					}
+					const TVector3 CalcPos(fXPos, fYPos, fZPos);
+					double theta1 = pos.Angle(CalcPos); // Note this is in meters, Calc is in cm, Still works though
+					fArcDiff = pos.DeltaR(CalcPos);//Radial distance not arc
+					fThetaSim = pos.Theta()*180./TMath::Pi();
+					fPhiSim = pos.Phi()*180./TMath::Pi();
+					fThetaCalc = CalcPos.Theta()*180./TMath::Pi();
+					fPhiCalc = CalcPos.Phi()*180./TMath::Pi();
+					fPhiDiff = fPhiSim - fPhiCalc;
+					fThetaDiff = fThetaSim - fThetaCalc;
+					fYDelta = pos.Y()/10. - fYPos;
+					fXDelta = pos.X()/10. - fXPos;
+				}
+				if (DetConfiguration == 6  && topHit == false) { //Unsegmented
+					f2pmt = 10;
+					fTOF = -1;
+					fYPos = -150;
+					fYDelta = -200;
+					fXDelta = -200;
+					fXPos = -200;
+					fZPos = -200;
+					fC_effective = -1;
+					fArcDiff = -1.;
+					fThetaSim = -200; 
+					fPhiSim = -200;
+					fThetaCalc = -200;
+					fPhiCalc = -200;
+					fPhiDiff = -400;
+					fThetaDiff = -400;
 				}
 
 				//std::cout << "fTOF1: " << fTOF << std::endl;
@@ -1057,6 +1322,9 @@ class DetectorDaemon : public TObject {
 				double processType() {
 					return fProcessType;
 				}
+				double totalScint() {
+					return fNumScintPhotons;
+				}
 
 				int CollectedTop1() {
 					return fCollectedTop1;
@@ -1115,7 +1383,166 @@ class DetectorDaemon : public TObject {
 					int frontTop = fCollectedFrontTop1+fCollectedFrontTop2;
 					int frontMid = fCollectedFrontMid1+fCollectedFrontMid2;
 					int frontBottom = fCollectedFrontBottom1+fCollectedFrontBottom2;
-					return top+bottom+frontTop+frontMid+frontBottom;
+					//return top+bottom+frontTop+frontMid+frontBottom;
+					
+					//for summing?
+					double sum= 0;
+					int counter =0;
+					int threshold=1;
+					if (fCollectedTop1>=threshold) {sum=sum+fCollectedTop1; counter++;}
+					if (fCollectedBottom1>=threshold) {sum=sum+fCollectedBottom1; counter++;}
+					if (fCollectedFrontTop1>=threshold) {sum=sum+fCollectedFrontTop1; counter++;}
+					if (fCollectedFrontBottom1>=threshold) {sum=sum+fCollectedFrontBottom1; counter++;}
+					if (counter!=0) return sum;
+					else return -1;
+
+					//return top;
+				}
+				double PulseHeightSum4() {
+					double sum= 0;
+					int counter =0;
+					int threshold=1;
+					if (fCollectedTop1>=threshold) {sum=sum+fCollectedTop1; counter++;}
+					if (fCollectedBottom1>=threshold) {sum=sum+fCollectedBottom1; counter++;}
+					if (fCollectedFrontTop1>=threshold) {sum=sum+fCollectedFrontTop1; counter++;}
+					if (fCollectedFrontBottom1>=threshold) {sum=sum+fCollectedFrontBottom1; counter++;}
+					if (counter==4) return sum;
+					else return -1;
+				}
+				double PulseHeightSum3() {
+					double sum= 0;
+					int counter =0;
+					int threshold=1;
+					if (fCollectedTop1>=threshold) {sum=sum+fCollectedTop1; counter++;}
+					if (fCollectedBottom1>=threshold) {sum=sum+fCollectedBottom1; counter++;}
+					if (fCollectedFrontTop1>=threshold) {sum=sum+fCollectedFrontTop1; counter++;}
+					if (fCollectedFrontBottom1>=threshold) {sum=sum+fCollectedFrontBottom1; counter++;}
+					if (counter==3) return sum;
+					else return -1;
+				}
+				double PulseHeightSum2() {
+					double sum= 0;
+					int counter =0;
+					int threshold=1;
+					if (fCollectedTop1>=threshold) {sum=sum+fCollectedTop1; counter++;}
+					if (fCollectedBottom1>=threshold) {sum=sum+fCollectedBottom1; counter++;}
+					if (fCollectedFrontTop1>=threshold) {sum=sum+fCollectedFrontTop1; counter++;}
+					if (fCollectedFrontBottom1>=threshold) {sum=sum+fCollectedFrontBottom1; counter++;}
+					if (counter==2) return sum;
+					else return -1;
+				}
+				double PulseHeightSum1() {
+					double sum= 0;
+					int counter =0;
+					int threshold=1;
+					if (fCollectedTop1>=threshold) {sum=sum+fCollectedTop1; counter++;}
+					if (fCollectedBottom1>=threshold) {sum=sum+fCollectedBottom1; counter++;}
+					if (fCollectedFrontTop1>=threshold) {sum=sum+fCollectedFrontTop1; counter++;}
+					if (fCollectedFrontBottom1>=threshold) {sum=sum+fCollectedFrontBottom1; counter++;}
+					if (counter==1) return sum;
+					else return -1;
+				}
+				double PulseHeightCal() {
+					double top = fCollectedTop1+fCollectedTop2+fCollectedTop3;
+					int bottom = fCollectedBottom1+fCollectedBottom2+fCollectedBottom3;
+					int frontTop = fCollectedFrontTop1+fCollectedFrontTop2;
+					int frontMid = fCollectedFrontMid1+fCollectedFrontMid2;
+					int frontBottom = fCollectedFrontBottom1+fCollectedFrontBottom2;
+					/*
+					   if (num = 1) return top;
+					   if (num = 2) return bottom;
+					   if (num = 3) return frontTop;
+					   if (num = 4) return frontMid;
+					   if (num = 5) return frontBottom;
+					   if (num = 6) return top+bottom+frontTop+frontMid+frontBottom;
+					   */
+					//return top+bottom+frontTop+frontMid+frontBottom;
+					//return top+bottom;
+					//double slope = 1.08969;//2x2 1cm cube
+					//double offset = 1.40595;//2x2 1cm cube
+					//double slope = 1.34438;//2x2 5cm cube
+					//double offset = 0.897059;//2x2 5cm cube
+					//double slope = 2.73E-01;//2x2 1cm cube 4 sum
+					//double offset = -4.10E-01;//2x2 1cm cube 4 sum
+					double sum= 0;
+					int counter =0;
+					int threshold=1;
+					if (fCollectedTop1>=threshold) {sum=sum+fCollectedTop1; counter++;}
+					if (fCollectedBottom1>=threshold) {sum=sum+fCollectedBottom1; counter++;}
+					if (fCollectedFrontTop1>=threshold) {sum=sum+fCollectedFrontTop1; counter++;}
+					if (fCollectedFrontBottom1>=threshold) {sum=sum+fCollectedFrontBottom1; counter++;}
+
+					double energy = (sum+rand.Uniform(0,1))*slope + offset;
+					return energy;
+				}
+				double PulseHeightCalSum1() {
+					double sum= 0;
+					int counter =0;
+					int threshold=1;
+					if (fCollectedTop1>=threshold) {sum=sum+fCollectedTop1; counter++;}
+					if (fCollectedBottom1>=threshold) {sum=sum+fCollectedBottom1; counter++;}
+					if (fCollectedFrontTop1>=threshold) {sum=sum+fCollectedFrontTop1; counter++;}
+					if (fCollectedFrontBottom1>=threshold) {sum=sum+fCollectedFrontBottom1; counter++;}
+					if (counter==1) {
+						double energy = (sum+rand.Uniform(0,1))*slope + offset;
+						return energy;
+					}else return -1;
+				}
+				double PulseHeightCalSum2() {
+					double sum= 0;
+					int counter =0;
+					int threshold=1;
+					if (fCollectedTop1>=threshold) {sum=sum+fCollectedTop1; counter++;}
+					if (fCollectedBottom1>=threshold) {sum=sum+fCollectedBottom1; counter++;}
+					if (fCollectedFrontTop1>=threshold) {sum=sum+fCollectedFrontTop1; counter++;}
+					if (fCollectedFrontBottom1>=threshold) {sum=sum+fCollectedFrontBottom1; counter++;}
+					if (counter==2) {
+						double energy = (sum+rand.Uniform(0,1))*slope + offset;
+						return energy;
+					}else return -1;
+				}
+				double PulseHeightCalSum3() {
+					double sum= 0;
+					int counter =0;
+					int threshold=1;
+					if (fCollectedTop1>=threshold) {sum=sum+fCollectedTop1; counter++;}
+					if (fCollectedBottom1>=threshold) {sum=sum+fCollectedBottom1; counter++;}
+					if (fCollectedFrontTop1>=threshold) {sum=sum+fCollectedFrontTop1; counter++;}
+					if (fCollectedFrontBottom1>=threshold) {sum=sum+fCollectedFrontBottom1; counter++;}
+					if (counter==3) {
+						double energy = (sum+rand.Uniform(0,1))*slope + offset;
+						return energy;
+					}else return -1;
+				}
+				double PulseHeightCalSum4() {
+					double sum= 0;
+					int counter =0;
+					int threshold=1;
+					if (fCollectedTop1>=threshold) {sum=sum+fCollectedTop1; counter++;}
+					if (fCollectedBottom1>=threshold) {sum=sum+fCollectedBottom1; counter++;}
+					if (fCollectedFrontTop1>=threshold) {sum=sum+fCollectedFrontTop1; counter++;}
+					if (fCollectedFrontBottom1>=threshold) {sum=sum+fCollectedFrontBottom1; counter++;}
+					if (counter==4) {
+						double energy = (sum+rand.Uniform(0,1))*slope + offset;
+						return energy;
+					}else return -1;
+				}
+				double PulseHeightBar1() {
+					return fBarsPulse1;
+					//if (fDetectorId == 0) 
+					//return fCollectedTop1;
+					//else return -1;
+				}
+				double PulseHeightBar2() {
+					return fBarsPulse2;
+				}
+				double PulseHeightBarCal1() {
+					double energy = (fBarsPulse1+rand.Uniform(0,1))*slope + offset;
+					return energy;
+				}
+				double PulseHeightBarCal2() {
+					double energy = (fBarsPulse2+rand.Uniform(0,1))*slope + offset;
+					return energy;
 				}
 				double YPosition() {
 					return fYPos;
@@ -1134,6 +1561,46 @@ class DetectorDaemon : public TObject {
 				}
 				double DeltaX() {
 					return fXDelta;
+				}
+
+				std::vector<double> CalculateCFDMonitor(){
+					double monitormax = 0;
+					bool armed = false;
+					double cfd = 0;
+					TH1F * TimeHist = new TH1F("TimeHist", "title", 5100, -10, 500);
+					for(int k=0; k<fVectorTimeTop1->size() ; k++){
+						TimeHist->Fill(fVectorTimeTop1->at(k));
+					}
+					double bin_width = TimeHist->GetXaxis()->GetBinWidth(1);
+					double time_delay = 0.8;
+					int delay = time_delay/bin_width; //ns - should be on the order of rise time
+					TRandom rand;
+					double timingUncertainty = 0.1; //ns
+					double attenuation = 0.2; //what should this be?
+					//double zeroCross = TimeHist->GetBin(attenuation*TimeHist->GetMaximum());
+
+					//std::vector<double> monitor(TimeHist->GetXaxis()->GetNbins()-delay+zeroCross);
+					//std::vector<double> monitor(TimeHist->GetXaxis()->GetNbins()-delay);
+					std::vector<double> monitor(TimeHist->GetXaxis()->GetNbins());
+					//Check if TimeHist is null
+					//				if(TimeHist == NULL) {
+					//                      return 0;
+					//				}
+
+					for(size_t i = delay ; i < TimeHist->GetXaxis()->GetNbins(); ++i) {
+						//monitor[i - delay + zeroCross] = attenuation * TimeHist->GetBinContent(i+1+zeroCross) - TimeHist->GetBinContent(i + 1 - delay+zeroCross); // +1 in histo bc of binning
+						//monitor[i - delay] = attenuation * TimeHist->GetBinContent(i+1) - TimeHist->GetBinContent(i + 1 - delay); // +1 in histo bc of binning
+						monitor[i] = attenuation * TimeHist->GetBinContent(i+1) - TimeHist->GetBinContent(i + 1 - delay); // +1 in histo bc of binning
+					}
+					delete TimeHist;
+
+					return monitor;
+
+				}
+				std::vector<double>* CalculateCFDTime(){
+
+					return fVectorTimeTop1;
+
 				}
 				std::vector<double> GetRand() {
 					std::vector<double> Num(2, -10);
@@ -1171,7 +1638,12 @@ class DetectorDaemon : public TObject {
 					}
 					return Num;
 				}
-
+				std::vector<double>* GetOpTime() {
+					return fOpTime;
+				}
+				std::vector<double>* GetOpEnergy() {
+					return fOpEnergy;
+				}
 				void CalculatePositions(int detNum) {
 					// Detector Position
 					double BeamLineXY = 6.5; // cm
@@ -1544,7 +2016,7 @@ class DetectorDaemon : public TObject {
 
 				}
 
-				private:
+					private:
 				int fEventNumber;
 				int fDetectorId;
 				int fCrystalId;
@@ -1555,6 +2027,7 @@ class DetectorDaemon : public TObject {
 				double fTOF;
 				double fEnergyTOF;
 				int fParticleType;
+				int fNumScintPhotons;
 				int fProcessType;
 				int f2pmt;
 				double fMaxTDiff;
@@ -1573,7 +2046,9 @@ class DetectorDaemon : public TObject {
 				double fThickness = 1.5;
 				double fDistance;
 				//double fTimingUncertaintyFWHM = 0.6; // 600 ps // For zds and SiPM combined
-				double fTimingUncertaintyFWHM = 0.3; // 400 ps //For SiPM only
+				//double fTimingUncertaintyFWHM = 0.3; // 400 ps //For SiPM only //used until 03.03.2022
+				double fTimingUncertaintyFWHM = 0.35; // 20.04.2022
+				//double fTimingUncertaintyFWHM = 0.400; // 400 ps //For SiPM only
 				//double fTimingUncertaintyFWHM = 0.; // 400 ps //For SiPM only
 				//double fTimingUncertaintyFWHM = 0.25; // 400 ps //For SiPM only
 				double fTimingUncertainty;
@@ -1598,6 +2073,23 @@ class DetectorDaemon : public TObject {
 				double fRand72;
 				double fRand81;
 				double fRand82;
+				//double slope = 1.08969;//2x2 1cm cube
+				//double offset = 1.40595;//2x2 1cm cube
+
+				//double slope = 1.34438;//2x2 5cm cube
+				//double offset = 0.897059;//2x2 5cm cube
+
+				double slope = 2.73E-01;//2x2 1cm cube 4 sum
+				double offset = -4.10E-01;//2x2 1cm cube 4 sum
+
+				//double slope = 0.355361;//2x2 5cm cube 4 sum
+				//double offset = 1.04211;//2x2 5cm cube 4 sum
+
+				//double slope = 0.887822;//2x2 1.5cm white Tile 4 sum
+				//double offset = -3.79;//2x2 1.5cm white Tile  4 sum
+
+				//double slope = 0.4186; // keV/NumPhoton, based on 1 cm cube 1 sipm
+				//double offset = 0.465; // keV/NumPhoton, based on 1 cm cube 1 sipm
 
 				int fThreshold = 1;
 
@@ -1628,6 +2120,14 @@ class DetectorDaemon : public TObject {
 				double  fCFDTimeFrontMid2;
 				double  fCFDTimeFrontBottom1;
 				double  fCFDTimeFrontBottom2;
+
+				double fBarsPulseTop;
+				double fBarsPulseBottom;
+				double fBarsPulseFrontMid;
+				double fBarsPulseFrontTop;
+				double fBarsPulseFrontBottom;
+				double fBarsPulse1;
+				double fBarsPulse2;
 
 				int fSystemId;
 
@@ -1670,6 +2170,9 @@ class DetectorDaemon : public TObject {
 				std::vector<double> YPos;
 				std::vector<double> frontPMT;
 				std::vector<double> midPMT;
+				std::vector<double>* fOpTime;
+				std::vector<double>* fOpEnergy;
+				std::vector<double>* fVectorTimeTop1;
 
 
 				//REVIST
@@ -1682,78 +2185,78 @@ class DetectorDaemon : public TObject {
 
 
 				// BARS ////////////////////////////////////////////
-		/*		double MaxDeltaTMid[18] = {
-					0.*2.,
-					0.859164*2., 
-					1.038666*2., 
-					1.160220*2., 
-					1.241251*2., 
-					0.*2., 
-					0.*2., 
-					0.*2., 
-					0.*2., 
-					1.242036*2.,
-					1.159888*2.,
-					1.038523*2.,
-					0.857048*2.,
-					0.*2.,
-					0.*2.,
-					0.*2.,
-					0.*2.,
-					0.*2.
-				};
+				/*		double MaxDeltaTMid[18] = {
+						0.*2.,
+						0.859164*2., 
+						1.038666*2., 
+						1.160220*2., 
+						1.241251*2., 
+						0.*2., 
+						0.*2., 
+						0.*2., 
+						0.*2., 
+						1.242036*2.,
+						1.159888*2.,
+						1.038523*2.,
+						0.857048*2.,
+						0.*2.,
+						0.*2.,
+						0.*2.,
+						0.*2.,
+						0.*2.
+						};
 
-				double MaxDeltaTTop[18] = {
-					0.725331*2.,
-					0.753469*2.,
-					0.906666*2.,
-					1.024646*2.,
-					1.106288*2.,
-					0.776535*2.,
-					0.806076*2.,
-					0.806619*2.,
-					0.777500*2.,
-					1.107092*2.,
-					1.023034*2.,
-					0.906251*2.,
-					0.751052*2.,
-					0.725358*2.,
-					0.832477*2.,
-					0.861897*2.,
-					0.857937*2.,
-					0.830120*2.
-				};
+						double MaxDeltaTTop[18] = {
+						0.725331*2.,
+						0.753469*2.,
+						0.906666*2.,
+						1.024646*2.,
+						1.106288*2.,
+						0.776535*2.,
+						0.806076*2.,
+						0.806619*2.,
+						0.777500*2.,
+						1.107092*2.,
+						1.023034*2.,
+						0.906251*2.,
+						0.751052*2.,
+						0.725358*2.,
+						0.832477*2.,
+						0.861897*2.,
+						0.857937*2.,
+						0.830120*2.
+						};
 
-				double MaxDeltaTBot[18] = {
-					0.725331*2.,
-					0.753469*2.,
-					0.906666*2.,
-					1.024646*2.,
-					1.106288*2.,
-					0.832242*2.,
-					0.860514*2.,
-					0.862236*2.,
-					0.834923*2.,
-					1.107092*2.,
-					1.023034*2.,
-					0.906251*2.,
-					0.751052*2.,
-					0.725358*2.,
-					0.776137*2.,
-					0.805877*2.,
-					0.806533*2.,
-					0.776236*2.
-				};
+						double MaxDeltaTBot[18] = {
+						0.725331*2.,
+						0.753469*2.,
+						0.906666*2.,
+						1.024646*2.,
+						1.106288*2.,
+						0.832242*2.,
+						0.860514*2.,
+						0.862236*2.,
+						0.834923*2.,
+						1.107092*2.,
+						1.023034*2.,
+						0.906251*2.,
+						0.751052*2.,
+						0.725358*2.,
+						0.776137*2.,
+						0.805877*2.,
+						0.806533*2.,
+						0.776236*2.
+						};
 
-				double XPos[18] = {
-					37.142857,               
-					31.428571,               
-					25.714286,               
-					20.000000,               
-					14.285714,               
-					8.571429,               
-					2.857143,                
-					-2.857143,               
+						double XPos[18] = {
+						37.142857,               
+						31.428571,               
+						25.714286,               
+						20.000000,               
+						14.285714,               
+						8.571429,               
+						2.857143,                
+				-2.857143,               
 					-8.571429,               
 					-14.285714,              
 					-20.000000,              
@@ -1928,30 +2431,30 @@ class DetectorDaemon : public TObject {
 					22.576181,
 					21.913834
 				};
-*/
-				//double MaxDeltaT[18];
-				
-				
-				//////////////////////////////////////////////
-				// Tiles ////////////////////////////////////////////
-				// Unsegmented ////////////////////////////////////////////
-				double bluePosition[15][4] = { //x, y, z, R, based off mean scattering positions
-					{-25.306397,			10.705084	,		40.897697,			49.271028},
-					{-17.839331,			20.753911	,		40.963672,			49.264480},
-					{-28.609760,			20.832270	,		34.275037,			49.267433},
-					{2.313331,			27.336322	,		40.926051,			49.270353},
-					{14.272579,			23.356495	,		40.966427,			49.269468},
-					{10.949800,			33.647801	,		34.305185,			49.284058},
-					{26.679173,			6.344734	,		40.933577,			49.270596},
-					{26.650509,			-6.384069	,		40.949472,			49.273372},
-					{35.347654,			0.076764	,		34.332092,			49.276314},
-					{14.400733,			-23.266632	,		40.984961,			49.279654},
-					{2.230552,			-27.262221	,		40.971890,			49.263575},
-					{10.889463,			-33.588454	,		34.367255,			49.273450},
-					{-17.887167,			-20.853218	,		40.927930,			49.294045},
-					{-25.332621,			-10.518153	,		40.936247,			49.276257},
-					{-28.718175,			-20.754158	,		34.238207,			49.271934}
-				};
+				*/
+					//double MaxDeltaT[18];
+
+
+					//////////////////////////////////////////////
+					// Tiles ////////////////////////////////////////////
+					// Unsegmented ////////////////////////////////////////////
+					double bluePosition[15][4] = { //x, y, z, R, based off mean scattering positions
+						{-25.306397,			10.705084	,		40.897697,			49.271028},
+						{-17.839331,			20.753911	,		40.963672,			49.264480},
+						{-28.609760,			20.832270	,		34.275037,			49.267433},
+						{2.313331,			27.336322	,		40.926051,			49.270353},
+						{14.272579,			23.356495	,		40.966427,			49.269468},
+						{10.949800,			33.647801	,		34.305185,			49.284058},
+						{26.679173,			6.344734	,		40.933577,			49.270596},
+						{26.650509,			-6.384069	,		40.949472,			49.273372},
+						{35.347654,			0.076764	,		34.332092,			49.276314},
+						{14.400733,			-23.266632	,		40.984961,			49.279654},
+						{2.230552,			-27.262221	,		40.971890,			49.263575},
+						{10.889463,			-33.588454	,		34.367255,			49.273450},
+						{-17.887167,			-20.853218	,		40.927930,			49.294045},
+						{-25.332621,			-10.518153	,		40.936247,			49.276257},
+						{-28.718175,			-20.754158	,		34.238207,			49.271934}
+					};
 
 				double whitePosition[20][4] = { //x, y, z, R, based off mean scattering positions
 					{-9.999466	,		0.011696	,		48.240748,			49.266208},
@@ -2018,6 +2521,29 @@ class DetectorDaemon : public TObject {
 					{-4.014799	,		-42.286798	,		24.974515	,		49.274925},
 					{-36.776004	,		-19.669148	,		26.258896	,		49.283664},
 					{-41.525387	,		-9.383524	,		24.784104	,		49.261142}
+				};
+				//////////////////////////////////////////////
+				// Input 50 cm
+				/*	double whitePositionAux[8][4] = { //x, y, z, R, based off mean scattering positions
+					{42.350738	,		17.546363	,		32.054948,			55.937282},
+					{-17.518964	,		42.291723	,		32.144423,			55.935390},
+					{-42.347388	,		-17.484753	,		32.105032,			55.944177},
+					{17.611228	,		-42.275995	,		32.128317,			55.943221},
+					{42.045986     ,		17.522510	,		-32.476234,			55.942909},
+					{-17.436590     ,		42.045279	,		-32.522596,			55.942465},
+					{-42.064559     ,		-17.400847	,		-32.509332,			55.938120},
+					{17.383487	,		-42.092310	,		-32.498238,			55.947150}
+					};
+					*/	// Input 25 cm
+				double whitePositionAux[8][4] = { //x, y, z, R, based off mean scattering positions
+					{	23.424571,		9.7249354,		17.688916,	30.922203},
+					{	-9.6934683,		23.411777,		17.709909,	 30.914649},
+					{	-23.414840,		-9.7520449,		17.696494,	30.927706},
+					{	9.7372667,		-23.485536,		17.560964,	30.899388},
+					{	23.189367,		9.5702563,		-17.954048,	30.849382},
+					{	-9.6271424,		23.141716,		-17.980016,	30.846424},
+					{	 -23.139725,		 -9.5442720,		 -18.039695,	 30.854020},
+					{	 9.5006867,		-23.155831,		-18.066689,	30.868443}
 				};
 				//////////////////////////////////////////////
 				// Segmented ////////////////////////////////////////////
@@ -2741,27 +3267,27 @@ class DetectorDaemon : public TObject {
 
 				ClassDef(DetectorDaemon,1);
 
-			};
+				};
 
 
 
 
 
 
-			//class GriffinDetector : public Detector {
-			//public:
-			//  using Detector::Detector;
-			//
-			//private:
-			//  ClassDef(GriffinDetector,1);
-			//};
-			//
-			//class GriffinBgo : public Detector {
-			//public:
-			//  using Detector::Detector;
-			//
-			//private:
-			//  ClassDef(GriffinBgo,1);
-			//};
+				//class GriffinDetector : public Detector {
+				//public:
+				//  using Detector::Detector;
+				//
+				//private:
+				//  ClassDef(GriffinDetector,1);
+				//};
+				//
+				//class GriffinBgo : public Detector {
+				//public:
+				//  using Detector::Detector;
+				//
+				//private:
+				//  ClassDef(GriffinBgo,1);
+				//};
 
 #endif

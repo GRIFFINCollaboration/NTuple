@@ -69,14 +69,31 @@ class Converter {
 		// CFD algorithm for daemon
 		double CalculateCFD(TH1F * TimeHist);
 		double GetTime(std::vector<double>*  fTime);
+		bool GetLeadingEdge(std::vector<double>*  fTime);
 
 
 		TH1F* Get1DHistogram(std::string, std::string);
 		TH2F* Get2DHistogram(std::string, std::string);
 		//TH3I* Get3DHistogram(std::string, std::string);
+		TH3F* Get3DHistogram(std::string, std::string);
 		THnSparseF* GetNDHistogram(std::string, std::string);
 
+		void FillHistDetector1DCFDTime(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector1DCFDMonitor(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector1DPulseHeightBar1(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector1DPulseHeightBar2(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector1DPulseHeightBarCal1(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector1DPulseHeightBarCal2(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
 		void FillHistDetector1DPulseHeight(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector1DPulseHeightSum1(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector1DPulseHeightSum2(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector1DPulseHeightSum3(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector1DPulseHeightSum4(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector1DPulseHeightCalibrated(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector1DPulseHeightCalSum1(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector1DPulseHeightCalSum2(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector1DPulseHeightCalSum3(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector1DPulseHeightCalSum4(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
 		void FillHistDetector1DProcess(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
 		void FillHistDetector1DPMT(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
 		void FillHistDetector1DParticle(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
@@ -89,8 +106,10 @@ class Converter {
 		void FillHistDetector2DParDeltaT(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
 		void FillHistDetector2DPulseTOF(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::vector<Detector>* detectorZDS, std::string hist_name, std::string hist_dir);
 		void FillHistDetector1DEvent(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector2DEnergyTOF(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
 		void FillHistDetector1DEnergyTOFZDS(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::vector<Detector>* detectorZDS, std::string hist_name, std::string hist_dir);
 		void FillHistDetector1DEnergyTOF(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector1DEnergy(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
 		void FillHistDetector1DDeltaY(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
 		void FillHistDetector2DPmtDeltaY(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
 		void FillHistDetector2DDetDeltaY(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
@@ -102,13 +121,27 @@ class Converter {
 		void FillHistDetector1DArc(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
 		void FillHistDetector2DGammaTOF(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::vector<Detector>* detectorGriffin, std::vector<Detector>* detectorZDS, std::string hist_name, std::string hist_dir);
 		void FillHistDetector2DGammaEnergy(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::vector<Detector>* detectorGriffin, std::vector<Detector>* detectorZDS, std::string hist_name, std::string hist_dir);
+		void FillHistDetector3DGammaETOF(TH3F* hist3D, std::vector<DetectorDaemon>* detector, std::vector<Detector>* detectorGriffin, std::vector<Detector>* detectorZDS, std::string hist_name, std::string hist_dir);
+
 		void FillHistDetector1DTOFDescantZDS(TH1F* hist1D, std::vector<Detector>* detector, std::vector<Detector>* detectorZDS, std::string hist_name, std::string hist_dir);
 		void FillHistDetector2DGammaDescantTOF(TH2F* hist2D, std::vector<Detector>* detector, std::vector<Detector>* detectorGriffin, std::vector<Detector>* detectorZDS, std::string hist_name, std::string hist_dir);
 		void FillHistDetector1DEnergyTOFDescantZDS(TH1F* hist1D, std::vector<Detector>* detector, std::vector<Detector>* detectorZDS, std::string hist_name, std::string hist_dir);
 		void FillHistDetector1DEnergyRand1(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
 		void FillHistDetector1DEnergyRand2(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
 		void FillHistDetector1DCoinTOFZDS(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::vector<Detector>* detectorZDS, std::string hist_name, std::string hist_dir);
-
+		void FillHistDetector1DOpTime(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector1DOpEnergy(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector1DOpTotal(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector1DPulseHeightRatio(TH1F* hist1D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector2DPulseHeightRatioEDep(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector2DPulseHeightRatioEDepBars(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector2DPulseHeightRatioScaledEDepN(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector2DPulseHeightRatioScaledEDepG(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector2DPulseHeightEDep(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector2DDepEDeltaT(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector2DPulseHeightDeltaT(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		void FillHistDetector2DTvTREcon(TH2F* hist2D, std::vector<DetectorDaemon>* detector, std::string hist_name, std::string hist_dir);
+		
 		void FillHistDetector1DGamma(TH1F* hist1D, std::vector<Detector>* detector, std::string hist_name, std::string hist_dir);
 		void FillHistDetector2DGammaGamma(TH2F* hist2D, std::vector<Detector>* detector, std::string hist_name, std::string hist_dir);
 
@@ -164,6 +197,7 @@ class Converter {
 		Int_t fCryNumber;
 		Int_t fDetNumber;
 
+		Double_t fNumScintPhotons;
 		Double_t fCollectedTop1;
 		Double_t fCollectedTop2;
 		Double_t fCollectedTop3;
@@ -193,6 +227,8 @@ class Converter {
 		std::vector<double>*  fTimeFrontBottom1 = NULL;
 		std::vector<double>*  fTimeFrontBottom2 = NULL;
 		std::vector<double>*  fTimeFrontBottomTotal = NULL;
+		std::vector<double>*  fOpTime = NULL;
+		std::vector<double>*  fOpEnergy = NULL;
 		Double_t fDepEnergy;
 		Double_t fPosx;
 		Double_t fPosy;

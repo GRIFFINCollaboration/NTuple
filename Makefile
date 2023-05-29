@@ -33,6 +33,7 @@ LDLIBS 		= -L$(LIB_DIR) -Wl,-rpath,/opt/gcc/lib64 $(ROOTLIBS) $(addprefix -l,$(L
 LOADLIBES = \
 	Converter.o \
 	Griffin.o \
+	Daemon.o \
 	Settings.o \
 	$(NAME)Dictionary.o
 
@@ -61,6 +62,7 @@ all:  $(NAME)
 
 DEPENDENCIES = \
 	Griffin.hh \
+	Daemon.hh \
 	RootLinkDef.h
 
 $(NAME)Dictionary.o: $(NAME)Dictionary.cc

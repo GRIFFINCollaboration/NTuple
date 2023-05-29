@@ -9,7 +9,8 @@ Settings::Settings(std::string fileName, int verbosityLevel)
     env.ReadFile(fileName.c_str(),kEnvLocal);
 
     //  env.PrintEnv();
-
+	fDaemonThreshold = env.GetValue("DaemonThreshold", 19);
+	fDaemonWidth = env.GetValue("DaemonWidth", 16);
     //fNtupleName = env.GetValue("NtupleName","/ntuple/ntuple");
     fNtupleName = env.GetValue("NtupleName","/ntuple");
 
@@ -495,17 +496,17 @@ Settings::Settings(std::string fileName, int verbosityLevel)
     fRangeLow["Daemon1Dns"] = env.GetValue("Histogram.1D.Daemon.RangeLow.ns", -10);
     fRangeHigh["Daemon1Dns"] = env.GetValue("Histogram.1D.Daemon.RangeHigh.ns", 500);
     
-    fNofBins["Daemon1DEnergy"] = env.GetValue("Histogram.1D.DaemonEnergy.NofBins",10000);
+    fNofBins["Daemon1DEnergy"] = env.GetValue("Histogram.1D.DaemonEnergy.NofBins",12000);
     fRangeLow["Daemon1DEnergy"] = env.GetValue("Histogram.1D.DaemonEnergy.RangeLow.keV",0);
-    fRangeHigh["Daemon1DEnergy"] = env.GetValue("Histogram.1D.DaemonEnergy.RangeHigh.keV", 10000);
+    fRangeHigh["Daemon1DEnergy"] = env.GetValue("Histogram.1D.DaemonEnergy.RangeHigh.keV", 12000);
     
     fNofBins["Daemon1DRand"] = env.GetValue("Histogram.1D.DaemonRand.NofBins",10000);
     fRangeLow["Daemon1DRand"] = env.GetValue("Histogram.1D.DaemonRand.RangeLow.ns", -5);
     fRangeHigh["Daemon1DRand"] = env.GetValue("Histogram.1D.DaemonRand.RangeHigh.ns", 5);
     
-    fNofBins["Daemon1DDelta"] = env.GetValue("Histogram.1D.DaemonDelta.NofBins",1000);
+    fNofBins["Daemon1DDelta"] = env.GetValue("Histogram.1D.DaemonDelta.NofBins",12050);
     fRangeLow["Daemon1DDelta"] = env.GetValue("Histogram.1D.DaemonDelta.RangeLow.ns", -50);
-    fRangeHigh["Daemon1DDelta"] = env.GetValue("Histogram.1D.DaemonDelta.RangeHigh.ns", 50);
+    fRangeHigh["Daemon1DDelta"] = env.GetValue("Histogram.1D.DaemonDelta.RangeHigh.ns", 12000);
     
     fNofBins["Daemon1DCoin"] = env.GetValue("Histogram.1D.DaemonDelta.NofBins",10000);
     fRangeLow["Daemon1DCoin"] = env.GetValue("Histogram.1D.DaemonDelta.RangeLow.ns", -5);
@@ -517,9 +518,13 @@ Settings::Settings(std::string fileName, int verbosityLevel)
     
     fNofBins["Daemon2D"] = env.GetValue("Histogram.2D.Daemon.NofBins",5000);
     fRangeLow["Daemon2D"] = env.GetValue("Histogram.2D.Daemon.RangeLow.keV",0);
-    fRangeHigh["Daemon2D"] = env.GetValue("Histogram.2D.Daemon.RangeHigh.keV",1000);
+    fRangeHigh["Daemon2D"] = env.GetValue("Histogram.2D.Daemon.RangeHigh.keV",5000);
     
-    fNofBins["Daemon1DExtra"] = env.GetValue("Histogram.1D.DaemonExtra.NofBins",30);
+    fNofBins["DaemonRef2D"] = env.GetValue("Histogram.2D.DaemonRef.NofBins",5000);
+    fRangeLow["DaemonRef2D"] = env.GetValue("Histogram.2D.DaemonRef.RangeLow.keV",-250);
+    fRangeHigh["DaemonRef2D"] = env.GetValue("Histogram.2D.DaemonRef.RangeHigh.keV",250);
+    
+    fNofBins["Daemon1DExtra"] = env.GetValue("Histogram.1D.DaemonExtra.NofBins",3000);
     fRangeLow["Daemon1DExtra"] = env.GetValue("Histogram.1D.DaemonExtra.RangeLow.ns",0);
     fRangeHigh["Daemon1DExtra"] = env.GetValue("Histogram.1D.DaemonExtra.RangeHigh.ns", 30);
     
@@ -539,9 +544,9 @@ Settings::Settings(std::string fileName, int verbosityLevel)
     fRangeLow["0RES_Griffin2D"] = env.GetValue("Histogram.2D.Griffin.RangeLow.keV",0.5);
     fRangeHigh["0RES_Griffin2D"] = env.GetValue("Histogram.2D.Griffin.RangeHigh.keV",4096.5);
 
-    //fNofBins["Griffin3D"] = env.GetValue("Histogram.3D.Griffin.NofBins",500);
-    //fRangeLow["Griffin3D"] = env.GetValue("Histogram.3D.Griffin.RangeLow.keV",0.5);
-   // fRangeHigh["Griffin3D"] = env.GetValue("Histogram.3D.Griffin.RangeHigh.keV",500.5);
+   fNofBins["Griffin3D"] = env.GetValue("Histogram.3D.Griffin.NofBins",1500);
+   fRangeLow["Griffin3D"] = env.GetValue("Histogram.3D.Griffin.RangeLow.keV",0.5);
+   fRangeHigh["Griffin3D"] = env.GetValue("Histogram.3D.Griffin.RangeHigh.keV",1500.5);
         
     fNofBins["GriffinND"] = env.GetValue("Histogram.ND.Griffin.NofBins",500);
     fRangeLow["GriffinND"] = env.GetValue("Histogram.ND.Griffin.RangeLow.keV",0.5);
